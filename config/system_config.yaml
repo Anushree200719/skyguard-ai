@@ -1,0 +1,16 @@
+﻿system:
+  name: "Skyguard AI Airspace Defense"
+  version: "1.0.0"
+  environment: "development"
+
+radar:
+  sweep_rate_hz: 0.5
+  max_range_km: 15.0
+  azimuth_resolution_deg: 0.5
+  elevation_max_deg: 60.0
+
+ai:
+  model_name: "YOLOv8x-DroneGuard"
+  confidence_threshold: 0.75
+  iou_threshold: 0.45
+  device: "cuda:0"

@@ -1,0 +1,161 @@
+import React, { useState, useEffect } from 'react';
+import { StatCard } from '../components/StatCard';
+import { IndiaStationMap } from '../components/IndiaStationMap';
+import { fetchStations, fetchAnalytics, fetchAlerts, fetchAnomalies } from '../services/api';
+import { socket } from '../services/socket';
+import { RadioTower, CheckCircle2, AlertTriangle, CloudLightning, ShieldCheck, Activity } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+export const Dashboard: React.FC = () => {
+  const [stations, setStations] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [anomalies, setAnomalies] = useState<any[]>([]);
+  const [latestObsMap, setLatestObsMap] = useState<Record<string, any>>({});
+
+  const loadData = async () => {
+    try {
+      const [sts, stats, alts, anoms] = await Promise.all([
+        fetchStations(),
+        fetchAnalytics(),
+        fetchAlerts(),
+        fetchAnomalies({ limit: 10 })
+      ]);
+      setStations(sts);
+      setAnalytics(stats.summary);
+      setAlerts(alts);
+      setAnomalies(anoms);
+    } catch (err) {
+      console.warn('Dashboard fetch note:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+
+    const onWeatherUpdate = (data: any) => {
+      if (data.observations) {
+        const newMap: Record<string, any> = {};
+        data.observations.forEach((obs: any) => {
+          newMap[obs.stationId] = obs;
+        });
+        setLatestObsMap(prev => ({ ...prev, ...newMap }));
+      }
+      loadData();
+    };
+
+    socket.on('weather_update', onWeatherUpdate);
+    socket.on('anomaly_detected', loadData);
+    socket.on('alert_created', loadData);
+
+    return () => {
+      socket.off('weather_update', onWeatherUpdate);
+      socket.off('anomaly_detected', loadData);
+      socket.off('alert_created', loadData);
+    };
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      {/* Top Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total AWS Stations"
+          value={analytics?.totalStations || stations.length || 10}
+          subtitle={`${analytics?.onlineStations || stations.length} Online & Monitoring`}
+          icon={RadioTower}
+          color="sky"
+        />
+        <StatCard
+          title="Data Quality Index"
+          value={`${analytics?.overallQualityScore || 96}%`}
+          subtitle="Real-time Trust Rating"
+          icon={ShieldCheck}
+          color="emerald"
+        />
+        <StatCard
+          title="Active Sensor Faults"
+          value={analytics?.sensorFaults || 0}
+          subtitle={`${analytics?.criticalStations || 0} Critical Sensors`}
+          icon={AlertTriangle}
+          color="rose"
+        />
+        <StatCard
+          title="Genuine Weather Events"
+          value={analytics?.genuineWeatherEvents || 0}
+          subtitle="Spatial Consensus Verified"
+          icon={CloudLightning}
+          color="indigo"
+        />
+      </div>
+
+      {/* Main Center Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: India Station Map */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="glass-card p-4 rounded-xl border border-sky-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-orbitron font-bold text-sm text-slate-100 flex items-center gap-2">
+                <RadioTower className="w-4 h-4 text-sky-400" />
+                AUTOMATIC WEATHER STATIONS — INDIA NETWORK MAP
+              </h2>
+              <div className="flex gap-2 text-[10px] font-mono">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● GREEN = Normal</span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">● YELLOW = Warning</span>
+                <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">● RED = Critical Fault</span>
+                <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">● BLUE = Genuine Event</span>
+              </div>
+            </div>
+            <IndiaStationMap stations={stations} latestObsMap={latestObsMap} />
+          </div>
+        </div>
+
+        {/* Right Col: Live Activity Stream & Recent Alerts */}
+        <div className="space-y-4">
+          <div className="glass-card p-4 rounded-xl border border-sky-500/20 flex flex-col h-[470px]">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+              <h2 className="font-orbitron font-bold text-sm text-slate-100 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-sky-400" />
+                LIVE ANOMALY FEED
+              </h2>
+              <Link to="/anomalies" className="text-xs text-sky-400 hover:underline">View All &rarr;</Link>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              {anomalies.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-xs font-mono">
+                  No anomalies detected. All stations operating nominally.
+                </div>
+              ) : (
+                anomalies.map((anom) => (
+                  <div
+                    key={anom._id}
+                    className={`p-3 rounded-lg border text-xs transition-all ${
+                      anom.anomalyType === 'GENUINE_WEATHER_EVENT'
+                        ? 'bg-sky-500/10 border-sky-500/40 text-sky-200'
+                        : (anom.severity === 'CRITICAL'
+                        ? 'bg-rose-500/10 border-rose-500/40 text-rose-200'
+                        : 'bg-amber-500/10 border-amber-500/40 text-amber-200')
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-orbitron font-bold mb-1">
+                      <span>{anom.stationId}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/60 uppercase">
+                        {anom.anomalyType.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-300">{anom.probableCause}</p>
+                    <div className="mt-2 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+                      <span>Score: {anom.anomalyScore}</span>
+                      <span>{new Date(anom.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

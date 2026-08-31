@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYGUARD AI â€” Tactical Airspace Defense Command</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="tactical-header">
+            <div class="brand">
+                <div class="shield-logo">ðŸ›¡ï¸</div>
+                <div>
+                    <h1>SKYGUARD <span class="highlight">AI</span></h1>
+                    <p class="subtitle">AIRSPACE SECURITY & AUTONOMOUS DRONE COUNTERMEASURES</p>
+                </div>
+            </div>
+            <div class="system-status">
+                <div class="status-badge online">
+                    <span class="pulse-dot"></span> RADAR ACTIVE
+                </div>
+                <div class="status-badge threat-red">
+                    DEFCON 3: ELEVATED ALERT
+                </div>
+                <div class="clock" id="utc-clock">00:00:00 UTC</div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="main-grid">
+            <!-- Left Panel: Telemetry & Targets -->
+            <section class="panel glass-panel">
+                <div class="panel-header">
+                    <h2><span class="icon">ðŸ“¡</span> TARGET TRACKING</h2>
+                    <span class="badge" id="target-count">2 ACTIVE</span>
+                </div>
+                <div class="track-list" id="track-list">
+                    <!-- Dynamic Target Items -->
+                </div>
+            </section>
+
+            <!-- Center Panel: Radar Canvas -->
+            <section class="panel glass-panel radar-panel">
+                <div class="radar-container">
+                    <canvas id="radarCanvas" width="540" height="540"></canvas>
+                    <div class="radar-overlay">
+                        <div class="compass n">N</div>
+                        <div class="compass e">E</div>
+                        <div class="compass s">S</div>
+                        <div class="compass w">W</div>
+                    </div>
+                </div>
+                <div class="radar-controls">
+                    <button class="btn btn-primary" id="btn-sweep-toggle">PAUSE SWEEP</button>
+                    <button class="btn btn-danger" id="btn-scram">EMERGENCY LOCKDOWN</button>
+                    <div class="range-selector">
+                        <label>RANGE:</label>
+                        <select id="range-select">
+                            <option value="5">5 KM</option>
+                            <option value="15" selected>15 KM</option>
+                            <option value="30">30 KM</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: AI Analytics & Feed -->
+            <section class="panel glass-panel">
+                <div class="panel-header">
+                    <h2><span class="icon">ðŸ‘ï¸</span> AI THREAT ANALYTICS</h2>
+                    <span class="badge badge-ai">YOLO-v8 ENGINE</span>
+                </div>
+                
+                <div class="ai-feed">
+                    <div class="feed-header">CAMERA FEED #01 [SECTOR BRAVO]</div>
+                    <div class="viewport-placeholder">
+                        <div class="bbox-overlay" id="simulated-bbox">
+                            <span class="bbox-label">TARGET #TRK-408 (89% RED)</span>
+                        </div>
+                        <div class="crosshair"></div>
+                    </div>
+                </div>
+
+                <div class="threat-metrics">
+                    <div class="metric">
+                        <span class="label">INTERCEPT VECTOR</span>
+                        <span class="value text-warning">210Â° SW</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">EST. TIME TO BOUNDARY</span>
+                        <span class="value text-danger">42 SEC</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">RECOMMENDED ACTION</span>
+                        <span class="value text-highlight">RF JAMMING INTENSE</span>
+                    </div>
+                </div>
+
+                <div class="action-logs" id="action-logs">
+                    <div class="log-entry"><code>14:32:01</code> Radar sweep initiated. Sector Alpha clear.</div>
+                    <div class="log-entry warning"><code>14:34:10</code> Target TRK-901 identified as quadcopter.</div>
+                    <div class="log-entry danger"><code>14:36:45</code> ALERT: Target TRK-408 entered restricted zone!</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/radar.js"></script>
+    <script src="js/telemetry.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

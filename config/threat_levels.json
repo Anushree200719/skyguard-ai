@@ -1,0 +1,8 @@
+﻿{
+  "THREAT_LEVELS": {
+    "GREEN": { "code": 0, "label": "Clear", "color": "#10B981", "description": "No unidentified aerial targets detected" },
+    "YELLOW": { "code": 1, "label": "Advisory", "color": "#F59E0B", "description": "Civilian UAV / Authorized craft in buffer zone" },
+    "ORANGE": { "code": 2, "label": "Elevated Alert", "color": "#F97316", "description": "Unidentified craft entering perimeter" },
+    "RED": { "code": 3, "label": "CRITICAL THREAT", "color": "#EF4444", "description": "Hostile/Unauthorized drone on intercept vector" }
+  }
+}
