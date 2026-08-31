@@ -2,29 +2,29 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  RadioTower, 
-  AlertTriangle, 
-  BellRing, 
+  CloudSun, 
+  LineChart, 
+  Search, 
+  Bell, 
   Wrench, 
-  BarChart3, 
-  SlidersHorizontal 
+  BrainCircuit 
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const links = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/stations', label: 'AWS Stations', icon: RadioTower },
-    { to: '/anomalies', label: 'Anomaly Explorer', icon: AlertTriangle },
-    { to: '/alerts', label: 'Live Alerts', icon: BellRing },
+    { to: '/stations', label: 'AWS Stations', icon: CloudSun },
+    { to: '/monitoring', label: 'Live Monitoring', icon: LineChart },
+    { to: '/anomalies', label: 'Anomaly Explorer', icon: Search },
+    { to: '/alerts', label: 'Live Alerts', icon: Bell },
     { to: '/maintenance', label: 'Maintenance Queue', icon: Wrench },
-    { to: '/analytics', label: 'Analytics & Quality', icon: BarChart3 },
-    { to: '/simulator', label: 'Live Simulator', icon: SlidersHorizontal }
+    { to: '/analytics', label: 'Analytics & Insights', icon: BrainCircuit }
   ];
 
   return (
     <aside className="w-64 glass-card border-r border-sky-500/20 p-4 flex flex-col gap-2 min-h-[calc(100vh-4rem)]">
       <div className="text-[10px] font-orbitron text-sky-400 font-bold px-3 py-1 tracking-widest text-slate-400 uppercase">
-        NAVIGATION MENU
+        COMMAND CENTER NAVIGATION
       </div>
       <nav className="flex flex-col gap-1 mt-1">
         {links.map((link) => {
@@ -48,14 +48,18 @@ export const Sidebar: React.FC = () => {
         })}
       </nav>
 
-      <div className="mt-auto p-3.5 bg-slate-900/60 border border-slate-800 rounded-lg">
-        <div className="flex items-center justify-between text-xs text-slate-400">
-          <span>ML Engine:</span>
-          <span className="text-emerald-400 font-semibold font-mono">HYBRID AI</span>
+      <div className="mt-auto p-3.5 bg-slate-900/80 border border-slate-800 rounded-lg space-y-1 text-xs">
+        <div className="flex items-center justify-between text-slate-400">
+          <span>AI Engine:</span>
+          <span className="text-emerald-400 font-semibold font-mono">HYBRID ML</span>
         </div>
-        <div className="flex items-center justify-between text-xs text-slate-400 mt-1">
+        <div className="flex items-center justify-between text-slate-400">
           <span>Spatial Consensus:</span>
           <span className="text-sky-400 font-semibold font-mono font-bold">ONLINE</span>
+        </div>
+        <div className="flex items-center justify-between text-slate-400">
+          <span>Sensors Tracked:</span>
+          <span className="text-indigo-400 font-semibold font-mono font-bold">6 PARAMS</span>
         </div>
       </div>
     </aside>

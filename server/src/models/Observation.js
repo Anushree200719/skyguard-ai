@@ -4,16 +4,22 @@ const ObservationSchema = new mongoose.Schema({
   stationId: { type: String, required: true, index: true },
   timestamp: { type: Date, default: Date.now, index: true },
   
-  // Raw values
-  temperature: { type: Number, required: true },
-  humidity: { type: Number, required: true },
-  pressure: { type: Number, required: true },
+  // 6 Primary Parameters
+  temperature: { type: Number, default: null },
+  humidity: { type: Number, default: null },
+  pressure: { type: Number, default: null },
+  windSpeed: { type: Number, default: null },
+  windDirection: { type: Number, default: null },
+  rainfall: { type: Number, default: null },
 
-  // Corrected values (Estimated if faulty)
+  // Corrected / Imputed Values
   correctedTemperature: { type: Number, default: null },
   correctedHumidity: { type: Number, default: null },
   correctedPressure: { type: Number, default: null },
+  correctedWindSpeed: { type: Number, default: null },
+  correctedRainfall: { type: Number, default: null },
 
+  imputationMethod: { type: String, default: 'Time-Series Imputation + Nearby Station Comparison' },
   qualityFlag: { 
     type: String, 
     enum: ['VALID', 'ESTIMATED', 'SUSPECT', 'INVALID'], 

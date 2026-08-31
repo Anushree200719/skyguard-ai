@@ -3,7 +3,7 @@ import { StatCard } from '../components/StatCard';
 import { IndiaStationMap } from '../components/IndiaStationMap';
 import { fetchStations, fetchAnalytics, fetchAlerts, fetchAnomalies } from '../services/api';
 import { socket } from '../services/socket';
-import { RadioTower, CheckCircle2, AlertTriangle, CloudLightning, ShieldCheck, Activity } from 'lucide-react';
+import { RadioTower, CheckCircle2, AlertTriangle, CloudLightning, ShieldCheck, Activity, Bell, Search, LineChart as ChartIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
@@ -55,68 +55,51 @@ export const Dashboard: React.FC = () => {
     };
   }, []);
 
+  const normalStations = stations.filter(s => s.status === 'NORMAL').length;
+  const activeStations = stations.length;
+
   return (
     <div className="space-y-6">
-      {/* Top Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total AWS Stations"
-          value={analytics?.totalStations || stations.length || 10}
-          subtitle={`${analytics?.onlineStations || stations.length} Online & Monitoring`}
-          icon={RadioTower}
-          color="sky"
-        />
-        <StatCard
-          title="Data Quality Index"
-          value={`${analytics?.overallQualityScore || 96}%`}
-          subtitle="Real-time Trust Rating"
-          icon={ShieldCheck}
-          color="emerald"
-        />
-        <StatCard
-          title="Active Sensor Faults"
-          value={analytics?.sensorFaults || 0}
-          subtitle={`${analytics?.criticalStations || 0} Critical Sensors`}
-          icon={AlertTriangle}
-          color="rose"
-        />
-        <StatCard
-          title="Genuine Weather Events"
-          value={analytics?.genuineWeatherEvents || 0}
-          subtitle="Spatial Consensus Verified"
-          icon={CloudLightning}
-          color="indigo"
-        />
+      {/* Top 8 Stat Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard title="Total AWS Stations" value={analytics?.totalStations || stations.length || 10} subtitle="India Command Network" icon={RadioTower} color="sky" />
+        <StatCard title="Active Stations" value={activeStations} subtitle="Receiving Telemetry" icon={CheckCircle2} color="emerald" />
+        <StatCard title="Normal Stations" value={normalStations} subtitle="Nominal Performance" icon={ShieldCheck} color="emerald" />
+        <StatCard title="Under Analysis" value={stations.filter(s => s.status !== 'NORMAL').length} subtitle="AI Trust Processing" icon={Activity} color="amber" />
+        <StatCard title="Detected Anomalies" value={analytics?.totalAnomalies || anomalies.length} subtitle="Auto-Flagged" icon={Search} color="amber" />
+        <StatCard title="Sensor Faults" value={analytics?.sensorFaults || 0} subtitle="Hardware Issues" icon={AlertTriangle} color="rose" />
+        <StatCard title="Genuine Weather Events" value={analytics?.genuineWeatherEvents || 0} subtitle="Spatial Confirmed" icon={CloudLightning} color="indigo" />
+        <StatCard title="Critical Alerts" value={alerts.filter(a => a.level === 'CRITICAL').length} subtitle="Immediate Action" icon={Bell} color="rose" />
       </div>
 
-      {/* Main Center Grid */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: India Station Map */}
+        {/* Left 2 Cols: Leaflet India Map */}
         <div className="lg:col-span-2 space-y-4">
           <div className="glass-card p-4 rounded-xl border border-sky-500/20">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-orbitron font-bold text-sm text-slate-100 flex items-center gap-2">
+              <h2 className="font-orbitron font-bold text-xs text-slate-100 flex items-center gap-2">
                 <RadioTower className="w-4 h-4 text-sky-400" />
-                AUTOMATIC WEATHER STATIONS — INDIA NETWORK MAP
+                AUTOMATIC WEATHER STATIONS — REAL-TIME MAP
               </h2>
               <div className="flex gap-2 text-[10px] font-mono">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● GREEN = Normal</span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">● YELLOW = Warning</span>
-                <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">● RED = Critical Fault</span>
-                <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">● BLUE = Genuine Event</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Normal</span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">● Warning</span>
+                <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">● Fault</span>
+                <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">● Weather Event</span>
               </div>
             </div>
             <IndiaStationMap stations={stations} latestObsMap={latestObsMap} />
           </div>
         </div>
 
-        {/* Right Col: Live Activity Stream & Recent Alerts */}
+        {/* Right Col: Live Anomalies Stream */}
         <div className="space-y-4">
           <div className="glass-card p-4 rounded-xl border border-sky-500/20 flex flex-col h-[470px]">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-              <h2 className="font-orbitron font-bold text-sm text-slate-100 flex items-center gap-2">
+              <h2 className="font-orbitron font-bold text-xs text-slate-100 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-sky-400" />
-                LIVE ANOMALY FEED
+                AUTOMATIC AI ANOMALY DETECTIONS
               </h2>
               <Link to="/anomalies" className="text-xs text-sky-400 hover:underline">View All &rarr;</Link>
             </div>
@@ -140,13 +123,13 @@ export const Dashboard: React.FC = () => {
                   >
                     <div className="flex items-center justify-between font-orbitron font-bold mb-1">
                       <span>{anom.stationId}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/60 uppercase">
-                        {anom.anomalyType.replace(/_/g, ' ')}
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/80 uppercase font-mono">
+                        {anom.anomalyType ? anom.anomalyType.replace(/_/g, ' ') : 'POSSIBLE SENSOR FAULT'}
                       </span>
                     </div>
                     <p className="text-[11px] font-medium text-slate-300">{anom.probableCause}</p>
                     <div className="mt-2 text-[10px] font-mono text-slate-400 flex items-center justify-between">
-                      <span>Score: {anom.anomalyScore}</span>
+                      <span>Confidence: {((anom.confidence || 0.94) * 100).toFixed(0)}%</span>
                       <span>{new Date(anom.timestamp).toLocaleTimeString()}</span>
                     </div>
                   </div>

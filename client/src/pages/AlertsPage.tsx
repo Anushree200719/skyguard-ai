@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAlerts, acknowledgeAlert } from '../services/api';
 import { Alert } from '../types';
-import { BellRing, CheckCircle2 } from 'lucide-react';
+import { Bell, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export const AlertsPage: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
 
   const loadAlerts = () => {
     fetchAlerts().then(setAlerts).catch(console.warn);
@@ -19,38 +20,66 @@ export const AlertsPage: React.FC = () => {
     loadAlerts();
   };
 
+  const filtered = alerts.filter(a => !categoryFilter || a.category === categoryFilter || a.level === categoryFilter);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
-          <BellRing className="w-5 h-5 text-rose-400" />
-          SYSTEM ALERTS & NOTIFICATIONS ({alerts.length})
-        </h1>
-        <p className="text-xs text-slate-400">Real-time alert notifications dispatched by the trust layer</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-rose-400" />
+            LIVE ALERT COMMAND & NOTIFICATIONS ({filtered.length})
+          </h1>
+          <p className="text-xs text-slate-400">Categorized system alerts dispatched by the AI decision engine</p>
+        </div>
+
+        <div className="flex gap-2">
+          {['', 'CRITICAL', 'HIGH', 'WARNING', 'INFO'].map(cat => (
+            <button
+              key={cat}
+              onClick={() => setCategoryFilter(cat)}
+              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold border transition-all ${
+                categoryFilter === cat
+                  ? 'bg-sky-500 text-slate-900 border-sky-400'
+                  : 'bg-slate-900/80 text-slate-400 border-slate-700 hover:bg-slate-800'
+              }`}
+            >
+              {cat === '' ? 'ALL ALERTS' : (cat === 'CRITICAL' ? '🔴 CRITICAL' : (cat === 'HIGH' ? '🟠 HIGH' : (cat === 'WARNING' ? '🟡 WARNING' : '🟢 INFO')))}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-3">
-        {alerts.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="glass-card p-12 text-center text-slate-400 text-xs font-mono">
-            No active system alerts. All stations operating nominally.
+            No alerts matching selected category. System operating nominally.
           </div>
         ) : (
-          alerts.map((alt) => (
+          filtered.map((alt) => (
             <div
               key={alt._id}
-              className={`glass-card p-4 rounded-xl border flex items-center justify-between transition-all ${
-                alt.level === 'WEATHER_EVENT' ? 'border-sky-500/40 bg-sky-500/10' :
-                (alt.level === 'CRITICAL' ? 'border-rose-500/40 bg-rose-500/10' : 'border-amber-500/40 bg-amber-500/10')
+              className={`glass-card p-4 rounded-xl border flex flex-wrap items-center justify-between gap-4 transition-all ${
+                alt.level === 'CRITICAL' || alt.category === 'CRITICAL' ? 'border-rose-500/40 bg-rose-500/10' :
+                (alt.level === 'HIGH' || alt.category === 'HIGH' ? 'border-amber-500/40 bg-amber-500/10' :
+                (alt.level === 'WEATHER_EVENT' ? 'border-sky-500/40 bg-sky-500/10' : 'border-emerald-500/40 bg-emerald-500/10'))
               }`}
             >
               <div>
                 <div className="flex items-center gap-3">
                   <span className="font-orbitron font-bold text-xs text-slate-100">{alt.title}</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900/60 uppercase text-slate-300">
-                    {alt.level}
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold ${
+                    alt.level === 'CRITICAL' ? 'bg-rose-600 text-white' :
+                    (alt.level === 'HIGH' ? 'bg-amber-600 text-white' :
+                    (alt.level === 'WEATHER_EVENT' ? 'bg-sky-600 text-white' : 'bg-emerald-600 text-white'))
+                  }`}>
+                    {alt.level === 'CRITICAL' ? '🔴 CRITICAL' : (alt.level === 'HIGH' ? '🟠 HIGH' : (alt.level === 'WARNING' ? '🟡 WARNING' : '🟢 INFO'))}
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-1">{alt.message}</p>
+                {alt.aiExplanation && (
+                  <p className="text-[11px] text-sky-300/80 mt-1 font-mono">AI Rationale: {alt.aiExplanation}</p>
+                )}
                 <span className="text-[10px] text-slate-500 font-mono mt-2 block">
                   Station: {alt.stationId} • {new Date(alt.timestamp).toLocaleString()}
                 </span>

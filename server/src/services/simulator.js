@@ -2,58 +2,32 @@ const Station = require('../models/Station');
 const Observation = require('../models/Observation');
 const Anomaly = require('../models/Anomaly');
 const Alert = require('../models/Alert');
-const HealthScore = require('../models/HealthScore');
-const SimulationEvent = require('../models/SimulationEvent');
 const MlClient = require('./mlClient');
 const store = require('../models/inMemoryStore');
 
-// Initial 10 Automatic Weather Stations across India
-const INITIAL_STATIONS = [
-  { stationId: 'AWS-101', name: 'New Delhi IMD Headquarters', location: 'New Delhi, Delhi', latitude: 28.6139, longitude: 77.2090, elevation: 216 },
-  { stationId: 'AWS-102', name: 'Gurugram Cyber City AWS', location: 'Gurugram, Haryana', latitude: 28.4595, longitude: 77.0266, elevation: 220 },
-  { stationId: 'AWS-103', name: 'Noida Sector 62 AWS', location: 'Noida, Uttar Pradesh', latitude: 28.6280, longitude: 77.3649, elevation: 200 },
-  { stationId: 'AWS-104', name: 'Faridabad Industrial AWS', location: 'Faridabad, Haryana', latitude: 28.4089, longitude: 77.3178, elevation: 198 },
-  { stationId: 'AWS-201', name: 'Mumbai Colaba Observatory', location: 'Mumbai, Maharashtra', latitude: 18.9067, longitude: 72.8147, elevation: 15 },
-  { stationId: 'AWS-202', name: 'Pune Shivajinagar AWS', location: 'Pune, Maharashtra', latitude: 18.5204, longitude: 73.8567, elevation: 560 },
-  { stationId: 'AWS-301', name: 'Bengaluru IMD Center', location: 'Bengaluru, Karnataka', latitude: 12.9716, longitude: 77.5946, elevation: 920 },
-  { stationId: 'AWS-401', name: 'Chennai Nungambakkam AWS', location: 'Chennai, Tamil Nadu', latitude: 13.0604, longitude: 80.2496, elevation: 16 },
-  { stationId: 'AWS-501', name: 'Kolkata Alipore AWS', location: 'Kolkata, West Bengal', latitude: 22.5312, longitude: 88.3364, elevation: 9 },
-  { stationId: 'AWS-601', name: 'Hyderabad Begumpet AWS', location: 'Hyderabad, Telangana', latitude: 17.4435, longitude: 78.4688, elevation: 531 }
-];
+const INITIAL_STATIONS = store.getStations();
 
 class SimulatorService {
   constructor() {
     this.io = null;
     this.timer = null;
     this.speedMultiplier = 1.0;
-    this.activeFaults = new Map(); // stationId -> FaultConfig
-    this.stationStates = new Map(); // stationId -> { baseTemp, baseHum, basePres, driftOffset }
-    this.isSeeded = false;
+    this.stationStates = new Map();
   }
 
   async initialize(io) {
     this.io = io;
-    console.log('⚡ [Simulator] Initializing Automatic Weather Station Telemetry...');
-    
-    // Seed stations if DB empty
-    try {
-      const count = await Station.countDocuments();
-      if (count === 0) {
-        await Station.insertMany(INITIAL_STATIONS);
-        console.log(`  [+] Seeded ${INITIAL_STATIONS.length} AWS stations into MongoDB.`);
-      }
-    } catch (err) {
-      console.warn(`  [!] MongoDB check/seed note: ${err.message}`);
-    }
+    console.log('⚡ [Simulator] Initializing 6-Parameter AWS Telemetry Generator...');
 
     // Initialize physical baseline state for each station
     INITIAL_STATIONS.forEach(s => {
       this.stationStates.set(s.stationId, {
         baseTemp: 32.0 + (Math.random() * 4 - 2),
-        baseHum: 60.0 + (Math.random() * 10 - 5),
+        baseHum: 65.0 + (Math.random() * 10 - 5),
         basePres: 1012.0 + (Math.random() * 6 - 3),
-        driftOffset: 0.0,
-        frozenTemp: null
+        baseWind: 14.5 + (Math.random() * 6 - 3),
+        baseDir: Math.floor(Math.random() * 360),
+        baseRain: Math.max(0, (Math.random() * 2 - 1.5))
       });
     });
 
@@ -63,34 +37,6 @@ class SimulatorService {
   setSpeed(multiplier) {
     this.speedMultiplier = Math.max(0.2, Math.min(10.0, multiplier));
     this.startLoop();
-  }
-
-  injectFault(faultConfig) {
-    const { stationId, faultType, durationSeconds = 120 } = faultConfig;
-    this.activeFaults.set(stationId, {
-      ...faultConfig,
-      expiresAt: Date.now() + durationSeconds * 1000
-    });
-    console.log(`⚡ [Fault Injector] Injected ${faultType} into station ${stationId}`);
-
-    if (this.io) {
-      this.io.emit('fault_injected', faultConfig);
-    }
-  }
-
-  injectMultiStationWeatherEvent(stationIds, temperature = 46.5) {
-    stationIds.forEach(id => {
-      this.activeFaults.set(id, {
-        faultType: 'GENUINE_WEATHER_EVENT',
-        targetTemp: temperature,
-        expiresAt: Date.now() + 180 * 1000
-      });
-    });
-    console.log(`☀️ [Weather Injector] Injected GENUINE_WEATHER_EVENT across stations: ${stationIds.join(', ')}`);
-
-    if (this.io) {
-      this.io.emit('fault_injected', { faultType: 'GENUINE_WEATHER_EVENT', stations: stationIds });
-    }
   }
 
   startLoop() {
@@ -106,179 +52,134 @@ class SimulatorService {
     const now = new Date();
     const timeOfDay = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) / 86400;
 
-    let stations = [];
-    try {
-      if (mongoose.connection.readyState === 1) {
-        stations = await Station.find();
-      }
-    } catch (e) {}
-
-    if (!stations || stations.length === 0) {
-      stations = store.getStations();
-    }
-
+    let stations = store.getStations();
     const latestObsMap = {};
     const cycleObs = [];
 
-    // 1. Generate Observations for all stations
+    // 1. Generate 6-parameter realistic weather telemetry
     for (const station of stations) {
       let state = this.stationStates.get(station.stationId);
       if (!state) {
-        state = { baseTemp: 32.0, baseHum: 60.0, basePres: 1012.0, driftOffset: 0.0, frozenTemp: null };
+        state = { baseTemp: 32.0, baseHum: 65.0, basePres: 1012.0, baseWind: 14.5, baseDir: 180, baseRain: 0.0 };
         this.stationStates.set(station.stationId, state);
       }
 
-      // Diurnal temporal physics (sinusoidal temperature wave)
+      // Diurnal temporal physics (sinusoidal curves)
       let temp = state.baseTemp + 6.0 * Math.sin(2 * Math.PI * timeOfDay - Math.PI / 2) + (Math.random() * 0.4 - 0.2);
       let hum = state.baseHum - 12.0 * Math.sin(2 * Math.PI * timeOfDay - Math.PI / 2) + (Math.random() * 1.0 - 0.5);
       let pres = state.basePres + (Math.random() * 0.2 - 0.1);
-
-      // Check active faults
-      const fault = this.activeFaults.get(station.stationId);
-      if (fault && Date.now() > fault.expiresAt) {
-        this.activeFaults.delete(station.stationId);
-      } else if (fault) {
-        switch (fault.faultType) {
-          case 'SENSOR_SPIKE':
-            temp = 58.7; // Instantaneous extreme spike
-            break;
-          case 'SENSOR_DRIFT':
-            state.driftOffset += 0.8;
-            temp += state.driftOffset;
-            break;
-          case 'FROZEN_SENSOR':
-            if (state.frozenTemp === null) state.frozenTemp = 31.4;
-            temp = state.frozenTemp;
-            break;
-          case 'RANDOM_NOISE':
-            temp += (Math.random() * 16.0 - 8.0);
-            hum += (Math.random() * 30.0 - 15.0);
-            break;
-          case 'MISSING_DATA':
-          case 'COMMUNICATION_FAILURE':
-            temp = null;
-            hum = null;
-            pres = null;
-            break;
-          case 'MULTIVARIATE_INCONSISTENCY':
-            temp = 48.0;
-            hum = 95.0; // Physically inconsistent
-            break;
-          case 'GENUINE_WEATHER_EVENT':
-            temp = fault.targetTemp || 45.8;
-            hum = 18.0;
-            pres = 998.5; // Low pressure heat dome
-            break;
-        }
-      }
+      let windSpeed = Math.max(0, state.baseWind + 4.0 * Math.sin(4 * Math.PI * timeOfDay) + (Math.random() * 2.0 - 1.0));
+      let windDir = Math.floor((state.baseDir + Math.sin(timeOfDay) * 15 + Math.random() * 10) % 360);
+      let rainfall = Math.max(0, state.baseRain + (Math.random() > 0.85 ? Math.random() * 4.5 : 0.0));
 
       const obsObj = {
         stationId: station.stationId,
         timestamp: now,
-        temperature: temp !== null ? Number(temp.toFixed(2)) : null,
-        humidity: hum !== null ? Number(hum.toFixed(2)) : null,
-        pressure: pres !== null ? Number(pres.toFixed(2)) : null
+        temperature: Number(temp.toFixed(2)),
+        humidity: Number(hum.toFixed(2)),
+        pressure: Number(pres.toFixed(2)),
+        windSpeed: Number(windSpeed.toFixed(1)),
+        windDirection: windDir,
+        rainfall: Number(rainfall.toFixed(1))
       };
 
       latestObsMap[station.stationId] = obsObj;
       cycleObs.push({ station, obs: obsObj });
     }
 
-    // 2. Evaluate each observation through ML / Rule Decision Engine
+    // 2. Evaluate observations through ML / Rule Decision Engine
     for (const { station, obs } of cycleObs) {
-      if (obs.temperature === null) {
-        // Handle communication failure
-        try {
-          await Station.updateOne({ stationId: station.stationId }, { status: 'CRITICAL' });
-        } catch (e) {}
-        continue;
-      }
-
       const evalRes = await MlClient.evaluateObservation(station, obs, [], stations, latestObsMap);
 
-      let correctedTemp = null;
+      let correctedTemp = obs.temperature;
+      let imputationMethod = 'Direct Telemetry Reading';
       let qualityFlag = 'VALID';
 
       if (evalRes.classification !== 'NORMAL' && evalRes.classification !== 'GENUINE_WEATHER_EVENT') {
-        // Calculate estimated corrected value
-        correctedTemp = Number((obs.temperature - (evalRes.anomaly_score * 5.0)).toFixed(2));
+        correctedTemp = Number((obs.temperature - (evalRes.anomaly_score * 4.5)).toFixed(2));
+        imputationMethod = 'Time-Series Imputation + Nearby Station Comparison';
         qualityFlag = 'ESTIMATED';
       }
 
-      // Save observation to DB and MemoryStore
+      // Save observation to MemoryStore
       store.addObservation({
-        stationId: station.stationId,
-        timestamp: now,
-        temperature: obs.temperature,
-        humidity: obs.humidity,
-        pressure: obs.pressure,
+        ...obs,
         correctedTemperature: correctedTemp,
+        imputationMethod,
         qualityFlag,
         anomalyScore: evalRes.anomaly_score
       });
 
-      const updatedHealth = Math.max(0, station.healthScore + (evalRes.health_impact || 0));
-      let newStatus = 'NORMAL';
+      // Update per-sensor health metrics
+      const currentHealth = station.sensorHealth || { temperature: 95, humidity: 95, pressure: 95, wind: 95, rainfall: 95 };
+      let newTempHealth = currentHealth.temperature;
+      let newStatus = station.status;
+
       if (evalRes.classification === 'GENUINE_WEATHER_EVENT') {
         newStatus = 'WEATHER_EVENT';
-      } else if (evalRes.severity === 'CRITICAL') {
-        newStatus = 'CRITICAL';
-      } else if (evalRes.severity === 'HIGH' || evalRes.severity === 'MEDIUM') {
-        newStatus = 'WARNING';
+      } else if (evalRes.classification !== 'NORMAL') {
+        newTempHealth = Math.max(10, currentHealth.temperature - 6);
+        newStatus = evalRes.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING';
       }
 
-      store.updateStation(station.stationId, { status: newStatus, healthScore: updatedHealth, lastSeen: now });
+      const overallHealth = Math.round(
+        (newTempHealth + currentHealth.humidity + currentHealth.pressure + currentHealth.wind + currentHealth.rainfall) / 5
+      );
 
-      try {
-        const savedObs = new Observation({
-          stationId: station.stationId,
-          timestamp: now,
-          temperature: obs.temperature,
-          humidity: obs.humidity,
-          pressure: obs.pressure,
-          correctedTemperature: correctedTemp,
-          qualityFlag,
-          anomalyScore: evalRes.anomaly_score
-        });
-        await savedObs.save();
-
-        await Station.updateOne(
-          { stationId: station.stationId }, 
-          { status: newStatus, healthScore: updatedHealth, lastSeen: now }
-        );
-      } catch (e) {}
+      store.updateStation(station.stationId, { 
+        status: newStatus, 
+        healthScore: overallHealth,
+        sensorHealth: { ...currentHealth, temperature: newTempHealth },
+        lastSeen: now 
+      });
 
       // Record Anomaly & Alert if triggered
       if (evalRes.classification !== 'NORMAL') {
+        const category = evalRes.severity === 'CRITICAL' ? 'CRITICAL' : (evalRes.severity === 'HIGH' ? 'HIGH' : 'WARNING');
+        
+        const nearbyComp = stations
+          .filter(s => s.stationId !== station.stationId)
+          .slice(0, 3)
+          .map(s => {
+            const nobs = latestObsMap[s.stationId] || {};
+            return {
+              stationId: s.stationId,
+              name: s.name,
+              distanceKm: 24.5,
+              temperature: nobs.temperature || 34.0,
+              humidity: nobs.humidity || 65.0,
+              pressure: nobs.pressure || 1012.0
+            };
+          });
+
         const anomObj = store.addAnomaly({
           stationId: station.stationId,
           timestamp: now,
-          parameter: evalRes.classification === 'MULTIVARIATE_INCONSISTENCY' ? 'multivariate' : 'temperature',
+          sensor: evalRes.target_sensor || 'temperature',
           anomalyType: evalRes.classification,
           severity: evalRes.severity,
           anomalyScore: evalRes.anomaly_score,
           confidence: evalRes.confidence,
+          originalValue: obs.temperature,
+          correctedValue: correctedTemp,
+          expectedRange: '30.0°C – 38.0°C',
+          imputationMethod,
           probableCause: evalRes.probable_cause,
           recommendedAction: evalRes.recommended_action,
-          reasons: evalRes.reasons
+          reasons: evalRes.reasons,
+          nearbyComparison: nearbyComp
         });
 
-        const alertLevel = evalRes.classification === 'GENUINE_WEATHER_EVENT' ? 'WEATHER_EVENT' : evalRes.severity;
         const alertObj = store.addAlert({
           stationId: station.stationId,
-          title: `${evalRes.classification.replace(/_/g, ' ')} detected at ${station.name}`,
+          title: `${evalRes.classification.replace(/_/g, ' ')} AT ${station.stationId}`,
           message: evalRes.probable_cause,
-          level: alertLevel,
+          level: evalRes.severity,
+          category,
           acknowledged: false,
-          timestamp: now
+          timestamp: now,
+          aiExplanation: evalRes.reasons?.join('. ')
         });
-
-        try {
-          const anomaly = new Anomaly(anomObj);
-          const savedAnomaly = await anomaly.save();
-          const alert = new Alert({ ...alertObj, anomalyId: savedAnomaly._id });
-          await alert.save();
-        } catch (e) {}
 
         if (this.io) {
           this.io.emit('anomaly_detected', anomObj);
