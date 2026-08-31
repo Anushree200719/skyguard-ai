@@ -42,6 +42,10 @@ const INITIAL_STATIONS = [
   { 
     stationId: 'AWS-601', name: 'Hyderabad Begumpet AWS', location: 'Hyderabad, Telangana', latitude: 17.4435, longitude: 78.4688, elevation: 531, status: 'NORMAL', healthScore: 98,
     sensorHealth: { temperature: 97, humidity: 98, pressure: 99, wind: 96, rainfall: 98 }, rulDays: 460, lastSeen: new Date()
+  },
+  { 
+    stationId: 'AWS-701', name: 'Nagpur Central Meteorology Station', location: 'Nagpur, Maharashtra', latitude: 21.1492, longitude: 79.1613, elevation: 310, status: 'NORMAL', healthScore: 99,
+    sensorHealth: { temperature: 99, humidity: 98, pressure: 99, wind: 98, rainfall: 99 }, rulDays: 480, lastSeen: new Date()
   }
 ];
 

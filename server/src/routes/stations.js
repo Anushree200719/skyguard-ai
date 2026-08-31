@@ -66,4 +66,24 @@ router.get('/:id/health', async (req, res) => {
   }
 });
 
+// GET /api/stations/:id/live-weather
+router.get('/:id/live-weather', async (req, res) => {
+  try {
+    const station = store.getStation(req.params.id);
+    if (!station) return res.status(404).json({ message: 'Station not found' });
+
+    const openMeteoService = require('../services/openMeteoService');
+    const forecastData = await openMeteoService.fetchForecast(station.latitude, station.longitude);
+    res.json({
+      stationId: station.stationId,
+      name: station.name,
+      location: station.location,
+      coordinates: { latitude: station.latitude, longitude: station.longitude },
+      openMeteo: forecastData
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

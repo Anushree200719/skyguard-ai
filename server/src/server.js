@@ -11,6 +11,7 @@ const alertRoutes = require('./routes/alerts');
 const simulationRoutes = require('./routes/simulation');
 const analyticsRoutes = require('./routes/analytics');
 const maintenanceRoutes = require('./routes/maintenance');
+const openMeteoRoutes = require('./routes/openMeteo');
 const simulator = require('./services/simulator');
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/simulation', simulationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/open-meteo', openMeteoRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({
