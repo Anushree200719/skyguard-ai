@@ -15,7 +15,8 @@ router.get('/', async (req, res) => {
     const anomalies = await Anomaly.find(query)
       .sort({ timestamp: -1 })
       .limit(parseInt(limit));
-    res.json(anomalies);
+    if (anomalies && anomalies.length > 0) return res.json(anomalies);
+    res.json(store.getAnomalies(req.query));
   } catch (err) {
     res.json(store.getAnomalies(req.query));
   }
@@ -25,8 +26,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const anomaly = await Anomaly.findById(req.params.id);
-    if (!anomaly) return res.status(404).json({ message: 'Anomaly not found' });
-    res.json(anomaly);
+    if (anomaly) return res.json(anomaly);
+    const anoms = store.getAnomalies();
+    const found = anoms.find(a => a._id === req.params.id);
+    if (!found) return res.status(404).json({ message: 'Anomaly not found' });
+    res.json(found);
   } catch (err) {
     const anoms = store.getAnomalies();
     const found = anoms.find(a => a._id === req.params.id);

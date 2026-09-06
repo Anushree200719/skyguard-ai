@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Station = require('../models/Station');
 const Observation = require('../models/Observation');
-const Anomaly = require('../models/Anomaly');
 const store = require('../models/inMemoryStore');
 
 // GET /api/stations
 router.get('/', async (req, res) => {
   try {
     const stations = await Station.find().sort({ stationId: 1 });
-    res.json(stations);
+    if (stations && stations.length > 0) return res.json(stations);
+    res.json(store.getStations());
   } catch (err) {
     res.json(store.getStations());
   }
@@ -19,8 +19,10 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const station = await Station.findOne({ stationId: req.params.id });
-    if (!station) return res.status(404).json({ message: 'Station not found' });
-    res.json(station);
+    if (station) return res.json(station);
+    const st = store.getStation(req.params.id);
+    if (!st) return res.status(404).json({ message: 'Station not found' });
+    res.json(st);
   } catch (err) {
     const st = store.getStation(req.params.id);
     if (!st) return res.status(404).json({ message: 'Station not found' });
@@ -35,7 +37,8 @@ router.get('/:id/observations', async (req, res) => {
     const observations = await Observation.find({ stationId: req.params.id })
       .sort({ timestamp: -1 })
       .limit(limit);
-    res.json(observations.reverse());
+    if (observations && observations.length > 0) return res.json(observations.reverse());
+    res.json(store.getObservations(req.params.id, limit));
   } catch (err) {
     res.json(store.getObservations(req.params.id, parseInt(req.query.limit) || 50));
   }
@@ -45,13 +48,23 @@ router.get('/:id/observations', async (req, res) => {
 router.get('/:id/health', async (req, res) => {
   try {
     const station = await Station.findOne({ stationId: req.params.id });
-    if (!station) return res.status(404).json({ message: 'Station not found' });
+    if (station) {
+      return res.json({
+        stationId: station.stationId,
+        healthScore: station.healthScore,
+        status: station.status,
+        healthHistory: [],
+        recentAnomalies: []
+      });
+    }
+    const st = store.getStation(req.params.id);
+    if (!st) return res.status(404).json({ message: 'Station not found' });
     res.json({
-      stationId: station.stationId,
-      healthScore: station.healthScore,
-      status: station.status,
+      stationId: st.stationId,
+      healthScore: st.healthScore,
+      status: st.status,
       healthHistory: [],
-      recentAnomalies: []
+      recentAnomalies: store.getAnomalies({ station: st.stationId, limit: 10 })
     });
   } catch (err) {
     const st = store.getStation(req.params.id);

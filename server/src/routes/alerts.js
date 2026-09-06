@@ -11,7 +11,8 @@ router.get('/', async (req, res) => {
     if (acknowledged !== undefined) query.acknowledged = acknowledged === 'true';
 
     const alerts = await Alert.find(query).sort({ timestamp: -1 }).limit(parseInt(limit));
-    res.json(alerts);
+    if (alerts && alerts.length > 0) return res.json(alerts);
+    res.json(store.getAlerts(req.query));
   } catch (err) {
     res.json(store.getAlerts(req.query));
   }
@@ -21,7 +22,9 @@ router.get('/', async (req, res) => {
 router.post('/:id/acknowledge', async (req, res) => {
   try {
     const alert = await Alert.findByIdAndUpdate(req.params.id, { acknowledged: true }, { new: true });
-    res.json(alert);
+    if (alert) return res.json(alert);
+    const updated = store.acknowledgeAlert(req.params.id);
+    res.json(updated || { status: 'acknowledged' });
   } catch (err) {
     const updated = store.acknowledgeAlert(req.params.id);
     res.json(updated || { status: 'acknowledged' });
