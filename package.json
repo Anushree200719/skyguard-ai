@@ -4,6 +4,7 @@
   "description": "SkyGuard AI — AI-Powered Trust Layer for Automatic Weather Stations",
   "main": "server/src/server.js",
   "scripts": {
+    "build": "cd client && npm install && npm run build",
     "seed": "node scripts/seed.js",
     "demo": "node scripts/demo.js",
     "test": "node tests/run_tests.js",
