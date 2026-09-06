@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL !== undefined ? import.meta.env.VITE_API_URL : '';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://skyguard-aii.onrender.com';
 
 export const api = axios.create({
   baseURL: `${API_BASE}/api`,
