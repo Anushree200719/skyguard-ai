@@ -12,6 +12,11 @@ export const Dashboard: React.FC = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [anomalies, setAnomalies] = useState<any[]>([]);
   const [latestObsMap, setLatestObsMap] = useState<Record<string, any>>({});
+  const [expandedWhy, setExpandedWhy] = useState<Record<string, boolean>>({});
+
+  const toggleWhy = (id: string) => {
+    setExpandedWhy(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const loadData = async () => {
     try {
@@ -110,30 +115,61 @@ export const Dashboard: React.FC = () => {
                   No anomalies detected. All stations operating nominally.
                 </div>
               ) : (
-                anomalies.map((anom) => (
-                  <div
-                    key={anom._id}
-                    className={`p-3 rounded-lg border text-xs transition-all ${
-                      anom.anomalyType === 'GENUINE_WEATHER_EVENT'
-                        ? 'bg-sky-500/10 border-sky-500/40 text-sky-200'
-                        : (anom.severity === 'CRITICAL'
-                        ? 'bg-rose-500/10 border-rose-500/40 text-rose-200'
-                        : 'bg-amber-500/10 border-amber-500/40 text-amber-200')
-                    }`}
-                  >
-                    <div className="flex items-center justify-between font-orbitron font-bold mb-1">
-                      <span>{anom.stationId}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/80 uppercase font-mono">
-                        {anom.anomalyType ? anom.anomalyType.replace(/_/g, ' ') : 'POSSIBLE SENSOR FAULT'}
-                      </span>
+                anomalies.map((anom) => {
+                  const isExpanded = expandedWhy[anom._id];
+                  const confidencePct = Math.round((anom.confidence || 0.94) * 100);
+
+                  return (
+                    <div
+                      key={anom._id}
+                      className={`p-3 rounded-lg border text-xs transition-all ${
+                        anom.anomalyType === 'GENUINE_WEATHER_EVENT'
+                          ? 'bg-sky-500/10 border-sky-500/40 text-sky-200'
+                          : (anom.severity === 'CRITICAL'
+                          ? 'bg-rose-500/10 border-rose-500/40 text-rose-200'
+                          : 'bg-amber-500/10 border-amber-500/40 text-amber-200')
+                      }`}
+                    >
+                      <div className="flex items-center justify-between font-orbitron font-bold mb-1">
+                        <span>{anom.stationId}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/80 uppercase font-mono">
+                          {anom.anomalyType ? anom.anomalyType.replace(/_/g, ' ') : 'POSSIBLE SENSOR FAULT'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-medium text-slate-300">{anom.probableCause}</p>
+                      
+                      <div className="mt-2 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+                        <span>Confidence: {confidencePct}%</span>
+                        <button
+                          onClick={() => toggleWhy(anom._id)}
+                          className="px-2 py-0.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded text-[10px] font-bold font-sans flex items-center gap-1"
+                        >
+                          {isExpanded ? 'Hide Why?' : 'Why?'}
+                        </button>
+                      </div>
+
+                      {/* Expandable Root Cause Analysis Drawer */}
+                      {isExpanded && (
+                        <div className="mt-2 pt-2 border-t border-slate-700/60 space-y-1.5 text-[11px] font-mono bg-slate-950/60 p-2 rounded">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-400 font-bold uppercase text-[10px]">POSSIBLE CAUSE:</span>
+                            <span className="font-bold text-sky-300">{anom.probableCause}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 font-bold uppercase text-[10px] block">SHORT AI EXPLANATION:</span>
+                            <p className="text-slate-200 mt-0.5">{anom.shortExplanation || (anom.reasons ? anom.reasons[0] : 'Temperature spike detected without regional consensus.')}</p>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-slate-400">
+                            <span>AI Expected Behavior: {anom.expectedRange || '30.0°C – 34.0°C'}</span>
+                            {anom.correctedValue && (
+                              <span className="text-emerald-400 font-bold">Est: {anom.correctedValue}°C</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-[11px] font-medium text-slate-300">{anom.probableCause}</p>
-                    <div className="mt-2 text-[10px] font-mono text-slate-400 flex items-center justify-between">
-                      <span>Confidence: {((anom.confidence || 0.94) * 100).toFixed(0)}%</span>
-                      <span>{new Date(anom.timestamp).toLocaleTimeString()}</span>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

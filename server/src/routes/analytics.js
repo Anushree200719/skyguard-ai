@@ -64,7 +64,13 @@ router.get('/', async (req, res) => {
         totalAnomalies: anomalies.length,
         genuineWeatherEvents: genuineEvents,
         sensorFaults,
-        communicationFailures: commFailures
+        communicationFailures: commFailures,
+        edgeAiSupport: {
+          enabled: true,
+          currentMode: 'CLOUD',
+          edgeCapable: true,
+          architecture: 'Sensor → Data Processing → AI Model → Anomaly Detection → Dashboard'
+        }
       }
     });
   }

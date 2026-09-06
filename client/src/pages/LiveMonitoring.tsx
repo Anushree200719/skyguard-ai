@@ -3,7 +3,8 @@ import { fetchStations, fetchStationObservations, fetchStationLiveWeather } from
 import { socket } from '../services/socket';
 import { Station, Observation } from '../types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
-import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw } from 'lucide-react';
+import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders } from 'lucide-react';
+import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
 
 export const LiveMonitoring: React.FC = () => {
   const [stations, setStations] = useState<Station[]>([]);
@@ -11,6 +12,7 @@ export const LiveMonitoring: React.FC = () => {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [openMeteoData, setOpenMeteoData] = useState<any>(null);
   const [loadingWeather, setLoadingWeather] = useState<boolean>(false);
+  const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
 
   useEffect(() => {
     fetchStations().then(sts => {
@@ -43,8 +45,20 @@ export const LiveMonitoring: React.FC = () => {
     loadData();
     loadOpenMeteo(selectedStationId);
 
-    const onUpdate = () => {
-      loadData();
+    const onUpdate = (data: any) => {
+      if (data?.observations) {
+        const stObs = data.observations.find((o: any) => o.stationId === selectedStationId);
+        if (stObs) {
+          setObservations(prev => {
+            if (prev.length > 0 && prev[prev.length - 1].timestamp === stObs.timestamp) {
+              return prev;
+            }
+            return [...prev.slice(-29), stObs];
+          });
+        }
+      } else {
+        loadData();
+      }
     };
 
     socket.on('weather_update', onUpdate);
@@ -58,24 +72,36 @@ export const LiveMonitoring: React.FC = () => {
   const currentMeteo = openMeteoData?.current;
   const dailyMeteo = openMeteoData?.daily;
 
-  const chartData = observations.map(o => ({
-    time: new Date(o.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    temperature: o.temperature,
-    humidity: o.humidity,
-    pressure: o.pressure,
-    windSpeed: o.windSpeed,
-    rainfall: o.rainfall
-  }));
+  const chartData = (observations || []).map(o => {
+    let timeStr = '--:--:--';
+    try {
+      if (o?.timestamp) {
+        timeStr = new Date(o.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+    } catch (e) {
+      timeStr = '--:--:--';
+    }
+    return {
+      time: timeStr,
+      temperature: o?.temperature ?? null,
+      humidity: o?.humidity ?? null,
+      pressure: o?.pressure ?? null,
+      windSpeed: o?.windSpeed ?? null,
+      rainfall: o?.rainfall ?? null
+    };
+  });
 
   // Hourly temperature & radiation forecast chart data from Open-Meteo
-  const hourlyChartData = openMeteoData?.hourly?.time ? openMeteoData.hourly.time.slice(0, 24).map((t: string, idx: number) => ({
-    hour: t.slice(11, 16),
-    temp: openMeteoData.hourly.temperature_2m[idx],
-    humidity: openMeteoData.hourly.relative_humidity_2m[idx],
-    apparentTemp: openMeteoData.hourly.apparent_temperature[idx],
-    pressure: openMeteoData.hourly.surface_pressure[idx],
-    soilTemp: openMeteoData.hourly.soil_temperature_18cm[idx]
-  })) : [];
+  const hourlyChartData = (openMeteoData?.hourly?.time && Array.isArray(openMeteoData.hourly.time)) 
+    ? openMeteoData.hourly.time.slice(0, 24).map((t: string, idx: number) => ({
+        hour: typeof t === 'string' ? t.slice(11, 16) : `${idx}:00`,
+        temp: openMeteoData?.hourly?.temperature_2m?.[idx] ?? null,
+        humidity: openMeteoData?.hourly?.relative_humidity_2m?.[idx] ?? null,
+        apparentTemp: openMeteoData?.hourly?.apparent_temperature?.[idx] ?? null,
+        pressure: openMeteoData?.hourly?.surface_pressure?.[idx] ?? null,
+        soilTemp: openMeteoData?.hourly?.soil_temperature_0cm?.[idx] ?? openMeteoData?.hourly?.soil_temperature_6cm?.[idx] ?? null
+      })) 
+    : [];
 
   return (
     <div className="space-y-6">
@@ -88,7 +114,15 @@ export const LiveMonitoring: React.FC = () => {
           <p className="text-xs text-slate-400">Live multi-sensor telemetry stream augmented with real-world Open-Meteo satellite observations</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setIsWhatIfOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold"
+          >
+            <Sliders className="w-3.5 h-3.5 text-amber-400" />
+            WHAT-IF SIMULATOR
+          </button>
+
           <button
             onClick={() => loadOpenMeteo(selectedStationId)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono"
@@ -114,6 +148,8 @@ export const LiveMonitoring: React.FC = () => {
         </div>
       </div>
 
+      <WhatIfSimulatorModal isOpen={isWhatIfOpen} onClose={() => setIsWhatIfOpen(false)} />
+
       {/* Primary 5 Real-Time Sensor Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
@@ -124,7 +160,7 @@ export const LiveMonitoring: React.FC = () => {
             {latestObs?.temperature ?? currentMeteo?.temperature_2m ?? '--'}°C
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
-            Apparent: {currentMeteo ? `${openMeteoData?.hourly?.apparent_temperature?.[0] ?? 32.5}°C` : 'Nominal'}
+            Apparent: {currentMeteo?.apparent_temperature !== undefined ? `${currentMeteo.apparent_temperature}°C` : (openMeteoData?.hourly?.apparent_temperature?.[0] !== undefined ? `${openMeteoData.hourly.apparent_temperature[0]}°C` : '--')}
           </span>
         </div>
 
@@ -136,7 +172,7 @@ export const LiveMonitoring: React.FC = () => {
             {latestObs?.humidity ?? currentMeteo?.relative_humidity_2m ?? '--'}%
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
-            Dew Point: {openMeteoData?.hourly?.dew_point_2m?.[0] ? `${openMeteoData.hourly.dew_point_2m[0]}°C` : '24.2°C'}
+            Vap. Deficit: {openMeteoData?.hourly?.vapour_pressure_deficit?.[0] !== undefined ? `${openMeteoData.hourly.vapour_pressure_deficit[0]} kPa` : '--'}
           </span>
         </div>
 
@@ -145,10 +181,10 @@ export const LiveMonitoring: React.FC = () => {
             <Gauge className="w-4 h-4" /> SURFACE PRESSURE
           </div>
           <span className="font-orbitron font-bold text-xl text-slate-100">
-            {latestObs?.pressure ?? (currentMeteo?.surface_pressure ? currentMeteo.surface_pressure.toFixed(1) : '1012.4')}
+            {latestObs?.pressure ?? (currentMeteo?.surface_pressure ? currentMeteo.surface_pressure.toFixed(1) : '--')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
-            MSL: {openMeteoData?.hourly?.pressure_msl?.[0] ? `${openMeteoData.hourly.pressure_msl[0].toFixed(1)} hPa` : '1014.2 hPa'}
+            MSL: {currentMeteo?.pressure_msl ? `${currentMeteo.pressure_msl.toFixed(1)} hPa` : (openMeteoData?.hourly?.pressure_msl?.[0] ? `${openMeteoData.hourly.pressure_msl[0].toFixed(1)} hPa` : '--')}
           </span>
         </div>
 
@@ -160,7 +196,7 @@ export const LiveMonitoring: React.FC = () => {
             {latestObs?.windSpeed ?? currentMeteo?.wind_speed_10m ?? '--'} m/s
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
-            Gusts: {currentMeteo?.wind_gusts_10m ? `${currentMeteo.wind_gusts_10m} km/h` : '24.0 km/h'}
+            Gusts: {currentMeteo?.wind_gusts_10m !== undefined ? `${currentMeteo.wind_gusts_10m} km/h` : '--'}
           </span>
         </div>
 
@@ -172,12 +208,12 @@ export const LiveMonitoring: React.FC = () => {
             {latestObs?.rainfall ?? currentMeteo?.precipitation ?? '0.0'} mm
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
-            Cloud Cover: {currentMeteo?.cloud_cover ?? 45}%
+            Cloud Cover: {currentMeteo?.cloud_cover !== undefined ? `${currentMeteo.cloud_cover}%` : '--'}
           </span>
         </div>
       </div>
 
-      {/* OPEN-METEO SATELLITE & SOIL METEOROLOGY CARD */}
+      {/* OPEN-METEO SATELLITE & GEOPHYSICAL RADAR CARD */}
       {openMeteoData && (
         <div className="glass-card p-5 rounded-xl border border-cyan-500/30 bg-[#0a1426]/80 space-y-4">
           <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
@@ -188,7 +224,7 @@ export const LiveMonitoring: React.FC = () => {
               </h2>
             </div>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-              API: 21.1492°N, 79.1613°E (Nagpur/India Datum)
+              COORDINATES: {selectedStation?.latitude?.toFixed(4) || '21.1492'}°N, {selectedStation?.longitude?.toFixed(4) || '79.1613'}°E ({selectedStation?.name || 'Nagpur'})
             </span>
           </div>
 
@@ -198,7 +234,10 @@ export const LiveMonitoring: React.FC = () => {
                 <Sun className="w-3 h-3 text-amber-400" /> SOLAR RADIATION
               </span>
               <span className="font-bold text-slate-100 text-sm mt-1 block">
-                {dailyMeteo?.shortwave_radiation_sum?.[0] ? `${dailyMeteo.shortwave_radiation_sum[0]} MJ/m²` : '18.4 MJ/m²'}
+                {dailyMeteo?.shortwave_radiation_sum?.[0] !== undefined ? `${dailyMeteo.shortwave_radiation_sum[0]} MJ/m²` : '--'}
+              </span>
+              <span className="text-[9px] text-slate-500 block mt-0.5">
+                UV Max: {dailyMeteo?.uv_index_max?.[0] !== undefined ? dailyMeteo.uv_index_max[0] : '--'}
               </span>
             </div>
 
@@ -207,43 +246,46 @@ export const LiveMonitoring: React.FC = () => {
                 <Droplets className="w-3 h-3 text-cyan-400" /> EVAPOTRANSPIRATION
               </span>
               <span className="font-bold text-slate-100 text-sm mt-1 block">
-                {dailyMeteo?.et0_fao_evapotranspiration?.[0] ? `${dailyMeteo.et0_fao_evapotranspiration[0]} mm` : '3.4 mm'}
+                {dailyMeteo?.et0_fao_evapotranspiration?.[0] !== undefined ? `${dailyMeteo.et0_fao_evapotranspiration[0]} mm` : '--'}
+              </span>
+              <span className="text-[9px] text-slate-500 block mt-0.5">
+                Vap. Def: {openMeteoData?.hourly?.vapour_pressure_deficit?.[0] !== undefined ? `${openMeteoData.hourly.vapour_pressure_deficit[0]} kPa` : '--'}
               </span>
             </div>
 
             <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
               <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                <Layers className="w-3 h-3 text-emerald-400" /> SOIL TEMP (18cm)
+                <Layers className="w-3 h-3 text-emerald-400" /> SOIL TEMP (0 / 6 / 54cm)
               </span>
-              <span className="font-bold text-slate-100 text-sm mt-1 block">
-                {openMeteoData?.hourly?.soil_temperature_18cm?.[0] ? `${openMeteoData.hourly.soil_temperature_18cm[0]}°C` : '26.8°C'}
-              </span>
-            </div>
-
-            <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                <Layers className="w-3 h-3 text-indigo-400" /> SOIL MOISTURE
-              </span>
-              <span className="font-bold text-slate-100 text-sm mt-1 block">
-                {openMeteoData?.hourly?.soil_moisture_9_to_27cm?.[0] ? `${(openMeteoData.hourly.soil_moisture_9_to_27cm[0] * 100).toFixed(1)}%` : '38.5%'}
+              <span className="font-bold text-slate-100 text-xs mt-1 block">
+                {openMeteoData?.hourly?.soil_temperature_0cm?.[0] !== undefined ? `${openMeteoData.hourly.soil_temperature_0cm[0]}°` : '--'} / {openMeteoData?.hourly?.soil_temperature_6cm?.[0] !== undefined ? `${openMeteoData.hourly.soil_temperature_6cm[0]}°` : '--'} / {openMeteoData?.hourly?.soil_temperature_54cm?.[0] !== undefined ? `${openMeteoData.hourly.soil_temperature_54cm[0]}°C` : '--'}
               </span>
             </div>
 
             <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
               <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                <Eye className="w-3 h-3 text-sky-400" /> VISIBILITY
+                <Layers className="w-3 h-3 text-indigo-400" /> SOIL MOISTURE (1-3 / 9-27cm)
               </span>
-              <span className="font-bold text-slate-100 text-sm mt-1 block">
-                {openMeteoData?.hourly?.visibility?.[0] ? `${(openMeteoData.hourly.visibility[0] / 1000).toFixed(1)} km` : '10.0 km'}
+              <span className="font-bold text-slate-100 text-xs mt-1 block">
+                {openMeteoData?.hourly?.soil_moisture_1_to_3cm?.[0] !== undefined ? `${(openMeteoData.hourly.soil_moisture_1_to_3cm[0] * 100).toFixed(1)}%` : '--'} / {openMeteoData?.hourly?.soil_moisture_9_to_27cm?.[0] !== undefined ? `${(openMeteoData.hourly.soil_moisture_9_to_27cm[0] * 100).toFixed(1)}%` : '--'}
               </span>
             </div>
 
             <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
               <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                <Compass className="w-3 h-3 text-amber-400" /> WIND AT 180m
+                <Eye className="w-3 h-3 text-sky-400" /> DAYLIGHT & SUNSHINE
               </span>
-              <span className="font-bold text-slate-100 text-sm mt-1 block">
-                {openMeteoData?.hourly?.wind_speed_180m?.[0] ? `${openMeteoData.hourly.wind_speed_180m[0]} km/h` : '32.0 km/h'}
+              <span className="font-bold text-slate-100 text-xs mt-1 block">
+                {dailyMeteo?.daylight_duration?.[0] !== undefined ? `${(dailyMeteo.daylight_duration[0] / 3600).toFixed(1)}h` : '--'} daylight / {dailyMeteo?.sunshine_duration?.[0] !== undefined ? `${(dailyMeteo.sunshine_duration[0] / 3600).toFixed(1)}h` : '--'} sun
+              </span>
+            </div>
+
+            <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
+              <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                <Compass className="w-3 h-3 text-amber-400" /> WIND (80m / 180m)
+              </span>
+              <span className="font-bold text-slate-100 text-xs mt-1 block">
+                {openMeteoData?.hourly?.wind_speed_80m?.[0] !== undefined ? `${openMeteoData.hourly.wind_speed_80m[0]} km/h` : '--'} / {openMeteoData?.hourly?.wind_speed_180m?.[0] !== undefined ? `${openMeteoData.hourly.wind_speed_180m[0]} km/h` : '--'}
               </span>
             </div>
           </div>

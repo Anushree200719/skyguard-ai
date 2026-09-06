@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAnalytics } from '../services/api';
 import { StatCard } from '../components/StatCard';
-import { BrainCircuit, ShieldCheck, AlertTriangle, CloudLightning, Activity, BarChart2 } from 'lucide-react';
+import { BrainCircuit, ShieldCheck, AlertTriangle, CloudLightning, Activity, BarChart2, Sliders, Cpu } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
 
 export const AnalyticsPage: React.FC = () => {
   const [data, setData] = useState<any>(null);
+  const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
 
   useEffect(() => {
     fetchAnalytics().then(res => setData(res.summary)).catch(console.warn);
@@ -31,19 +33,57 @@ export const AnalyticsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
-          <BrainCircuit className="w-5 h-5 text-sky-400" />
-          ANALYTICS & AI INSIGHTS ENGINE
-        </h1>
-        <p className="text-xs text-slate-400">Historical meteorological data quality trends, sensor health decay, and anomaly distributions</p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
+            <BrainCircuit className="w-5 h-5 text-sky-400" />
+            ANALYTICS & AI INSIGHTS ENGINE
+          </h1>
+          <p className="text-xs text-slate-400">Historical meteorological data quality trends, sensor health decay, and anomaly distributions</p>
+        </div>
+
+        <button
+          onClick={() => setIsWhatIfOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold"
+        >
+          <Sliders className="w-3.5 h-3.5 text-amber-400" />
+          WHAT-IF SIMULATOR
+        </button>
       </div>
+
+      <WhatIfSimulatorModal isOpen={isWhatIfOpen} onClose={() => setIsWhatIfOpen(false)} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Overall Quality Score" value={`${data?.overallQualityScore || 96}%`} icon={ShieldCheck} color="emerald" />
         <StatCard title="Total Anomalies Processed" value={data?.totalAnomalies || 11} icon={AlertTriangle} color="amber" />
         <StatCard title="Sensor Fault Frequency" value={data?.sensorFaults || 7} icon={Activity} color="rose" />
         <StatCard title="Genuine Weather Events" value={data?.genuineWeatherEvents || 4} icon={CloudLightning} color="indigo" />
+      </div>
+
+      {/* Modular Pipeline & Edge AI Status Banner */}
+      <div className="glass-card p-4 rounded-xl border border-sky-500/20 bg-slate-900/60 flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400">
+            <Cpu className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-bold text-slate-100 uppercase tracking-wider font-orbitron block text-[11px]">
+              EDGE AI ARCHITECTURE READY: ENABLED
+            </span>
+            <span className="text-[10px] text-slate-400">
+              Pipeline Topology: {data?.edgeAiSupport?.architecture || 'Sensor → Data Processing → AI Model → Anomaly Detection → Dashboard'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+            CURRENT MODE: CLOUD AI
+          </span>
+          <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold">
+            EDGE AI CAPABLE
+          </span>
+        </div>
       </div>
 
       {/* Analytics Charts */}

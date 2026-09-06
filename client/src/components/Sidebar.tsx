@@ -58,6 +58,10 @@ export const Sidebar: React.FC = () => {
           <span className="text-sky-400 font-semibold font-mono font-bold">ONLINE</span>
         </div>
         <div className="flex items-center justify-between text-slate-400">
+          <span>Edge AI Support:</span>
+          <span className="text-emerald-400 font-semibold font-mono font-bold">CLOUD/EDGE</span>
+        </div>
+        <div className="flex items-center justify-between text-slate-400">
           <span>Sensors Tracked:</span>
           <span className="text-indigo-400 font-semibold font-mono font-bold">6 PARAMS</span>
         </div>

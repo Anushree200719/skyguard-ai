@@ -19,3 +19,6 @@ export const fetchAlerts = async () => (await api.get('/alerts')).data;
 export const acknowledgeAlert = async (id: string) => (await api.post(`/alerts/${id}/acknowledge`)).data;
 export const fetchAnalytics = async () => (await api.get('/analytics')).data;
 export const fetchMaintenance = async () => (await api.get('/maintenance')).data;
+export const runWhatIfSimulation = async (data: { tempChange: number; humChange: number; presChange: number }) => 
+  (await api.post('/simulation/what-if', data)).data;
+

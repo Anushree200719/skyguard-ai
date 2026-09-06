@@ -19,6 +19,12 @@ export interface Station {
   };
   rulDays: number;
   lastSeen: string;
+
+  // Enhancements
+  maintenanceStatus?: 'Healthy' | 'Monitor' | 'Maintenance Recommended';
+  maintenanceWarning?: string | null;
+  learningActive?: boolean;
+  expectedRange?: string;
 }
 
 export interface Observation {
@@ -80,6 +86,14 @@ export interface Anomaly {
   recommendedAction: string;
   reasons: string[];
   nearbyComparison?: NearbyComparison[];
+
+  // Clean Anomaly Details Structured 6-step fields
+  whatHappened?: string;
+  isGenuineOrSensor?: string;
+  shortExplanation?: string;
+  expectedBehavior?: string;
+  aiEstimatedValue?: number | null;
+  estimatedValueDisclaimer?: string;
 }
 
 export interface Alert {
@@ -104,6 +118,12 @@ export interface AnalyticsSummary {
   genuineWeatherEvents: number;
   criticalAlertsCount: number;
   overallQualityScore: number;
+  edgeAiSupport?: {
+    enabled: boolean;
+    currentMode: string;
+    edgeCapable: boolean;
+    architecture: string;
+  };
 }
 
 export interface MaintenanceItem {
@@ -126,3 +146,16 @@ export interface MaintenanceItem {
   severity: string;
   inspectionMarked?: boolean;
 }
+
+export interface WhatIfResult {
+  status: string;
+  tempChange: number;
+  humChange: number;
+  presChange: number;
+  anomalyExpected: boolean;
+  sensorFaultPossibility: string;
+  alertLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  expectedResponse: string[];
+  summary: string;
+}
+

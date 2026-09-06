@@ -64,11 +64,22 @@ export const StationDetail: React.FC = () => {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h1 className="font-orbitron font-bold text-xl text-slate-100">{station.name}</h1>
               <span className="px-2.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-mono font-bold">
                 {station.stationId}
               </span>
+              
+              {/* Station-Specific Learning Indicator */}
+              <div 
+                className="group relative flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold cursor-help"
+                title="SkyGuard continuously learns this station's normal environmental patterns."
+              >
+                <span>🧠 AI Learning: Active</span>
+                <span className="hidden group-hover:block absolute top-full left-0 mt-1 w-64 p-2 bg-slate-950 text-[10px] text-slate-300 rounded shadow-xl border border-slate-700 font-sans z-30 font-normal">
+                  SkyGuard continuously learns this station's normal environmental patterns.
+                </span>
+              </div>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5">
               Location: {station.location} • Coordinates: {station.latitude.toFixed(4)}°N, {station.longitude.toFixed(4)}°E • Elevation: {station.elevation}m MSL
@@ -78,9 +89,9 @@ export const StationDetail: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <span className="text-[10px] text-slate-400 block font-semibold">OVERALL SENSOR HEALTH</span>
+            <span className="text-[10px] text-slate-400 block font-semibold">SENSOR HEALTH SCORE</span>
             <span className={`font-orbitron font-bold text-lg ${station.healthScore < 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
-              {station.healthScore}/100
+              Sensor Health: {station.healthScore}% – {station.healthScore >= 90 ? 'Healthy' : (station.healthScore >= 70 ? 'Monitor' : 'Maintenance Recommended')}
             </span>
           </div>
           <div className="text-right border-l border-slate-800 pl-3">
@@ -89,6 +100,33 @@ export const StationDetail: React.FC = () => {
               {station.rulDays || 420} DAYS
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Maintenance Insight Card (Appears when necessary) */}
+      <div className={`p-4 rounded-xl border flex flex-wrap items-center justify-between gap-4 font-mono text-xs ${
+        station.healthScore < 75 
+          ? 'bg-rose-500/10 border-rose-500/40 text-rose-200' 
+          : (station.healthScore < 90 
+          ? 'bg-amber-500/10 border-amber-500/40 text-amber-200' 
+          : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200')
+      }`}>
+        <div className="flex items-center gap-3">
+          <span className="text-lg">
+            {station.healthScore < 75 ? '🚨' : (station.healthScore < 90 ? '⚠' : '✓')}
+          </span>
+          <div>
+            <span className="font-bold uppercase tracking-wider block text-[11px] font-orbitron">
+              MAINTENANCE INSIGHT — {station.maintenanceStatus || (station.healthScore >= 90 ? 'Healthy' : (station.healthScore >= 70 ? 'Monitor' : 'Maintenance Recommended'))}
+            </span>
+            <p className="text-xs text-slate-200 mt-0.5">
+              {station.maintenanceWarning || (station.healthScore >= 90 ? 'All sensors operating nominally within learned station baseline.' : 'Temperature sensor shows gradual drift. Risk of degradation is increasing.')}
+            </p>
+          </div>
+        </div>
+        <div className="text-right text-[11px]">
+          <span className="text-slate-400 block">AI Expected Behavior Baseline:</span>
+          <span className="font-bold text-sky-300">{station.expectedRange || '30.0°C – 34.0°C'}</span>
         </div>
       </div>
 
@@ -144,27 +182,27 @@ export const StationDetail: React.FC = () => {
               <h2 className="font-orbitron font-bold text-xs text-slate-100">OPEN-METEO LIVE SATELLITE & SOLAR METEOROLOGY</h2>
             </div>
             <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400">
-              <span className="flex items-center gap-1"><Sunrise className="w-3.5 h-3.5 text-amber-400" /> Sunrise: {dailyMeteo?.sunrise?.[0]?.slice(11, 16) || '05:56'}</span>
-              <span className="flex items-center gap-1"><Sunset className="w-3.5 h-3.5 text-orange-400" /> Sunset: {dailyMeteo?.sunset?.[0]?.slice(11, 16) || '18:30'}</span>
+              <span className="flex items-center gap-1"><Sunrise className="w-3.5 h-3.5 text-amber-400" /> Sunrise: {dailyMeteo?.sunrise?.[0] ? dailyMeteo.sunrise[0].slice(11, 16) : '--'}</span>
+              <span className="flex items-center gap-1"><Sunset className="w-3.5 h-3.5 text-orange-400" /> Moonrise: {dailyMeteo?.moonrise?.[0] ? dailyMeteo.moonrise[0].slice(11, 16) : '--'}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
             <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
               <span className="text-[10px] text-slate-400 block">SOLAR RADIATION SUM</span>
-              <span className="font-bold text-slate-200 mt-0.5 block">{dailyMeteo?.shortwave_radiation_sum?.[0] ?? 16.5} MJ/m²</span>
+              <span className="font-bold text-slate-200 mt-0.5 block">{dailyMeteo?.shortwave_radiation_sum?.[0] !== undefined ? `${dailyMeteo.shortwave_radiation_sum[0]} MJ/m²` : '--'}</span>
             </div>
             <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
               <span className="text-[10px] text-slate-400 block">EVAPOTRANSPIRATION (ET0)</span>
-              <span className="font-bold text-slate-200 mt-0.5 block">{dailyMeteo?.et0_fao_evapotranspiration?.[0] ?? 3.4} mm</span>
+              <span className="font-bold text-slate-200 mt-0.5 block">{dailyMeteo?.et0_fao_evapotranspiration?.[0] !== undefined ? `${dailyMeteo.et0_fao_evapotranspiration[0]} mm` : '--'}</span>
             </div>
             <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
-              <span className="text-[10px] text-slate-400 block">SOIL TEMP (18cm)</span>
-              <span className="font-bold text-slate-200 mt-0.5 block">{openMeteoData?.hourly?.soil_temperature_18cm?.[0] ?? 26.5}°C</span>
+              <span className="text-[10px] text-slate-400 block">SOIL TEMP (0cm / 6cm)</span>
+              <span className="font-bold text-slate-200 mt-0.5 block">{openMeteoData?.hourly?.soil_temperature_0cm?.[0] !== undefined ? `${openMeteoData.hourly.soil_temperature_0cm[0]}°C` : '--'} / {openMeteoData?.hourly?.soil_temperature_6cm?.[0] !== undefined ? `${openMeteoData.hourly.soil_temperature_6cm[0]}°C` : '--'}</span>
             </div>
             <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
               <span className="text-[10px] text-slate-400 block">WIND GUSTS (10m)</span>
-              <span className="font-bold text-slate-200 mt-0.5 block">{currentMeteo?.wind_gusts_10m ?? 24.5} km/h</span>
+              <span className="font-bold text-slate-200 mt-0.5 block">{currentMeteo?.wind_gusts_10m !== undefined ? `${currentMeteo.wind_gusts_10m} km/h` : '--'}</span>
             </div>
           </div>
         </div>

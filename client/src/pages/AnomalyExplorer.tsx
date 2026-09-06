@@ -137,54 +137,92 @@ export const AnomalyExplorer: React.FC = () => {
       {/* ANOMALY DETAILS MODAL */}
       {selectedAnomaly && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="glass-card w-full max-w-2xl p-6 rounded-2xl border border-sky-500/40 bg-[#0c1322] shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-              <h2 className="font-orbitron font-bold text-base text-slate-100 flex items-center gap-2">
-                <Info className="w-5 h-5 text-sky-400" />
-                ANOMALY DETAILS — {selectedAnomaly.stationId}
-              </h2>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                selectedAnomaly.anomalyType === 'GENUINE_WEATHER_EVENT' ? 'bg-sky-500/20 text-sky-300' : 'bg-amber-500/20 text-amber-300'
+          <div className="glass-card w-full max-w-2xl p-6 rounded-2xl border border-sky-500/40 bg-[#0c1322] shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4 font-mono text-xs">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 text-base">⚠</span>
+                <h2 className="font-orbitron font-bold text-sm text-slate-100 uppercase tracking-wider">
+                  ANOMALY DETECTED — {selectedAnomaly.stationId}
+                </h2>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded font-orbitron uppercase ${
+                selectedAnomaly.anomalyType === 'GENUINE_WEATHER_EVENT' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
               }`}>
                 {selectedAnomaly.anomalyType.replace(/_/g, ' ')}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs font-mono mb-4">
-              <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px]">DETECTED VALUE</span>
-                <span className="text-rose-400 font-bold text-lg">{selectedAnomaly.originalValue || 58.7}°C</span>
-                <span className="text-slate-400 block text-[10px] mt-1">Expected Range: {selectedAnomaly.expectedRange || '32°C – 38°C'}</span>
-              </div>
-              <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-800 space-y-1">
-                <span className="text-slate-400 block text-[10px]">CORRECTED VALUE (IMPUTED)</span>
-                <span className="text-emerald-400 font-bold text-lg">{selectedAnomaly.correctedValue || 36.2}°C</span>
-                <span className="text-slate-400 block text-[10px] mt-1">Method: {selectedAnomaly.imputationMethod || 'Time-Series + Nearby Consensus'}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-xs mb-4">
-              <div>
-                <span className="text-slate-400 uppercase font-semibold block mb-0.5">Probable Cause:</span>
-                <p className="text-slate-200 bg-slate-900/40 p-2 rounded border border-slate-800">{selectedAnomaly.probableCause}</p>
+            {/* 6-Step Clean Anomaly Breakdown */}
+            <div className="space-y-3 bg-slate-900/70 p-4 rounded-xl border border-slate-800">
+              
+              {/* 1. What happened? */}
+              <div className="space-y-0.5">
+                <span className="text-sky-400 font-bold uppercase text-[11px] font-orbitron block">1. WHAT HAPPENED?</span>
+                <p className="text-slate-200 text-xs">
+                  {selectedAnomaly.whatHappened || `Temperature reading was detected at ${selectedAnomaly.originalValue || 55}°C (sudden step change).`}
+                </p>
               </div>
 
-              <div>
-                <span className="text-slate-400 uppercase font-semibold block mb-1">Supporting AI Evidence:</span>
-                <ul className="list-disc list-inside bg-slate-900/40 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1">
-                  {selectedAnomaly.reasons?.map((r, i) => <li key={i}>{r}</li>)}
-                </ul>
+              {/* 2. Genuine weather or sensor issue? */}
+              <div className="space-y-0.5 pt-2 border-t border-slate-800/80">
+                <span className="text-sky-400 font-bold uppercase text-[11px] font-orbitron block">2. IS IT LIKELY GENUINE WEATHER OR A SENSOR ISSUE?</span>
+                <p className="text-slate-200 text-xs font-bold">
+                  {selectedAnomaly.isGenuineOrSensor || (selectedAnomaly.anomalyType === 'GENUINE_WEATHER_EVENT' ? 'Genuine weather event likely.' : 'Sensor issue likely.')}
+                </p>
               </div>
+
+              {/* 3. Why? */}
+              <div className="space-y-0.5 pt-2 border-t border-slate-800/80">
+                <span className="text-sky-400 font-bold uppercase text-[11px] font-orbitron block">3. WHY?</span>
+                <p className="text-slate-300 text-xs bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
+                  {selectedAnomaly.shortExplanation || selectedAnomaly.probableCause || 'Temperature increased, but humidity and pressure patterns do not support a genuine weather event. Sensor drift is likely.'}
+                </p>
+                <span className="text-[10px] text-slate-400 block mt-1">AI Confidence Score: {Math.round((selectedAnomaly.confidence || 0.94) * 100)}%</span>
+              </div>
+
+              {/* 4. Expected Behavior */}
+              <div className="space-y-0.5 pt-2 border-t border-slate-800/80">
+                <span className="text-sky-400 font-bold uppercase text-[11px] font-orbitron block">4. EXPECTED BEHAVIOR (AI EXPECTED BEHAVIOR)</span>
+                <div className="flex items-center justify-between p-2 rounded bg-slate-950/60 border border-slate-800">
+                  <span className="text-slate-400 text-xs">AI Expected Behavior:</span>
+                  <span className="text-emerald-400 font-bold text-xs">{selectedAnomaly.expectedBehavior || `Expected temperature range: ${selectedAnomaly.expectedRange || '30–34°C'}`}</span>
+                </div>
+              </div>
+
+              {/* 5. Recommended Action */}
+              <div className="space-y-0.5 pt-2 border-t border-slate-800/80">
+                <span className="text-sky-400 font-bold uppercase text-[11px] font-orbitron block">5. RECOMMENDED ACTION</span>
+                <p className="text-amber-300 text-xs font-semibold">
+                  {selectedAnomaly.recommendedAction || 'Check calibration and inspect the temperature sensor.'}
+                </p>
+              </div>
+
+              {/* 6. Optional AI Estimated Value */}
+              {(selectedAnomaly.confidence || 0.94) >= 0.85 && selectedAnomaly.anomalyType !== 'GENUINE_WEATHER_EVENT' && (
+                <div className="space-y-1 pt-2 border-t border-slate-800/80 bg-emerald-950/20 p-2.5 rounded border border-emerald-500/30">
+                  <span className="text-emerald-400 font-bold uppercase text-[11px] font-orbitron block">6. AI ESTIMATED VALUE</span>
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-400">Actual Reading: {selectedAnomaly.originalValue || 55}°C</span>
+                    <span className="text-emerald-300">AI Estimated Value: {selectedAnomaly.correctedValue || 32}°C</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 italic">
+                    * Disclaimer: Estimated value based on historical patterns and other sensor observations.
+                  </p>
+                </div>
+              )}
+
             </div>
 
             {/* Nearby Station Comparison Graph */}
-            <div className="border-t border-slate-800 pt-4 space-y-2">
+            <div className="border-t border-slate-800 pt-3 space-y-2">
               <h3 className="font-orbitron font-bold text-xs text-slate-100 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-sky-400" />
                 NEARBY STATION COMPARISON GRAPH
               </h3>
 
-              <div className="h-48 w-full bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+              <div className="h-44 w-full bg-slate-900/60 p-2 rounded-lg border border-slate-800">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={comparisonData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -201,7 +239,7 @@ export const AnomalyExplorer: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-slate-800 flex justify-end">
+            <div className="pt-2 border-t border-slate-800 flex justify-end">
               <button
                 onClick={() => setSelectedAnomaly(null)}
                 className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold"

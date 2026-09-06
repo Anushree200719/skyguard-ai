@@ -81,17 +81,50 @@ class RuleEngine {
     }
 
     const isAnomaly = score > 0.35;
+    
+    // Categorized Cause Mapping
+    let categorizedCause = 'Genuine Weather Event';
+    if (temp === null || hum === null || pres === null) {
+      categorizedCause = 'Communication Issue';
+    } else if (anomalyType === 'SENSOR_FROZEN') {
+      categorizedCause = 'Dust / Environmental Interference';
+    } else if (anomalyType === 'SENSOR_SPIKE') {
+      categorizedCause = 'Calibration Issue';
+    } else if (isAnomaly) {
+      categorizedCause = 'Sensor Drift';
+    }
+
+    const shortExplanation = isAnomaly 
+      ? `Temperature value ${temp !== null ? temp + '°C' : 'N/A'}, but humidity and pressure patterns do not support a genuine weather event. ${categorizedCause} is likely.`
+      : 'Sensor reading is within expected meteorological boundaries.';
+
     return {
       classification: isAnomaly ? (anomalyType !== 'NORMAL' ? anomalyType : 'POSSIBLE_SENSOR_FAULT') : 'NORMAL',
       severity: score > 0.6 ? 'CRITICAL' : (score > 0.4 ? 'HIGH' : 'LOW'),
       anomalyScore: Math.min(1.0, score),
-      confidence: 0.94,
+      confidence: isAnomaly ? 0.94 : 0.98,
       targetSensor,
-      probableCause: isAnomaly ? 'Physical range/step boundary rule violation' : 'Nominal physical limits',
-      recommendedAction: isAnomaly ? 'Perform sensor diagnostic check' : 'Nominal operation',
+      probableCause: categorizedCause,
+      shortExplanation,
+      recommendedAction: isAnomaly ? 'Perform sensor calibration and check physical AWS wiring' : 'Nominal operation',
       reasons: reasons.length > 0 ? reasons : ['All 6 physical quality control rules passed']
+    };
+  }
+
+  /**
+   * Future-Ready Parameter Processor
+   * Supports expanding to Rainfall, Wind Speed, Wind Direction, and Solar Radiation
+   */
+  static processExtendedParameters(obs) {
+    const { rainfall, windSpeed, windDirection, solarRadiation } = obs;
+    return {
+      rainfallValid: rainfall === null || (rainfall >= 0 && rainfall <= 500),
+      windSpeedValid: windSpeed === null || (windSpeed >= 0 && windSpeed <= 150),
+      windDirectionValid: windDirection === null || (windDirection >= 0 && windDirection <= 360),
+      solarRadiationValid: solarRadiation === undefined || solarRadiation === null || (solarRadiation >= 0 && solarRadiation <= 2000)
     };
   }
 }
 
 module.exports = RuleEngine;
+

@@ -37,7 +37,10 @@ class MlClient {
         mlServiceOffline: false
       };
     } catch (error) {
-      console.warn(`[MlClient] ML Service unavailable (${error.message}). Falling back to Node.js Rule & Spatial Engine.`);
+      if (!MlClient.offlineLogged) {
+        console.log(`ℹ️ [MlClient] ML Service offline (${error.message}). Sourcing Fallback Node.js Rule & Spatial Consensus Engine.`);
+        MlClient.offlineLogged = true;
+      }
       
       // Fallback: Use local Rule Engine & Spatial Consensus
       const ruleRes = RuleEngine.evaluate(currentObs, history);
@@ -48,12 +51,13 @@ class MlClient {
           classification: 'GENUINE_WEATHER_EVENT',
           severity: 'HIGH',
           anomaly_score: 0.75,
-          confidence: 0.90,
-          probable_cause: 'Regional Heatwave / Extreme Weather Event',
+          confidence: 0.94,
+          probable_cause: 'Genuine Weather Event',
+          short_explanation: `Temperature increased to ${currentObs.temperature}°C across multiple nearby stations. Regional extreme weather event confirmed by spatial consensus.`,
           recommended_action: 'Issue meteorological warning',
           reasons: [
             'Spatial Consensus Engine: Multiple nearby stations confirm elevated temperature',
-            `Confirmed by ${spatialRes.matchingRatio * 100}% of surrounding stations`
+            `Confirmed by ${(spatialRes.matchingRatio * 100).toFixed(0)}% of surrounding stations`
           ],
           health_impact: 0,
           mlServiceOffline: true
@@ -66,6 +70,7 @@ class MlClient {
         anomaly_score: ruleRes.anomalyScore,
         confidence: ruleRes.confidence,
         probable_cause: ruleRes.probableCause,
+        short_explanation: ruleRes.shortExplanation,
         recommended_action: ruleRes.recommendedAction,
         reasons: [...ruleRes.reasons, 'Evaluated via Fallback Rule Engine (ML SERVICE OFFLINE)'],
         health_impact: ruleRes.classification === 'NORMAL' ? 0 : -10,
