@@ -1,9 +1,19 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://skyguard-aii.onrender.com';
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return ''; // Relative API path for Vercel Serverless
+  }
+  return 'http://localhost:5000';
+};
+
+const API_BASE = getApiBase();
 
 export const api = axios.create({
-  baseURL: `${API_BASE}/api`,
+  baseURL: API_BASE ? `${API_BASE}/api` : '/api',
   timeout: 12000
 });
 
@@ -21,4 +31,3 @@ export const fetchAnalytics = async () => (await api.get('/analytics')).data;
 export const fetchMaintenance = async () => (await api.get('/maintenance')).data;
 export const runWhatIfSimulation = async (data: { tempChange: number; humChange: number; presChange: number }) => 
   (await api.post('/simulation/what-if', data)).data;
-

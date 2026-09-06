@@ -15,15 +15,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/stations', stationRoutes);
-app.use('/api/anomalies', anomalyRoutes);
-app.use('/api/alerts', alertRoutes);
-app.use('/api/simulation', simulationRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/maintenance', maintenanceRoutes);
-app.use('/api/open-meteo', openMeteoRoutes);
+// Support both /api/ route prefixes and bare routes on Vercel Serverless
+app.use(['/api/stations', '/stations'], stationRoutes);
+app.use(['/api/anomalies', '/anomalies'], anomalyRoutes);
+app.use(['/api/alerts', '/alerts'], alertRoutes);
+app.use(['/api/simulation', '/simulation'], simulationRoutes);
+app.use(['/api/analytics', '/analytics'], analyticsRoutes);
+app.use(['/api/maintenance', '/maintenance'], maintenanceRoutes);
+app.use(['/api/open-meteo', '/open-meteo'], openMeteoRoutes);
 
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'online',
     service: 'SkyGuard AI Express Backend (Vercel Serverless)',
