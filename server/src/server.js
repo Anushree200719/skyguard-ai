@@ -1,3 +1,22 @@
+const path = require('path');
+const fs = require('fs');
+const { execSync } = require('child_process');
+
+// Auto-install node modules if missing
+try {
+  require.resolve('express');
+} catch (e) {
+  console.log('📦 Express or node_modules missing. Auto-installing npm dependencies...');
+  const serverDir = path.resolve(__dirname, '..');
+  const rootDir = path.resolve(__dirname, '../..');
+  const targetDir = fs.existsSync(path.join(serverDir, 'package.json')) ? serverDir : rootDir;
+  try {
+    execSync('npm install --production --no-audit --no-fund', { stdio: 'inherit', cwd: targetDir });
+  } catch (err) {
+    console.error(`⚠️ npm install auto-recovery failed: ${err.message}`);
+  }
+}
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -71,6 +90,6 @@ mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2500 })
   });
 
 server.listen(PORT, () => {
-  console.log(`🚀 SkyGuard AI Server running on http://localhost:${PORT}`);
+  console.log(`🚀 SkyGuard AI Server running on port ${PORT}`);
   simulator.initialize(io);
 });

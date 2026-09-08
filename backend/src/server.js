@@ -1,7 +1,24 @@
 const path = require('path');
 const fs = require('fs');
+const { execSync } = require('child_process');
+
+function ensureNodeModules(dir) {
+  try {
+    require.resolve('express');
+  } catch (e) {
+    console.log(`📦 Node modules missing in ${dir}. Installing dependencies...`);
+    try {
+      execSync('npm install --production --no-audit --no-fund', { stdio: 'inherit', cwd: dir });
+    } catch (err) {
+      console.error(`⚠️ npm install failed: ${err.message}`);
+    }
+  }
+}
 
 const targetServerPath = path.resolve(__dirname, '../../server/src/server.js');
+const rootDir = path.resolve(__dirname, '../..');
+
+ensureNodeModules(fs.existsSync(path.join(__dirname, '../package.json')) ? path.join(__dirname, '..') : rootDir);
 
 if (fs.existsSync(targetServerPath)) {
   console.log(`📡 [SkyGuard Backend] Starting server from: ${targetServerPath}`);
