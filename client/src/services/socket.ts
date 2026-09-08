@@ -1,17 +1,23 @@
 import { io } from 'socket.io-client';
 
-const getSocketUrl = () => {
-  if (import.meta.env.VITE_SOCKET_URL) {
-    return import.meta.env.VITE_SOCKET_URL;
+const PRODUCTION_SOCKET_URL = 'https://skyguard-aii.onrender.com';
+
+const getSocketUrl = (): string => {
+  const socketUrl = import.meta.env.VITE_SOCKET_URL;
+  if (socketUrl && typeof socketUrl === 'string' && socketUrl.trim() !== '') {
+    return socketUrl.trim();
   }
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://skyguard-aii.onrender.com';
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl && typeof apiUrl === 'string' && apiUrl.trim() !== '') {
+    return apiUrl.trim().replace(/\/api\/?$/, '');
   }
-  return 'http://localhost:5000';
+  return PRODUCTION_SOCKET_URL;
 };
 
 export const socket = io(getSocketUrl(), {
   autoConnect: true,
+  transports: ['websocket', 'polling'],
   reconnectionAttempts: 10,
-  reconnectionDelay: 2000
+  reconnectionDelay: 2000,
+  secure: true
 });

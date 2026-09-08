@@ -37,19 +37,27 @@ const app = express();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CLIENT_URL = process.env.CLIENT_URL || 'https://skyguard-ai.vercel.app';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/skyguard';
 
-// Socket.IO setup
+// Socket.IO setup with production CORS
 const io = new Server(server, {
   cors: {
     origin: '*',
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
   }
 });
 
-app.use(cors());
+// Express CORS setup for REST API
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 app.use(express.json());
+
 
 // API Routes
 app.use('/api/stations', stationRoutes);

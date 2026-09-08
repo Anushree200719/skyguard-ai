@@ -1,20 +1,25 @@
 import axios from 'axios';
 
-const getApiBase = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+const PRODUCTION_BACKEND_URL = 'https://skyguard-aii.onrender.com';
+
+const getApiBase = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim();
   }
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return ''; // Relative API path for Vercel Serverless
-  }
-  return 'http://localhost:5000';
+  return PRODUCTION_BACKEND_URL;
 };
 
-const API_BASE = getApiBase();
+const rawBase = getApiBase();
+const cleanBase = rawBase.replace(/\/+$/, '');
+const baseURL = cleanBase.endsWith('/api') ? cleanBase : `${cleanBase}/api`;
 
 export const api = axios.create({
-  baseURL: API_BASE ? `${API_BASE}/api` : '/api',
-  timeout: 12000
+  baseURL,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 export const fetchStations = async () => (await api.get('/stations')).data;
