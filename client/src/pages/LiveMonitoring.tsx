@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchStations, fetchStationObservations, fetchStationLiveWeather } from '../services/api';
 import { socket } from '../services/socket';
 import { Station, Observation } from '../types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
-import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders } from 'lucide-react';
+import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders, Search, ChevronDown, Check, X, MapPin, RadioTower } from 'lucide-react';
 import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
 
 export const LiveMonitoring: React.FC = () => {
@@ -13,6 +13,24 @@ export const LiveMonitoring: React.FC = () => {
   const [openMeteoData, setOpenMeteoData] = useState<any>(null);
   const [loadingWeather, setLoadingWeather] = useState<boolean>(false);
   const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
+
+  // Searchable Station Dropdown State
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // 1. Fetch available station list on mount
   useEffect(() => {
@@ -95,6 +113,13 @@ export const LiveMonitoring: React.FC = () => {
     longitude: 79.1613
   };
 
+  // Filter stations for search list
+  const filteredStations = stations.filter(s =>
+    s.stationId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const latestObs = observations[observations.length - 1];
   const currentMeteo = openMeteoData?.current;
   const dailyMeteo = openMeteoData?.daily;
@@ -143,7 +168,7 @@ export const LiveMonitoring: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setIsWhatIfOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all"
           >
             <Sliders className="w-3.5 h-3.5 text-amber-400" />
             WHAT-IF SIMULATOR
@@ -151,29 +176,91 @@ export const LiveMonitoring: React.FC = () => {
 
           <button
             onClick={() => loadOpenMeteo(selectedStationId)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loadingWeather ? 'animate-spin' : ''}`} />
             SYNC OPEN-METEO
           </button>
 
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-slate-300 uppercase">Station:</label>
-            <select
-              value={selectedStationId}
-              onChange={(e) => setSelectedStationId(e.target.value)}
-              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-100 cursor-pointer focus:outline-none focus:border-sky-500"
+          {/* SEARCHABLE CUSTOM STATION DROPDOWN */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center justify-between gap-2 min-w-[260px] bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 rounded-lg px-3 py-1.5 text-xs text-left transition-all font-mono"
             >
-              {stations.length === 0 ? (
-                <option value={selectedStationId}>{selectedStationId} — AWS Station</option>
-              ) : (
-                stations.map(s => (
-                  <option key={s.stationId} value={s.stationId}>
-                    {s.stationId} — {s.name} ({s.location})
-                  </option>
-                ))
-              )}
-            </select>
+              <div className="flex items-center gap-2 truncate">
+                <RadioTower className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
+                <span className="font-bold text-sky-300">{selectedStation.stationId}</span>
+                <span className="text-slate-300 truncate">— {selectedStation.name}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* POPUP DROPDOWN MENU */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-950/95 backdrop-blur-xl border border-sky-500/30 rounded-xl shadow-2xl z-50 overflow-hidden font-mono text-xs">
+                {/* Search Bar Input */}
+                <div className="p-2.5 border-b border-slate-800 bg-slate-900/80 flex items-center gap-2">
+                  <Search className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Search station by ID, name, or city..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    className="w-full bg-transparent border-none text-slate-100 text-xs focus:outline-none placeholder-slate-500 font-mono"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="p-0.5 text-slate-400 hover:text-slate-200">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Stations List Selection */}
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60">
+                  {filteredStations.length === 0 ? (
+                    <div className="p-4 text-center text-slate-500 text-xs">
+                      No stations match "{searchQuery}"
+                    </div>
+                  ) : (
+                    filteredStations.map((st) => {
+                      const isSelected = st.stationId === selectedStationId;
+                      return (
+                        <button
+                          key={st.stationId}
+                          onClick={() => {
+                            setSelectedStationId(st.stationId);
+                            setIsDropdownOpen(false);
+                            setSearchQuery('');
+                          }}
+                          className={`w-full p-2.5 text-left flex items-center justify-between transition-all ${
+                            isSelected
+                              ? 'bg-sky-500/20 border-l-4 border-sky-400 text-slate-100'
+                              : 'hover:bg-slate-900/80 text-slate-300 hover:text-slate-100'
+                          }`}
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sky-400">{st.stationId}</span>
+                              <span className="font-semibold text-slate-200">{st.name}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                              <MapPin className="w-3 h-3 text-slate-500" />
+                              <span>{st.location}</span>
+                            </div>
+                          </div>
+
+                          {isSelected && (
+                            <Check className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
