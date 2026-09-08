@@ -22,7 +22,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 glass-card border-r border-sky-500/20 p-4 flex flex-col gap-2 min-h-[calc(100vh-4rem)]">
+    <aside className="hidden md:flex w-64 glass-card border-r border-sky-500/20 p-4 flex-col gap-2 min-h-[calc(100vh-4rem)] flex-shrink-0">
       <div className="text-[10px] font-orbitron text-sky-400 font-bold px-3 py-1 tracking-widest text-slate-400 uppercase">
         COMMAND CENTER NAVIGATION
       </div>

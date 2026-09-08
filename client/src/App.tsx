@@ -14,13 +14,13 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 export const App: React.FC = () => {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col font-sans bg-[#070a12] text-slate-100">
+      <div className="min-h-screen flex flex-col font-sans bg-[#070a12] text-slate-100 overflow-x-hidden">
         <Header />
 
-        <div className="flex flex-1">
+        <div className="flex flex-1 relative w-full max-w-full overflow-x-hidden">
           <Sidebar />
 
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main className="flex-1 p-3 sm:p-6 overflow-y-auto w-full max-w-full overflow-x-hidden">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/stations" element={<Stations />} />
