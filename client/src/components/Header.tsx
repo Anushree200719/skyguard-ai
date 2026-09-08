@@ -88,35 +88,41 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Slide-Out Drawer Navigation Overlay */}
+      {/* Mobile Slide-Out Drawer Navigation Overlay & Backdrop */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-x-0 top-16 bg-slate-950/98 border-b border-sky-500/30 p-4 shadow-2xl md:hidden z-50 flex flex-col gap-3 backdrop-blur-2xl">
-          <div className="text-[10px] font-orbitron text-sky-400 font-bold px-2 tracking-widest uppercase">
-            COMMAND CENTER NAVIGATION
+        <>
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm md:hidden z-40"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="fixed inset-x-0 top-16 bg-slate-950/98 border-b border-sky-500/30 p-4 shadow-2xl md:hidden z-50 flex flex-col gap-3 backdrop-blur-2xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div className="text-[10px] font-orbitron text-sky-400 font-bold px-2 tracking-widest uppercase">
+              COMMAND CENTER NAVIGATION
+            </div>
+            <nav className="flex flex-col gap-1.5">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3.5 py-3 rounded-lg font-medium text-xs font-mono transition-all active:scale-[0.98] touch-manipulation ${
+                        isActive
+                          ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-md shadow-sky-500/10'
+                          : 'text-slate-300 hover:text-slate-100 hover:bg-slate-900'
+                      }`
+                    }
+                  >
+                    <Icon className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                    <span>{link.label}</span>
+                  </NavLink>
+                );
+              })}
+            </nav>
           </div>
-          <nav className="flex flex-col gap-1.5">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3.5 py-2.5 rounded-lg font-medium text-xs font-mono transition-all ${
-                      isActive
-                        ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
-                        : 'text-slate-300 hover:text-slate-100 hover:bg-slate-900'
-                    }`
-                  }
-                >
-                  <Icon className="w-4 h-4 text-sky-400" />
-                  <span>{link.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
-        </div>
+        </>
       )}
     </header>
   );

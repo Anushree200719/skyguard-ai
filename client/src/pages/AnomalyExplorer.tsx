@@ -40,22 +40,22 @@ export const AnomalyExplorer: React.FC = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="glass-card p-4 rounded-xl border border-sky-500/20 flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold uppercase">
-            <Filter className="w-4 h-4 text-sky-400" /> FILTERS:
+      <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2.5 sm:gap-3 items-center w-full">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold uppercase font-orbitron">
+            <Filter className="w-4 h-4 text-sky-400 flex-shrink-0" /> FILTERS:
           </div>
           <input
             type="text"
             placeholder="Station ID..."
             value={stationFilter}
             onChange={(e) => setStationFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-36"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-36 flex-1 sm:flex-none font-mono"
           />
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-auto flex-1 sm:flex-none font-mono"
           >
             <option value="">ALL ANOMALY TYPES</option>
             <option value="GENUINE_WEATHER_EVENT">GENUINE WEATHER EVENT</option>
@@ -68,7 +68,7 @@ export const AnomalyExplorer: React.FC = () => {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-auto flex-1 sm:flex-none font-mono"
           >
             <option value="">ALL SEVERITIES</option>
             <option value="LOW">LOW</option>

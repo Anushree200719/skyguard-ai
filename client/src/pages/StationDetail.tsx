@@ -85,20 +85,20 @@ export const StationDetail: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Back button & Station Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div className="flex items-center gap-4">
-          <Link to="/stations" className="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+          <Link to="/stations" className="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-lg flex-shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-orbitron font-bold text-xl text-slate-100">{currentStation.name}</h1>
-              <span className="px-2.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-mono font-bold">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">{currentStation.name}</h1>
+              <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-mono font-bold">
                 {currentStation.stationId}
               </span>
               
               <div 
-                className="group relative flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold cursor-help"
+                className="group relative flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold cursor-help"
                 title="SkyGuard continuously learns this station's normal environmental patterns."
               >
                 <span>🧠 AI Learning: Active</span>
@@ -107,22 +107,22 @@ export const StationDetail: React.FC = () => {
                 </span>
               </div>
             </div>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">
+            <p className="text-xs text-slate-400 font-mono mt-1 leading-relaxed">
               Location: {currentStation.location} • Coordinates: {currentStation.latitude.toFixed(4)}°N, {currentStation.longitude.toFixed(4)}°E • Elevation: {currentStation.elevation}m MSL
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
+        <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+          <div className="text-left md:text-right">
             <span className="text-[10px] text-slate-400 block font-semibold">SENSOR HEALTH SCORE</span>
-            <span className={`font-orbitron font-bold text-lg ${currentStation.healthScore < 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
-              Sensor Health: {currentStation.healthScore}% – {currentStation.healthScore >= 90 ? 'Healthy' : (currentStation.healthScore >= 70 ? 'Monitor' : 'Maintenance Recommended')}
+            <span className={`font-orbitron font-bold text-sm sm:text-lg ${currentStation.healthScore < 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
+              Health: {currentStation.healthScore}% – {currentStation.healthScore >= 90 ? 'Healthy' : (currentStation.healthScore >= 70 ? 'Monitor' : 'Maintenance Recommended')}
             </span>
           </div>
           <div className="text-right border-l border-slate-800 pl-3">
             <span className="text-[10px] text-slate-400 block font-semibold">EST. RUL</span>
-            <span className="font-orbitron font-bold text-lg text-indigo-400">
+            <span className="font-orbitron font-bold text-sm sm:text-lg text-indigo-400">
               {currentStation.rulDays || 420} DAYS
             </span>
           </div>
@@ -190,11 +190,11 @@ export const StationDetail: React.FC = () => {
           <span className="text-[10px] text-slate-400 block mt-1">Health: {sh.wind}/100</span>
         </div>
 
-        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
+        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center col-span-2 md:col-span-1">
           <div className="flex items-center justify-center gap-1.5 text-emerald-400 text-xs font-semibold mb-1">
             <CloudRain className="w-4 h-4" /> RAINFALL
           </div>
-          <span className="font-orbitron font-bold text-xl text-slate-100">{latestObs?.rainfall !== undefined ? `${latestObs.rainfall} mm` : (currentMeteo?.precipitation !== undefined ? `${currentMeteo.precipitation} mm` : '0.0 mm')}</span>
+          <span className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">{latestObs?.rainfall !== undefined ? `${latestObs.rainfall} mm` : (currentMeteo?.precipitation !== undefined ? `${currentMeteo.precipitation} mm` : '0.0 mm')}</span>
           <span className="text-[10px] text-slate-400 block mt-1">Health: {sh.rainfall}/100</span>
         </div>
       </div>

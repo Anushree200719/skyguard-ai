@@ -178,72 +178,86 @@ export const LiveMonitoring: React.FC = () => {
     : [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header Container */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
-            <ChartIcon className="w-5 h-5 text-sky-400" />
+          <h1 className="font-orbitron font-bold text-lg sm:text-xl text-slate-100 flex items-center gap-2">
+            <ChartIcon className="w-5 h-5 text-sky-400 flex-shrink-0" />
             REAL-TIME TELEMETRY & OPEN-METEO SATELLITE RADAR
           </h1>
-          <p className="text-xs text-slate-400">Live multi-sensor telemetry stream augmented with real-world Open-Meteo satellite observations</p>
+          <p className="text-xs text-slate-400 mt-0.5">Live multi-sensor telemetry stream augmented with real-world Open-Meteo satellite observations</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Action Controls Container */}
+        <div className="flex flex-wrap sm:flex-nowrap items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => setIsWhatIfOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all"
           >
-            <Sliders className="w-3.5 h-3.5 text-amber-400" />
-            WHAT-IF SIMULATOR
+            <Sliders className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <span>WHAT-IF SIMULATOR</span>
           </button>
 
           <button
             onClick={() => loadOpenMeteo(selectedStationId)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono transition-all"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingWeather ? 'animate-spin' : ''}`} />
-            SYNC OPEN-METEO
+            <RefreshCw className={`w-3.5 h-3.5 flex-shrink-0 ${loadingWeather ? 'animate-spin' : ''}`} />
+            <span>SYNC METEO</span>
           </button>
 
-          {/* SEARCHABLE CUSTOM STATION DROPDOWN */}
-          <div className="relative" ref={dropdownRef}>
+          {/* MOBILE & DESKTOP FULLY RESPONSIVE SEARCHABLE STATION DROPDOWN */}
+          <div className="relative w-full sm:w-auto" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center justify-between gap-2 min-w-[260px] bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 rounded-lg px-3 py-1.5 text-xs text-left transition-all font-mono"
+              className="w-full sm:w-auto flex items-center justify-between gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 rounded-lg px-3 py-2 text-xs text-left transition-all font-mono shadow-sm"
             >
               <div className="flex items-center gap-2 truncate">
-                <RadioTower className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
+                <RadioTower className="w-4 h-4 text-sky-400 flex-shrink-0" />
                 <span className="font-bold text-sky-300">{selectedStation.stationId}</span>
-                <span className="text-slate-300 truncate">— {selectedStation.name}</span>
+                <span className="text-slate-200 truncate">— {selectedStation.name}</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* POPUP DROPDOWN MENU */}
+            {/* Mobile Backdrop Overlay */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-950/95 backdrop-blur-xl border border-sky-500/30 rounded-xl shadow-2xl z-50 overflow-hidden font-mono text-xs">
+              <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden"
+                onClick={() => setIsDropdownOpen(false)}
+              />
+            )}
+
+            {/* POPUP DROPDOWN MENU (Centered Fixed Modal on Mobile, Absolute Dropdown on Desktop) */}
+            {isDropdownOpen && (
+              <div className="fixed inset-x-3 top-20 sm:absolute sm:inset-auto sm:right-0 sm:mt-2 w-auto sm:w-96 bg-slate-950/98 backdrop-blur-2xl border border-sky-500/40 rounded-xl shadow-2xl z-50 overflow-hidden font-mono text-xs max-h-[75vh] flex flex-col">
                 {/* Search Bar Input */}
-                <div className="p-2.5 border-b border-slate-800 bg-slate-900/80 flex items-center gap-2">
+                <div className="p-3 border-b border-slate-800 bg-slate-900/90 flex items-center gap-2">
                   <Search className="w-4 h-4 text-sky-400 flex-shrink-0" />
                   <input
                     type="text"
-                    placeholder="Search station by ID, name, or city..."
+                    placeholder="Search station by ID, city, or state..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
                     className="w-full bg-transparent border-none text-slate-100 text-xs focus:outline-none placeholder-slate-500 font-mono"
                   />
-                  {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="p-0.5 text-slate-400 hover:text-slate-200">
-                      <X className="w-3.5 h-3.5" />
+                  {searchQuery ? (
+                    <button onClick={() => setSearchQuery('')} className="p-1 text-slate-400 hover:text-slate-200">
+                      <X className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button onClick={() => setIsDropdownOpen(false)} className="p-1 text-slate-400 hover:text-slate-200 sm:hidden">
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>
 
                 {/* Stations List Selection */}
-                <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60">
+                <div className="overflow-y-auto divide-y divide-slate-800/80 flex-1">
                   {filteredStations.length === 0 ? (
-                    <div className="p-4 text-center text-slate-500 text-xs">
+                    <div className="p-6 text-center text-slate-400 text-xs">
                       No stations match "{searchQuery}"
                     </div>
                   ) : (
@@ -258,25 +272,25 @@ export const LiveMonitoring: React.FC = () => {
                             setIsDropdownOpen(false);
                             setSearchQuery('');
                           }}
-                          className={`w-full p-2.5 text-left flex items-center justify-between transition-all ${
+                          className={`w-full p-3 text-left flex items-center justify-between transition-all touch-manipulation min-h-[48px] ${
                             isSelected
-                              ? 'bg-sky-500/20 border-l-4 border-sky-400 text-slate-100'
-                              : 'hover:bg-slate-900/80 text-slate-300 hover:text-slate-100'
+                              ? 'bg-sky-500/20 border-l-4 border-sky-400 text-slate-100 font-semibold'
+                              : 'hover:bg-slate-900 text-slate-300 hover:text-slate-100 active:bg-slate-800'
                           }`}
                         >
-                          <div className="space-y-0.5">
+                          <div className="space-y-0.5 pr-2">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-sky-400">{stId}</span>
-                              <span className="font-semibold text-slate-200">{st.name}</span>
+                              <span className="font-medium text-slate-200">{st.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                              <MapPin className="w-3 h-3 text-slate-500" />
-                              <span>{st.location}</span>
+                              <MapPin className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                              <span className="truncate">{st.location}</span>
                             </div>
                           </div>
 
                           {isSelected && (
-                            <Check className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                            <Check className="w-4 h-4 text-sky-400 flex-shrink-0 ml-2" />
                           )}
                         </button>
                       );
@@ -292,12 +306,12 @@ export const LiveMonitoring: React.FC = () => {
       <WhatIfSimulatorModal isOpen={isWhatIfOpen} onClose={() => setIsWhatIfOpen(false)} />
 
       {/* Primary 5 Real-Time Sensor Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-3">
+        <div className="glass-card p-2.5 sm:p-3 rounded-xl border border-sky-500/20 text-center">
           <div className="flex items-center justify-center gap-1.5 text-sky-400 text-xs font-semibold mb-1">
             <Thermometer className="w-4 h-4" /> TEMPERATURE
           </div>
-          <span className="font-orbitron font-bold text-xl text-slate-100">
+          <span className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">
             {latestObs?.temperature !== undefined ? `${latestObs.temperature}°C` : (currentMeteo?.temperature_2m !== undefined ? `${currentMeteo.temperature_2m}°C` : '28.0°C')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
@@ -305,11 +319,11 @@ export const LiveMonitoring: React.FC = () => {
           </span>
         </div>
 
-        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
+        <div className="glass-card p-2.5 sm:p-3 rounded-xl border border-sky-500/20 text-center">
           <div className="flex items-center justify-center gap-1.5 text-cyan-400 text-xs font-semibold mb-1">
             <Droplets className="w-4 h-4" /> HUMIDITY
           </div>
-          <span className="font-orbitron font-bold text-xl text-slate-100">
+          <span className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">
             {latestObs?.humidity !== undefined ? `${latestObs.humidity}%` : (currentMeteo?.relative_humidity_2m !== undefined ? `${currentMeteo.relative_humidity_2m}%` : '65%')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
@@ -317,11 +331,11 @@ export const LiveMonitoring: React.FC = () => {
           </span>
         </div>
 
-        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
+        <div className="glass-card p-2.5 sm:p-3 rounded-xl border border-sky-500/20 text-center">
           <div className="flex items-center justify-center gap-1.5 text-indigo-400 text-xs font-semibold mb-1">
             <Gauge className="w-4 h-4" /> SURFACE PRESSURE
           </div>
-          <span className="font-orbitron font-bold text-xl text-slate-100">
+          <span className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">
             {latestObs?.pressure !== undefined ? latestObs.pressure : (currentMeteo?.surface_pressure ? currentMeteo.surface_pressure.toFixed(1) : '1012.0')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
@@ -329,11 +343,11 @@ export const LiveMonitoring: React.FC = () => {
           </span>
         </div>
 
-        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
+        <div className="glass-card p-2.5 sm:p-3 rounded-xl border border-sky-500/20 text-center">
           <div className="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-semibold mb-1">
             <Wind className="w-4 h-4" /> WIND SPEED & GUSTS
           </div>
-          <span className="font-orbitron font-bold text-xl text-slate-100">
+          <span className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">
             {latestObs?.windSpeed !== undefined ? `${latestObs.windSpeed} m/s` : (currentMeteo?.wind_speed_10m !== undefined ? `${currentMeteo.wind_speed_10m} m/s` : '12.0 m/s')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
@@ -341,11 +355,11 @@ export const LiveMonitoring: React.FC = () => {
           </span>
         </div>
 
-        <div className="glass-card p-3 rounded-xl border border-sky-500/20 text-center">
+        <div className="glass-card p-2.5 sm:p-3 rounded-xl border border-sky-500/20 text-center col-span-2 md:col-span-1">
           <div className="flex items-center justify-center gap-1.5 text-emerald-400 text-xs font-semibold mb-1">
             <CloudRain className="w-4 h-4" /> PRECIPITATION / RAIN
           </div>
-          <span className="font-orbitron font-bold text-xl text-slate-100">
+          <span className="font-orbitron font-bold text-lg sm:text-xl text-slate-100">
             {latestObs?.rainfall !== undefined ? `${latestObs.rainfall} mm` : (currentMeteo?.precipitation !== undefined ? `${currentMeteo.precipitation} mm` : '0.0 mm')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
@@ -355,10 +369,10 @@ export const LiveMonitoring: React.FC = () => {
       </div>
 
       {/* OPEN-METEO SATELLITE & GEOPHYSICAL RADAR CARD */}
-      <div className="glass-card p-5 rounded-xl border border-cyan-500/30 bg-[#0a1426]/80 space-y-4">
+      <div className="glass-card p-3.5 sm:p-5 rounded-xl border border-cyan-500/30 bg-[#0a1426]/80 space-y-4">
         <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
           <div className="flex items-center gap-2">
-            <Satellite className="w-5 h-5 text-cyan-400 animate-pulse" />
+            <Satellite className="w-5 h-5 text-cyan-400 animate-pulse flex-shrink-0" />
             <h2 className="font-orbitron font-bold text-xs text-slate-100 uppercase tracking-wider">
               LIVE OPEN-METEO SATELLITE RADAR & GEOPHYSICAL TELEMETRY
             </h2>
@@ -373,7 +387,7 @@ export const LiveMonitoring: React.FC = () => {
             📡 Fetching live Open-Meteo satellite weather telemetry for {selectedStation.name}...
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 text-xs font-mono">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-2.5 sm:gap-3 text-xs font-mono">
             <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
               <span className="text-[10px] text-slate-400 flex items-center gap-1">
                 <Sun className="w-3 h-3 text-amber-400" /> SOLAR RADIATION
@@ -438,13 +452,13 @@ export const LiveMonitoring: React.FC = () => {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Open-Meteo Hourly Forecast Temperature & Apparent Temp Curve */}
-        <div className="glass-card p-4 rounded-xl border border-sky-500/20">
+        <div className="glass-card p-3 sm:p-4 rounded-xl border border-sky-500/20">
           <h2 className="font-orbitron font-bold text-xs text-slate-100 mb-3 flex items-center gap-2">
             <Thermometer className="w-4 h-4 text-sky-400" /> OPEN-METEO 24-HOUR TEMPERATURE & APPARENT (°C)
           </h2>
-          <div className="h-56">
+          <div className="h-48 sm:h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={hourlyChartData}>
                 <defs>
@@ -465,11 +479,11 @@ export const LiveMonitoring: React.FC = () => {
         </div>
 
         {/* Live Station Wind Speed Trend */}
-        <div className="glass-card p-4 rounded-xl border border-sky-500/20">
+        <div className="glass-card p-3 sm:p-4 rounded-xl border border-sky-500/20">
           <h2 className="font-orbitron font-bold text-xs text-slate-100 mb-3 flex items-center gap-2">
             <Wind className="w-4 h-4 text-amber-400" /> REAL-TIME WIND SPEED TELEMETRY (M/S)
           </h2>
-          <div className="h-56">
+          <div className="h-48 sm:h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />

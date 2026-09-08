@@ -19,14 +19,14 @@ export const Stations: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
-            <RadioTower className="w-5 h-5 text-sky-400" />
+          <h1 className="font-orbitron font-bold text-lg sm:text-xl text-slate-100 flex items-center gap-2">
+            <RadioTower className="w-5 h-5 text-sky-400 flex-shrink-0" />
             AUTOMATIC WEATHER STATIONS ({filtered.length})
           </h1>
-          <p className="text-xs text-slate-400">Complete AWS network inventory across India</p>
+          <p className="text-xs text-slate-400 mt-0.5">Complete AWS network inventory across India</p>
         </div>
 
         <input
@@ -34,7 +34,7 @@ export const Stations: React.FC = () => {
           placeholder="Search by Station ID or location..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-xs text-slate-100 w-64 focus:outline-none focus:border-sky-500"
+          className="bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-slate-100 w-full sm:w-64 focus:outline-none focus:border-sky-500 font-mono shadow-sm"
         />
       </div>
 
