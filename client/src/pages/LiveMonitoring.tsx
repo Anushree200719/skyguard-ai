@@ -14,20 +14,20 @@ export const LiveMonitoring: React.FC = () => {
   const [loadingWeather, setLoadingWeather] = useState<boolean>(false);
   const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
 
+  // 1. Fetch available station list on mount
   useEffect(() => {
+    let isMounted = true;
     fetchStations().then(sts => {
+      if (!isMounted || !sts || sts.length === 0) return;
       setStations(sts);
-      const nagpur = sts.find(s => s.stationId === 'AWS-701');
-      if (nagpur) setSelectedStationId('AWS-701');
-      else if (sts.length > 0) setSelectedStationId(sts[0].stationId);
+      setSelectedStationId(prev => {
+        const exists = sts.some(s => s.stationId === prev);
+        return exists ? prev : sts[0].stationId;
+      });
     }).catch(console.warn);
-  }, []);
 
-  const loadData = () => {
-    if (selectedStationId) {
-      fetchStationObservations(selectedStationId, 30).then(setObservations).catch(console.warn);
-    }
-  };
+    return () => { isMounted = false; };
+  }, []);
 
   const loadOpenMeteo = async (stId: string) => {
     setLoadingWeather(true);
@@ -41,11 +41,32 @@ export const LiveMonitoring: React.FC = () => {
     }
   };
 
+  // 2. Fetch observations & Open-Meteo data when selectedStationId changes
   useEffect(() => {
-    loadData();
-    loadOpenMeteo(selectedStationId);
+    let isMounted = true;
+    if (!selectedStationId) return;
+
+    setOpenMeteoData(null);
+    setLoadingWeather(true);
+
+    // Run telemetry fetch and Open-Meteo satellite fetch in parallel
+    Promise.allSettled([
+      fetchStationObservations(selectedStationId, 30),
+      fetchStationLiveWeather(selectedStationId)
+    ]).then(([obsResult, weatherResult]) => {
+      if (!isMounted) return;
+
+      if (obsResult.status === 'fulfilled') {
+        setObservations(obsResult.value || []);
+      }
+      if (weatherResult.status === 'fulfilled' && weatherResult.value?.openMeteo) {
+        setOpenMeteoData(weatherResult.value.openMeteo);
+      }
+      setLoadingWeather(false);
+    });
 
     const onUpdate = (data: any) => {
+      if (!isMounted) return;
       if (data?.observations) {
         const stObs = data.observations.find((o: any) => o.stationId === selectedStationId);
         if (stObs) {
@@ -56,18 +77,24 @@ export const LiveMonitoring: React.FC = () => {
             return [...prev.slice(-29), stObs];
           });
         }
-      } else {
-        loadData();
       }
     };
 
     socket.on('weather_update', onUpdate);
     return () => {
+      isMounted = false;
       socket.off('weather_update', onUpdate);
     };
   }, [selectedStationId]);
 
-  const selectedStation = stations.find(s => s.stationId === selectedStationId);
+  const selectedStation = stations.find(s => s.stationId === selectedStationId) || {
+    stationId: selectedStationId,
+    name: selectedStationId === 'AWS-701' ? 'Nagpur Central Meteorology Station' : selectedStationId,
+    location: selectedStationId === 'AWS-701' ? 'Nagpur, Maharashtra' : 'AWS Site',
+    latitude: 21.1492,
+    longitude: 79.1613
+  };
+
   const latestObs = observations[observations.length - 1];
   const currentMeteo = openMeteoData?.current;
   const dailyMeteo = openMeteoData?.daily;
@@ -91,7 +118,6 @@ export const LiveMonitoring: React.FC = () => {
     };
   });
 
-  // Hourly temperature & radiation forecast chart data from Open-Meteo
   const hourlyChartData = (openMeteoData?.hourly?.time && Array.isArray(openMeteoData.hourly.time)) 
     ? openMeteoData.hourly.time.slice(0, 24).map((t: string, idx: number) => ({
         hour: typeof t === 'string' ? t.slice(11, 16) : `${idx}:00`,
@@ -136,13 +162,17 @@ export const LiveMonitoring: React.FC = () => {
             <select
               value={selectedStationId}
               onChange={(e) => setSelectedStationId(e.target.value)}
-              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-100"
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-100 cursor-pointer focus:outline-none focus:border-sky-500"
             >
-              {stations.map(s => (
-                <option key={s.stationId} value={s.stationId}>
-                  {s.stationId} — {s.name} ({s.location})
-                </option>
-              ))}
+              {stations.length === 0 ? (
+                <option value={selectedStationId}>{selectedStationId} — AWS Station</option>
+              ) : (
+                stations.map(s => (
+                  <option key={s.stationId} value={s.stationId}>
+                    {s.stationId} — {s.name} ({s.location})
+                  </option>
+                ))
+              )}
             </select>
           </div>
         </div>
@@ -157,7 +187,7 @@ export const LiveMonitoring: React.FC = () => {
             <Thermometer className="w-4 h-4" /> TEMPERATURE
           </div>
           <span className="font-orbitron font-bold text-xl text-slate-100">
-            {latestObs?.temperature ?? currentMeteo?.temperature_2m ?? '--'}°C
+            {latestObs?.temperature !== undefined ? `${latestObs.temperature}°C` : (currentMeteo?.temperature_2m !== undefined ? `${currentMeteo.temperature_2m}°C` : '--')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
             Apparent: {currentMeteo?.apparent_temperature !== undefined ? `${currentMeteo.apparent_temperature}°C` : (openMeteoData?.hourly?.apparent_temperature?.[0] !== undefined ? `${openMeteoData.hourly.apparent_temperature[0]}°C` : '--')}
@@ -169,7 +199,7 @@ export const LiveMonitoring: React.FC = () => {
             <Droplets className="w-4 h-4" /> HUMIDITY
           </div>
           <span className="font-orbitron font-bold text-xl text-slate-100">
-            {latestObs?.humidity ?? currentMeteo?.relative_humidity_2m ?? '--'}%
+            {latestObs?.humidity !== undefined ? `${latestObs.humidity}%` : (currentMeteo?.relative_humidity_2m !== undefined ? `${currentMeteo.relative_humidity_2m}%` : '--')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
             Vap. Deficit: {openMeteoData?.hourly?.vapour_pressure_deficit?.[0] !== undefined ? `${openMeteoData.hourly.vapour_pressure_deficit[0]} kPa` : '--'}
@@ -181,7 +211,7 @@ export const LiveMonitoring: React.FC = () => {
             <Gauge className="w-4 h-4" /> SURFACE PRESSURE
           </div>
           <span className="font-orbitron font-bold text-xl text-slate-100">
-            {latestObs?.pressure ?? (currentMeteo?.surface_pressure ? currentMeteo.surface_pressure.toFixed(1) : '--')}
+            {latestObs?.pressure !== undefined ? latestObs.pressure : (currentMeteo?.surface_pressure ? currentMeteo.surface_pressure.toFixed(1) : '--')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
             MSL: {currentMeteo?.pressure_msl ? `${currentMeteo.pressure_msl.toFixed(1)} hPa` : (openMeteoData?.hourly?.pressure_msl?.[0] ? `${openMeteoData.hourly.pressure_msl[0].toFixed(1)} hPa` : '--')}
@@ -193,7 +223,7 @@ export const LiveMonitoring: React.FC = () => {
             <Wind className="w-4 h-4" /> WIND SPEED & GUSTS
           </div>
           <span className="font-orbitron font-bold text-xl text-slate-100">
-            {latestObs?.windSpeed ?? currentMeteo?.wind_speed_10m ?? '--'} m/s
+            {latestObs?.windSpeed !== undefined ? `${latestObs.windSpeed} m/s` : (currentMeteo?.wind_speed_10m !== undefined ? `${currentMeteo.wind_speed_10m} m/s` : '--')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
             Gusts: {currentMeteo?.wind_gusts_10m !== undefined ? `${currentMeteo.wind_gusts_10m} km/h` : '--'}
@@ -205,7 +235,7 @@ export const LiveMonitoring: React.FC = () => {
             <CloudRain className="w-4 h-4" /> PRECIPITATION / RAIN
           </div>
           <span className="font-orbitron font-bold text-xl text-slate-100">
-            {latestObs?.rainfall ?? currentMeteo?.precipitation ?? '0.0'} mm
+            {latestObs?.rainfall !== undefined ? `${latestObs.rainfall} mm` : (currentMeteo?.precipitation !== undefined ? `${currentMeteo.precipitation} mm` : '0.0 mm')}
           </span>
           <span className="text-[10px] text-slate-400 block mt-1">
             Cloud Cover: {currentMeteo?.cloud_cover !== undefined ? `${currentMeteo.cloud_cover}%` : '--'}
@@ -214,20 +244,24 @@ export const LiveMonitoring: React.FC = () => {
       </div>
 
       {/* OPEN-METEO SATELLITE & GEOPHYSICAL RADAR CARD */}
-      {openMeteoData && (
-        <div className="glass-card p-5 rounded-xl border border-cyan-500/30 bg-[#0a1426]/80 space-y-4">
-          <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
-            <div className="flex items-center gap-2">
-              <Satellite className="w-5 h-5 text-cyan-400 animate-pulse" />
-              <h2 className="font-orbitron font-bold text-xs text-slate-100 uppercase tracking-wider">
-                LIVE OPEN-METEO SATELLITE RADAR & GEOPHYSICAL TELEMETRY
-              </h2>
-            </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-              COORDINATES: {selectedStation?.latitude?.toFixed(4) || '21.1492'}°N, {selectedStation?.longitude?.toFixed(4) || '79.1613'}°E ({selectedStation?.name || 'Nagpur'})
-            </span>
+      <div className="glass-card p-5 rounded-xl border border-cyan-500/30 bg-[#0a1426]/80 space-y-4">
+        <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+          <div className="flex items-center gap-2">
+            <Satellite className="w-5 h-5 text-cyan-400 animate-pulse" />
+            <h2 className="font-orbitron font-bold text-xs text-slate-100 uppercase tracking-wider">
+              LIVE OPEN-METEO SATELLITE RADAR & GEOPHYSICAL TELEMETRY
+            </h2>
           </div>
+          <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold">
+            COORDINATES: {selectedStation?.latitude !== undefined ? selectedStation.latitude.toFixed(4) : '21.1492'}°N, {selectedStation?.longitude !== undefined ? selectedStation.longitude.toFixed(4) : '79.1613'}°E ({selectedStation?.name || selectedStationId})
+          </span>
+        </div>
 
+        {loadingWeather && !openMeteoData ? (
+          <div className="p-6 text-center text-xs font-mono text-cyan-400 animate-pulse">
+            📡 Fetching live Open-Meteo satellite weather telemetry for {selectedStation.name}...
+          </div>
+        ) : (
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3 text-xs font-mono">
             <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
               <span className="text-[10px] text-slate-400 flex items-center gap-1">
@@ -289,8 +323,8 @@ export const LiveMonitoring: React.FC = () => {
               </span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

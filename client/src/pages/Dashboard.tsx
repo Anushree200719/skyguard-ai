@@ -3,7 +3,7 @@ import { StatCard } from '../components/StatCard';
 import { IndiaStationMap } from '../components/IndiaStationMap';
 import { fetchStations, fetchAnalytics, fetchAlerts, fetchAnomalies } from '../services/api';
 import { socket } from '../services/socket';
-import { RadioTower, CheckCircle2, AlertTriangle, CloudLightning, ShieldCheck, Activity, Bell, Search, LineChart as ChartIcon } from 'lucide-react';
+import { RadioTower, CheckCircle2, AlertTriangle, CloudLightning, ShieldCheck, Activity, Bell, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
@@ -20,16 +20,16 @@ export const Dashboard: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [sts, stats, alts, anoms] = await Promise.all([
+      const [stsResult, statsResult, altsResult, anomsResult] = await Promise.allSettled([
         fetchStations(),
         fetchAnalytics(),
         fetchAlerts(),
         fetchAnomalies({ limit: 10 })
       ]);
-      setStations(sts);
-      setAnalytics(stats.summary);
-      setAlerts(alts);
-      setAnomalies(anoms);
+      if (stsResult.status === 'fulfilled' && stsResult.value) setStations(stsResult.value);
+      if (statsResult.status === 'fulfilled' && statsResult.value) setAnalytics(statsResult.value.summary);
+      if (altsResult.status === 'fulfilled' && altsResult.value) setAlerts(altsResult.value);
+      if (anomsResult.status === 'fulfilled' && anomsResult.value) setAnomalies(anomsResult.value);
     } catch (err) {
       console.warn('Dashboard fetch note:', err);
     }
@@ -39,14 +39,13 @@ export const Dashboard: React.FC = () => {
     loadData();
 
     const onWeatherUpdate = (data: any) => {
-      if (data.observations) {
+      if (data?.observations) {
         const newMap: Record<string, any> = {};
         data.observations.forEach((obs: any) => {
           newMap[obs.stationId] = obs;
         });
         setLatestObsMap(prev => ({ ...prev, ...newMap }));
       }
-      loadData();
     };
 
     socket.on('weather_update', onWeatherUpdate);

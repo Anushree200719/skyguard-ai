@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Station = require('../models/Station');
 const Observation = require('../models/Observation');
 const store = require('../models/inMemoryStore');
@@ -7,26 +8,30 @@ const store = require('../models/inMemoryStore');
 // GET /api/stations
 router.get('/', async (req, res) => {
   try {
-    const stations = await Station.find().sort({ stationId: 1 });
-    if (stations && stations.length > 0) return res.json(stations);
-    res.json(store.getStations());
+    if (mongoose.connection.readyState === 1) {
+      const stations = await Station.find().sort({ stationId: 1 });
+      if (stations && stations.length > 0) return res.json(stations);
+    }
+    return res.json(store.getStations());
   } catch (err) {
-    res.json(store.getStations());
+    return res.json(store.getStations());
   }
 });
 
 // GET /api/stations/:id
 router.get('/:id', async (req, res) => {
   try {
-    const station = await Station.findOne({ stationId: req.params.id });
-    if (station) return res.json(station);
+    if (mongoose.connection.readyState === 1) {
+      const station = await Station.findOne({ stationId: req.params.id });
+      if (station) return res.json(station);
+    }
     const st = store.getStation(req.params.id);
     if (!st) return res.status(404).json({ message: 'Station not found' });
-    res.json(st);
+    return res.json(st);
   } catch (err) {
     const st = store.getStation(req.params.id);
     if (!st) return res.status(404).json({ message: 'Station not found' });
-    res.json(st);
+    return res.json(st);
   }
 });
 
@@ -34,32 +39,36 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/observations', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
-    const observations = await Observation.find({ stationId: req.params.id })
-      .sort({ timestamp: -1 })
-      .limit(limit);
-    if (observations && observations.length > 0) return res.json(observations.reverse());
-    res.json(store.getObservations(req.params.id, limit));
+    if (mongoose.connection.readyState === 1) {
+      const observations = await Observation.find({ stationId: req.params.id })
+        .sort({ timestamp: -1 })
+        .limit(limit);
+      if (observations && observations.length > 0) return res.json(observations.reverse());
+    }
+    return res.json(store.getObservations(req.params.id, limit));
   } catch (err) {
-    res.json(store.getObservations(req.params.id, parseInt(req.query.limit) || 50));
+    return res.json(store.getObservations(req.params.id, parseInt(req.query.limit) || 50));
   }
 });
 
 // GET /api/stations/:id/health
 router.get('/:id/health', async (req, res) => {
   try {
-    const station = await Station.findOne({ stationId: req.params.id });
-    if (station) {
-      return res.json({
-        stationId: station.stationId,
-        healthScore: station.healthScore,
-        status: station.status,
-        healthHistory: [],
-        recentAnomalies: []
-      });
+    if (mongoose.connection.readyState === 1) {
+      const station = await Station.findOne({ stationId: req.params.id });
+      if (station) {
+        return res.json({
+          stationId: station.stationId,
+          healthScore: station.healthScore,
+          status: station.status,
+          healthHistory: [],
+          recentAnomalies: []
+        });
+      }
     }
     const st = store.getStation(req.params.id);
     if (!st) return res.status(404).json({ message: 'Station not found' });
-    res.json({
+    return res.json({
       stationId: st.stationId,
       healthScore: st.healthScore,
       status: st.status,
@@ -69,7 +78,7 @@ router.get('/:id/health', async (req, res) => {
   } catch (err) {
     const st = store.getStation(req.params.id);
     if (!st) return res.status(404).json({ message: 'Station not found' });
-    res.json({
+    return res.json({
       stationId: st.stationId,
       healthScore: st.healthScore,
       status: st.status,
@@ -87,7 +96,7 @@ router.get('/:id/live-weather', async (req, res) => {
 
     const openMeteoService = require('../services/openMeteoService');
     const forecastData = await openMeteoService.fetchForecast(station.latitude, station.longitude);
-    res.json({
+    return res.json({
       stationId: station.stationId,
       name: station.name,
       location: station.location,
@@ -95,7 +104,7 @@ router.get('/:id/live-weather', async (req, res) => {
       openMeteo: forecastData
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 });
 

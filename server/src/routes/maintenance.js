@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Station = require('../models/Station');
 const Anomaly = require('../models/Anomaly');
 const store = require('../models/inMemoryStore');
@@ -7,45 +8,45 @@ const store = require('../models/inMemoryStore');
 // GET /api/maintenance
 router.get('/', async (req, res) => {
   try {
-    const stations = await Station.find().sort({ healthScore: 1 });
-    if (!stations || stations.length === 0) {
-      return getInMemoryMaintenance(res);
-    }
-    const priorityQueue = [];
+    if (mongoose.connection.readyState === 1) {
+      const stations = await Station.find().sort({ healthScore: 1 });
+      if (stations && stations.length > 0) {
+        const priorityQueue = [];
+        for (const st of stations) {
+          if (st.healthScore >= 90) continue;
+          const latestAnomaly = await Anomaly.findOne({ stationId: st.stationId }).sort({ timestamp: -1 });
 
-    for (const st of stations) {
-      if (st.healthScore >= 90) continue;
+          let priorityLevel = 'PRIORITY 3';
+          let severity = 'MEDIUM';
+          if (st.healthScore < 50 || st.status === 'CRITICAL') {
+            priorityLevel = 'PRIORITY 1';
+            severity = 'CRITICAL';
+          } else if (st.healthScore < 70 || st.status === 'WARNING') {
+            priorityLevel = 'PRIORITY 2';
+            severity = 'HIGH';
+          }
 
-      const latestAnomaly = await Anomaly.findOne({ stationId: st.stationId }).sort({ timestamp: -1 });
+          priorityQueue.push({
+            priority: priorityLevel,
+            stationId: st.stationId,
+            stationName: st.name,
+            healthScore: st.healthScore,
+            status: st.status,
+            issue: latestAnomaly ? latestAnomaly.probableCause : 'Repeated sensor anomaly flags',
+            recommendedAction: latestAnomaly ? latestAnomaly.recommendedAction : 'Recalibrate sensor element',
+            severity
+          });
+        }
 
-      let priorityLevel = 'PRIORITY 3';
-      let severity = 'MEDIUM';
-      if (st.healthScore < 50 || st.status === 'CRITICAL') {
-        priorityLevel = 'PRIORITY 1';
-        severity = 'CRITICAL';
-      } else if (st.healthScore < 70 || st.status === 'WARNING') {
-        priorityLevel = 'PRIORITY 2';
-        severity = 'HIGH';
+        return res.json({
+          totalMaintenanceRequired: priorityQueue.length,
+          queue: priorityQueue
+        });
       }
-
-      priorityQueue.push({
-        priority: priorityLevel,
-        stationId: st.stationId,
-        stationName: st.name,
-        healthScore: st.healthScore,
-        status: st.status,
-        issue: latestAnomaly ? latestAnomaly.probableCause : 'Repeated sensor anomaly flags',
-        recommendedAction: latestAnomaly ? latestAnomaly.recommendedAction : 'Recalibrate sensor element',
-        severity
-      });
     }
-
-    res.json({
-      totalMaintenanceRequired: priorityQueue.length,
-      queue: priorityQueue
-    });
+    return getInMemoryMaintenance(res);
   } catch (err) {
-    getInMemoryMaintenance(res);
+    return getInMemoryMaintenance(res);
   }
 });
 
@@ -81,7 +82,7 @@ function getInMemoryMaintenance(res) {
     });
   }
 
-  res.json({
+  return res.json({
     totalMaintenanceRequired: priorityQueue.length,
     queue: priorityQueue
   });
