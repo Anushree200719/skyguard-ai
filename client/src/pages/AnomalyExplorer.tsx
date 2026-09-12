@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { fetchAnomalies } from '../services/api';
-import { Anomaly } from '../types';
-import { Search, Filter, Info, MapPin, Activity } from 'lucide-react';
+import { fetchAnomalies, fetchAnomalyXAIExplanation } from '../services/api';
+import { Anomaly, XAIExplanationResult } from '../types';
+import { Search, Filter, Info, MapPin, Activity, Sparkles } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
+import { ExplainabilityModal } from '../components/ExplainabilityModal';
 
 export const AnomalyExplorer: React.FC = () => {
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
@@ -10,6 +11,9 @@ export const AnomalyExplorer: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [severityFilter, setSeverityFilter] = useState<string>('');
   const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(null);
+  const [xaiExplanation, setXAIExplanation] = useState<XAIExplanationResult | null>(null);
+  const [loadingXAI, setLoadingXAI] = useState<boolean>(false);
+  const [isExplainOpen, setIsExplainOpen] = useState<boolean>(false);
 
   const loadAnomalies = () => {
     fetchAnomalies({ station: stationFilter, type: typeFilter, severity: severityFilter })
@@ -239,7 +243,27 @@ export const AnomalyExplorer: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-800 flex justify-end">
+            <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-3">
+              <button
+                onClick={async () => {
+                  if (!selectedAnomaly) return;
+                  setLoadingXAI(true);
+                  setIsExplainOpen(true);
+                  try {
+                    const res = await fetchAnomalyXAIExplanation(selectedAnomaly._id);
+                    setXAIExplanation(res);
+                  } catch (e) {
+                    console.warn(e);
+                  } finally {
+                    setLoadingXAI(false);
+                  }
+                }}
+                className="px-3.5 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 active:scale-[0.98]"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+                <span>VIEW FULL XAI BREAKDOWN</span>
+              </button>
+
               <button
                 onClick={() => setSelectedAnomaly(null)}
                 className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold"
@@ -250,6 +274,13 @@ export const AnomalyExplorer: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ExplainabilityModal
+        isOpen={isExplainOpen}
+        onClose={() => setIsExplainOpen(false)}
+        explanation={xaiExplanation}
+        loading={loadingXAI}
+      />
     </div>
   );
 };

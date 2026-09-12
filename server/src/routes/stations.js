@@ -188,5 +188,31 @@ router.get('/:id/openmeteo-comparison', async (req, res) => {
   }
 });
 
+// GET /api/stations/:id/explain
+router.get('/:id/explain', async (req, res) => {
+  try {
+    const XAIEngine = require('../services/xaiEngine');
+    const openMeteoService = require('../services/openMeteoService');
+
+    const station = store.getStation(req.params.id);
+    if (!station) return res.status(404).json({ message: 'Station not found' });
+
+    const obsList = store.getObservations(req.params.id, 30);
+    const anomalies = store.getAnomalies({ station: req.params.id, limit: 20 });
+    let openMeteoData = null;
+
+    try {
+      openMeteoData = await openMeteoService.fetchForecast(station.latitude, station.longitude);
+    } catch (e) {
+      // non-blocking
+    }
+
+    const explanation = XAIEngine.generateStationExplanation(station, obsList, anomalies, openMeteoData);
+    return res.json(explanation);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
 

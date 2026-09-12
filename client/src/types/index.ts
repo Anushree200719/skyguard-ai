@@ -4,6 +4,34 @@ export type ComparisonStatus = 'NORMAL' | 'WARNING' | 'CRITICAL' | 'UNAVAILABLE'
 export type OverallAgreementTier = 'EXCELLENT' | 'MODERATE' | 'POOR';
 export type SensorHealthLevel = 'HEALTHY' | 'WARNING' | 'UNSTABLE' | 'CRITICAL' | 'OFFLINE';
 
+export interface XAIDataComparisonItem {
+  name: string;
+  unit: string;
+  aws: string;
+  openMeteo: string;
+  diff: string;
+  status: string;
+  statusLabel: string;
+}
+
+export interface XAIExplanationResult {
+  stationId: string;
+  stationName?: string;
+  anomalyId?: string;
+  sensor?: string;
+  confidenceScore: number;
+  confidencePercentage: number;
+  classification: string;
+  severity: string;
+  summary: string;
+  primaryFactors: string[];
+  empiricalEvidence: string[];
+  dataComparisons?: XAIDataComparisonItem[];
+  systemTransparency: string;
+  recommendedAction: string;
+  timestamp: string;
+}
+
 export interface IndividualSensorHealth {
   id: 'temperature' | 'humidity' | 'pressure' | 'windSpeed' | 'rainfall';
   name: string;

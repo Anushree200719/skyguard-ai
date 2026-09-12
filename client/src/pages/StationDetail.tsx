@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchStationById, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison, fetchStationSensorHealthDiagnostics } from '../services/api';
-import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult, StationSensorHealthResult } from '../types';
+import { fetchStationById, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison, fetchStationSensorHealthDiagnostics, fetchStationXAIExplanation } from '../services/api';
+import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult, StationSensorHealthResult, XAIExplanationResult } from '../types';
 import { StationTrustCard } from '../components/StationTrustCard';
 import { OpenMeteoComparisonCard } from '../components/OpenMeteoComparisonCard';
 import { SensorHealthCard } from '../components/SensorHealthCard';
+import { ExplainabilityModal } from '../components/ExplainabilityModal';
 import { 
   ArrowLeft, 
   Thermometer, 
@@ -14,7 +15,8 @@ import {
   CloudRain, 
   Satellite, 
   Sunrise, 
-  Sunset
+  Sunset,
+  Sparkles
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 
@@ -26,6 +28,9 @@ export const StationDetail: React.FC = () => {
   const [trustDetails, setTrustDetails] = useState<TrustScoreDetails | null>(null);
   const [comparisonData, setComparisonData] = useState<OpenMeteoComparisonResult | null>(null);
   const [sensorHealthData, setSensorHealthData] = useState<StationSensorHealthResult | null>(null);
+  const [xaiExplanation, setXAIExplanation] = useState<XAIExplanationResult | null>(null);
+  const [loadingXAI, setLoadingXAI] = useState<boolean>(false);
+  const [isExplainOpen, setIsExplainOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -33,16 +38,18 @@ export const StationDetail: React.FC = () => {
     if (!id) return;
 
     setLoading(true);
+    setLoadingXAI(true);
 
-    // Parallel execution for station metadata, telemetry observations, Open-Meteo weather, Trust Score, Comparison & Sensor Health
+    // Parallel execution for station metadata, telemetry observations, Open-Meteo weather, Trust Score, Comparison, Sensor Health & XAI
     Promise.allSettled([
       fetchStationById(id),
       fetchStationObservations(id, 40),
       fetchStationLiveWeather(id),
       fetchStationTrustScore(id),
       fetchStationOpenMeteoComparison(id),
-      fetchStationSensorHealthDiagnostics(id)
-    ]).then(([stResult, obsResult, weatherResult, trustResult, compResult, healthResult]) => {
+      fetchStationSensorHealthDiagnostics(id),
+      fetchStationXAIExplanation(id)
+    ]).then(([stResult, obsResult, weatherResult, trustResult, compResult, healthResult, xaiResult]) => {
       if (!isMounted) return;
 
       if (stResult.status === 'fulfilled' && stResult.value) {
@@ -63,7 +70,11 @@ export const StationDetail: React.FC = () => {
       if (healthResult.status === 'fulfilled' && healthResult.value) {
         setSensorHealthData(healthResult.value);
       }
+      if (xaiResult.status === 'fulfilled' && xaiResult.value) {
+        setXAIExplanation(xaiResult.value);
+      }
       setLoading(false);
+      setLoadingXAI(false);
     });
 
     return () => { isMounted = false; };
@@ -131,7 +142,15 @@ export const StationDetail: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+        <div className="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+          <button
+            onClick={() => setIsExplainOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[40px] touch-manipulation active:scale-[0.98]"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0 animate-pulse" />
+            <span>WHY? (EXPLAIN AI)</span>
+          </button>
+
           <div className="text-left md:text-right">
             <span className="text-[10px] text-slate-400 block font-semibold">SENSOR HEALTH SCORE</span>
             <span className={`font-orbitron font-bold text-sm sm:text-lg ${currentStation.healthScore < 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
@@ -281,6 +300,13 @@ export const StationDetail: React.FC = () => {
           </ResponsiveContainer>
         </div>
       </div>
+
+      <ExplainabilityModal
+        isOpen={isExplainOpen}
+        onClose={() => setIsExplainOpen(false)}
+        explanation={xaiExplanation}
+        loading={loadingXAI}
+      />
     </div>
   );
 };

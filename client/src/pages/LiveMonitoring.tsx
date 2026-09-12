@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchStations, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison, fetchStationSensorHealthDiagnostics } from '../services/api';
+import { fetchStations, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison, fetchStationSensorHealthDiagnostics, fetchStationXAIExplanation } from '../services/api';
 import { socket } from '../services/socket';
-import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult, StationSensorHealthResult } from '../types';
+import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult, StationSensorHealthResult, XAIExplanationResult } from '../types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
-import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders, Search, ChevronDown, Check, X, MapPin, RadioTower } from 'lucide-react';
+import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders, Search, ChevronDown, Check, X, MapPin, RadioTower, Sparkles } from 'lucide-react';
 import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
 import { StationTrustCard } from '../components/StationTrustCard';
 import { OpenMeteoComparisonCard } from '../components/OpenMeteoComparisonCard';
 import { SensorHealthCard } from '../components/SensorHealthCard';
+import { ExplainabilityModal } from '../components/ExplainabilityModal';
 
 const STATION_DICTIONARY: Record<string, Partial<Station>> = {
   'AWS-101': { stationId: 'AWS-101', name: 'New Delhi IMD Headquarters', location: 'New Delhi, Delhi', latitude: 28.6139, longitude: 77.2090, elevation: 216 },
@@ -35,6 +36,9 @@ export const LiveMonitoring: React.FC = () => {
   const [loadingComparison, setLoadingComparison] = useState<boolean>(false);
   const [sensorHealthData, setSensorHealthData] = useState<StationSensorHealthResult | null>(null);
   const [loadingSensorHealth, setLoadingSensorHealth] = useState<boolean>(false);
+  const [xaiExplanation, setXAIExplanation] = useState<XAIExplanationResult | null>(null);
+  const [loadingXAI, setLoadingXAI] = useState<boolean>(false);
+  const [isExplainOpen, setIsExplainOpen] = useState<boolean>(false);
   const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
 
   // Searchable Station Dropdown State
@@ -93,14 +97,15 @@ export const LiveMonitoring: React.FC = () => {
     setLoadingComparison(true);
     setLoadingSensorHealth(true);
 
-    // Run telemetry fetch, Open-Meteo satellite fetch, Trust Score, Comparison & Sensor Health fetch in parallel
+    // Run telemetry fetch, Open-Meteo satellite fetch, Trust Score, Comparison, Sensor Health & XAI fetch in parallel
     Promise.allSettled([
       fetchStationObservations(selectedStationId, 30),
       fetchStationLiveWeather(selectedStationId),
       fetchStationTrustScore(selectedStationId),
       fetchStationOpenMeteoComparison(selectedStationId),
-      fetchStationSensorHealthDiagnostics(selectedStationId)
-    ]).then(([obsResult, weatherResult, trustResult, compResult, healthResult]) => {
+      fetchStationSensorHealthDiagnostics(selectedStationId),
+      fetchStationXAIExplanation(selectedStationId)
+    ]).then(([obsResult, weatherResult, trustResult, compResult, healthResult, xaiResult]) => {
       if (!isMounted) return;
 
       if (obsResult.status === 'fulfilled' && obsResult.value) {
@@ -118,10 +123,14 @@ export const LiveMonitoring: React.FC = () => {
       if (healthResult.status === 'fulfilled' && healthResult.value) {
         setSensorHealthData(healthResult.value);
       }
+      if (xaiResult.status === 'fulfilled' && xaiResult.value) {
+        setXAIExplanation(xaiResult.value);
+      }
       setLoadingWeather(false);
       setLoadingTrust(false);
       setLoadingComparison(false);
       setLoadingSensorHealth(false);
+      setLoadingXAI(false);
     });
 
     const onUpdate = (data: any) => {
@@ -218,6 +227,14 @@ export const LiveMonitoring: React.FC = () => {
 
         {/* Action Controls Container */}
         <div className="flex flex-wrap sm:flex-nowrap items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <button
+            onClick={() => setIsExplainOpen(true)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[44px] touch-manipulation active:scale-[0.98]"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0 animate-pulse" />
+            <span>WHY? (EXPLAIN AI)</span>
+          </button>
+
           <button
             onClick={() => setIsWhatIfOpen(true)}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[44px] touch-manipulation active:scale-[0.98]"
@@ -532,6 +549,13 @@ export const LiveMonitoring: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ExplainabilityModal
+        isOpen={isExplainOpen}
+        onClose={() => setIsExplainOpen(false)}
+        explanation={xaiExplanation}
+        loading={loadingXAI}
+      />
     </div>
   );
 };

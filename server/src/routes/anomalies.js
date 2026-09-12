@@ -44,4 +44,19 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// GET /api/anomalies/:id/explain
+router.get('/:id/explain', async (req, res) => {
+  try {
+    const XAIEngine = require('../services/xaiEngine');
+    const anoms = store.getAnomalies();
+    const found = anoms.find(a => a._id === req.params.id);
+    if (!found) return res.status(404).json({ message: 'Anomaly not found' });
+
+    const explanation = XAIEngine.generateAnomalyExplanation(found);
+    return res.json(explanation);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

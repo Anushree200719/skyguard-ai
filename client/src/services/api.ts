@@ -29,6 +29,8 @@ export const fetchStationLiveWeather = async (id: string) => (await api.get(`/st
 export const fetchStationTrustScore = async (id: string) => (await api.get(`/stations/${id}/trust`)).data;
 export const fetchStationOpenMeteoComparison = async (id: string) => (await api.get(`/stations/${id}/openmeteo-comparison`)).data;
 export const fetchStationSensorHealthDiagnostics = async (id: string) => (await api.get(`/stations/${id}/sensor-health`)).data;
+export const fetchStationXAIExplanation = async (id: string) => (await api.get(`/stations/${id}/explain`)).data;
+export const fetchAnomalyXAIExplanation = async (id: string) => (await api.get(`/anomalies/${id}/explain`)).data;
 export const fetchOpenMeteoForecast = async (latitude = 21.1492, longitude = 79.1613) => 
   (await api.get(`/open-meteo/forecast?latitude=${latitude}&longitude=${longitude}`)).data;
 
