@@ -24,14 +24,14 @@ export const StatCard: React.FC<StatCardProps> = ({
   };
 
   return (
-    <div className="glass-card p-4 rounded-xl flex items-center justify-between border transition-all hover:scale-[1.01]">
-      <div>
-        <p className="text-xs font-semibold text-slate-400 tracking-wide uppercase">{title}</p>
-        <h3 className="text-2xl font-orbitron font-bold text-slate-100 mt-1">{value}</h3>
-        {subtitle && <p className="text-[11px] text-slate-400 mt-1 font-medium">{subtitle}</p>}
+    <div className="glass-card p-3 sm:p-4 rounded-xl flex items-center justify-between border gap-2 transition-all hover:scale-[1.01] min-w-0">
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wide uppercase truncate">{title}</p>
+        <h3 className="text-lg sm:text-xl md:text-2xl font-orbitron font-bold text-slate-100 mt-0.5 sm:mt-1 truncate">{value}</h3>
+        {subtitle && <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 font-medium truncate">{subtitle}</p>}
       </div>
-      <div className={`p-3 rounded-xl border ${colorMap[color]}`}>
-        <Icon className="w-6 h-6" />
+      <div className={`p-2 sm:p-3 rounded-xl border flex-shrink-0 ${colorMap[color]}`}>
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
       </div>
     </div>
   );

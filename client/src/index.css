@@ -10,6 +10,13 @@
     background-image: 
       radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.12) 0%, transparent 70%),
       linear-gradient(to bottom, #050810, #0a0f1d);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Prevent text clipping and ensure touch targets are easily clickable */
+  button, input, select, a {
+    touch-action: manipulation;
   }
 }
 
@@ -29,6 +36,27 @@
   height: 100%;
   border-radius: 12px;
   background: #09101d !important;
+  z-index: 10;
+}
+
+/* Ensure Leaflet Popups stay constrained on mobile screens */
+.leaflet-popup-content-wrapper {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  border-radius: 8px !important;
+  max-width: 280px !important;
+}
+
+.leaflet-popup-tip {
+  background: #0f172a !important;
+}
+
+/* Responsive Table Container Indicator */
+.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom Scrollbar for mobile/desktop drawers */
@@ -46,3 +74,4 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #38bdf8;
 }
+

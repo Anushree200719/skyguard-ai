@@ -201,19 +201,19 @@ export const StationDetail: React.FC = () => {
 
       {/* OPEN-METEO GEOPHYSICAL RADAR CARD */}
       {openMeteoData && (
-        <div className="glass-card p-4 rounded-xl border border-cyan-500/30 bg-[#0c1628]/80 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-cyan-500/30 bg-[#0c1628]/80 space-y-3 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-2 gap-2">
             <div className="flex items-center gap-2">
-              <Satellite className="w-4 h-4 text-cyan-400" />
+              <Satellite className="w-4 h-4 text-cyan-400 flex-shrink-0" />
               <h2 className="font-orbitron font-bold text-xs text-slate-100">OPEN-METEO LIVE SATELLITE & SOLAR METEOROLOGY</h2>
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400">
-              <span className="flex items-center gap-1"><Sunrise className="w-3.5 h-3.5 text-amber-400" /> Sunrise: {dailyMeteo?.sunrise?.[0] ? dailyMeteo.sunrise[0].slice(11, 16) : '--'}</span>
-              <span className="flex items-center gap-1"><Sunset className="w-3.5 h-3.5 text-orange-400" /> Moonrise: {dailyMeteo?.moonrise?.[0] ? dailyMeteo.moonrise[0].slice(11, 16) : '--'}</span>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-mono text-slate-400">
+              <span className="flex items-center gap-1"><Sunrise className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" /> Sunrise: {dailyMeteo?.sunrise?.[0] ? dailyMeteo.sunrise[0].slice(11, 16) : '--'}</span>
+              <span className="flex items-center gap-1"><Sunset className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" /> Moonrise: {dailyMeteo?.moonrise?.[0] ? dailyMeteo.moonrise[0].slice(11, 16) : '--'}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 text-xs font-mono">
             <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
               <span className="text-[10px] text-slate-400 block">SOLAR RADIATION SUM</span>
               <span className="font-bold text-slate-200 mt-0.5 block">{dailyMeteo?.shortwave_radiation_sum?.[0] !== undefined ? `${dailyMeteo.shortwave_radiation_sum[0]} MJ/m²` : '--'}</span>
@@ -235,12 +235,12 @@ export const StationDetail: React.FC = () => {
       )}
 
       {/* Actual vs Corrected Temperature Chart */}
-      <div className="glass-card p-4 rounded-xl border border-sky-500/20">
+      <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 min-w-0">
         <h2 className="font-orbitron font-bold text-xs text-slate-100 mb-3 flex items-center gap-2">
-          <Thermometer className="w-4 h-4 text-sky-400" />
+          <Thermometer className="w-4 h-4 text-sky-400 flex-shrink-0" />
           ACTUAL SENSOR TELEMETRY VS AI CORRECTED ESTIMATE (°C)
         </h2>
-        <div className="h-64">
+        <div className="h-48 sm:h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />

@@ -40,8 +40,8 @@ export const AnomalyExplorer: React.FC = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2.5 sm:gap-3 items-center w-full">
+      <div className="glass-card p-3 sm:p-4 rounded-xl border border-sky-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full">
           <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold uppercase font-orbitron">
             <Filter className="w-4 h-4 text-sky-400 flex-shrink-0" /> FILTERS:
           </div>
@@ -50,12 +50,12 @@ export const AnomalyExplorer: React.FC = () => {
             placeholder="Station ID..."
             value={stationFilter}
             onChange={(e) => setStationFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-36 flex-1 sm:flex-none font-mono"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 w-full sm:w-36 flex-1 sm:flex-none font-mono focus:outline-none focus:border-sky-500 min-h-[38px]"
           />
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-auto flex-1 sm:flex-none font-mono"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 w-full sm:w-auto flex-1 sm:flex-none font-mono focus:outline-none focus:border-sky-500 min-h-[38px]"
           >
             <option value="">ALL ANOMALY TYPES</option>
             <option value="GENUINE_WEATHER_EVENT">GENUINE WEATHER EVENT</option>
@@ -68,7 +68,7 @@ export const AnomalyExplorer: React.FC = () => {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-auto flex-1 sm:flex-none font-mono"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 w-full sm:w-auto flex-1 sm:flex-none font-mono focus:outline-none focus:border-sky-500 min-h-[38px]"
           >
             <option value="">ALL SEVERITIES</option>
             <option value="LOW">LOW</option>
@@ -81,8 +81,8 @@ export const AnomalyExplorer: React.FC = () => {
 
       {/* Anomaly Table */}
       <div className="glass-card rounded-xl border border-sky-500/20 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+        <div className="responsive-table-wrapper overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs min-w-[700px]">
             <thead>
               <tr className="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-orbitron text-[11px]">
                 <th className="p-3">TIMESTAMP</th>
@@ -122,9 +122,9 @@ export const AnomalyExplorer: React.FC = () => {
                   <td className="p-3">
                     <button
                       onClick={() => setSelectedAnomaly(anom)}
-                      className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded text-[10px] flex items-center gap-1 font-sans font-semibold"
+                      className="px-2.5 py-1.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded text-[10px] flex items-center gap-1 font-sans font-semibold active:scale-[0.98] touch-manipulation min-h-[32px]"
                     >
-                      <Info className="w-3 h-3" /> ANOMALY DETAILS
+                      <Info className="w-3 h-3 flex-shrink-0" /> ANOMALY DETAILS
                     </button>
                   </td>
                 </tr>
@@ -136,8 +136,8 @@ export const AnomalyExplorer: React.FC = () => {
 
       {/* ANOMALY DETAILS MODAL */}
       {selectedAnomaly && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="glass-card w-full max-w-2xl p-6 rounded-2xl border border-sky-500/40 bg-[#0c1322] shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4 font-mono text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-4">
+          <div className="glass-card w-full max-w-2xl p-4 sm:p-6 rounded-2xl border border-sky-500/40 bg-[#0c1322] shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4 font-mono text-xs">
             
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">

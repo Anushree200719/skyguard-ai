@@ -119,21 +119,21 @@ export const MaintenancePage: React.FC = () => {
                 <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800/80 justify-stretch sm:justify-end">
                   <button
                     onClick={() => toggleMarkInspection(item.stationId)}
-                    className={`flex-1 sm:flex-initial justify-center px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all touch-manipulation ${
+                    className={`flex-1 sm:flex-initial justify-center px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all touch-manipulation min-h-[44px] active:scale-[0.98] ${
                       isMarked
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                         : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                     }`}
                   >
-                    <CheckSquare className="w-3.5 h-3.5" />
+                    <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" />
                     {isMarked ? 'MARKED FOR INSPECTION' : 'MARK FOR INSPECTION'}
                   </button>
 
                   <button
                     onClick={() => handleGenerateReport(item.stationId)}
-                    className="flex-1 sm:flex-initial justify-center px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 touch-manipulation"
+                    className="flex-1 sm:flex-initial justify-center px-4 py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 touch-manipulation min-h-[44px] active:scale-[0.98]"
                   >
-                    <FileText className="w-3.5 h-3.5" />
+                    <FileText className="w-3.5 h-3.5 flex-shrink-0" />
                     GENERATE REPORT
                   </button>
                 </div>

@@ -63,9 +63,9 @@ export const Dashboard: React.FC = () => {
   const activeStations = stations.length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Top 8 Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
         <StatCard title="Total AWS Stations" value={analytics?.totalStations || stations.length || 10} subtitle="India Command Network" icon={RadioTower} color="sky" />
         <StatCard title="Active Stations" value={activeStations} subtitle="Receiving Telemetry" icon={CheckCircle2} color="emerald" />
         <StatCard title="Normal Stations" value={normalStations} subtitle="Nominal Performance" icon={ShieldCheck} color="emerald" />
@@ -77,20 +77,20 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left 2 Cols: Leaflet India Map */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="glass-card p-4 rounded-xl border border-sky-500/20">
-            <div className="flex items-center justify-between mb-3">
+        <div className="lg:col-span-2 space-y-4 min-w-0">
+          <div className="glass-card p-3 sm:p-4 rounded-xl border border-sky-500/20">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <h2 className="font-orbitron font-bold text-xs text-slate-100 flex items-center gap-2">
-                <RadioTower className="w-4 h-4 text-sky-400" />
+                <RadioTower className="w-4 h-4 text-sky-400 flex-shrink-0" />
                 AUTOMATIC WEATHER STATIONS — REAL-TIME MAP
               </h2>
-              <div className="flex gap-2 text-[10px] font-mono">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Normal</span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">● Warning</span>
-                <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">● Fault</span>
-                <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">● Weather Event</span>
+              <div className="flex flex-wrap gap-1.5 text-[10px] font-mono">
+                <span className="px-1.5 sm:px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Normal</span>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">● Warning</span>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">● Fault</span>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">● Weather Event</span>
               </div>
             </div>
             <IndiaStationMap stations={stations} latestObsMap={latestObsMap} />
@@ -98,14 +98,14 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Col: Live Anomalies Stream */}
-        <div className="space-y-4">
-          <div className="glass-card p-4 rounded-xl border border-sky-500/20 flex flex-col h-[470px]">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-              <h2 className="font-orbitron font-bold text-xs text-slate-100 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-sky-400" />
+        <div className="space-y-4 min-w-0">
+          <div className="glass-card p-3 sm:p-4 rounded-xl border border-sky-500/20 flex flex-col h-[360px] sm:h-[420px] lg:h-[470px]">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
+              <h2 className="font-orbitron font-bold text-xs text-slate-100 flex items-center gap-2 truncate">
+                <Activity className="w-4 h-4 text-sky-400 flex-shrink-0" />
                 AUTOMATIC AI ANOMALY DETECTIONS
               </h2>
-              <Link to="/anomalies" className="text-xs text-sky-400 hover:underline">View All &rarr;</Link>
+              <Link to="/anomalies" className="text-xs text-sky-400 hover:underline flex-shrink-0 ml-2">View All &rarr;</Link>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">

@@ -193,7 +193,7 @@ export const LiveMonitoring: React.FC = () => {
         <div className="flex flex-wrap sm:flex-nowrap items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => setIsWhatIfOpen(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[44px] touch-manipulation active:scale-[0.98]"
           >
             <Sliders className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
             <span>WHAT-IF SIMULATOR</span>
@@ -201,7 +201,7 @@ export const LiveMonitoring: React.FC = () => {
 
           <button
             onClick={() => loadOpenMeteo(selectedStationId)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg text-xs font-mono transition-all min-h-[44px] touch-manipulation active:scale-[0.98]"
           >
             <RefreshCw className={`w-3.5 h-3.5 flex-shrink-0 ${loadingWeather ? 'animate-spin' : ''}`} />
             <span>SYNC METEO</span>
@@ -387,7 +387,7 @@ export const LiveMonitoring: React.FC = () => {
             📡 Fetching live Open-Meteo satellite weather telemetry for {selectedStation.name}...
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-2.5 sm:gap-3 text-xs font-mono">
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-3 text-xs font-mono">
             <div className="p-2.5 bg-slate-900/60 rounded-lg border border-slate-800">
               <span className="text-[10px] text-slate-400 flex items-center gap-1">
                 <Sun className="w-3 h-3 text-amber-400" /> SOLAR RADIATION

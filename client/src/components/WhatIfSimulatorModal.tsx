@@ -30,34 +30,34 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="glass-card w-full max-w-xl p-6 rounded-2xl border border-sky-500/40 bg-[#0a1220] shadow-2xl relative space-y-5 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
+      <div className="glass-card w-full max-w-xl p-4 sm:p-6 rounded-2xl border border-sky-500/40 bg-[#0a1220] shadow-2xl relative space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-sky-500/10 border border-sky-500/30 rounded-lg">
-              <Sliders className="w-5 h-5 text-sky-400" />
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="p-1.5 sm:p-2 bg-sky-500/10 border border-sky-500/30 rounded-lg flex-shrink-0">
+              <Sliders className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
             </div>
-            <div>
-              <h2 className="font-orbitron font-bold text-sm text-slate-100 flex items-center gap-2">
+            <div className="min-w-0">
+              <h2 className="font-orbitron font-bold text-xs sm:text-sm text-slate-100 flex items-center gap-2 truncate">
                 WHAT-IF WEATHER SIMULATOR
               </h2>
-              <p className="text-[11px] text-slate-400">Educational sensor reaction and physical correlation modeling</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Educational sensor reaction and physical correlation modeling</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
+            className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0 ml-2"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Controls */}
-        <div className="space-y-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-          <div className="text-xs font-semibold text-sky-300 uppercase tracking-wider font-orbitron flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> HYPOTHETICAL SENSOR DELTAS:
+        <div className="space-y-4 bg-slate-900/60 p-3 sm:p-4 rounded-xl border border-slate-800">
+          <div className="text-[11px] sm:text-xs font-semibold text-sky-300 uppercase tracking-wider font-orbitron flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" /> HYPOTHETICAL SENSOR DELTAS:
           </div>
 
           {/* Temperature Slider */}
@@ -68,15 +68,17 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
                 {tempChange > 0 ? `+${tempChange}` : tempChange}°C
               </span>
             </div>
-            <input
-              type="range"
-              min="-15"
-              max="20"
-              step="1"
-              value={tempChange}
-              onChange={(e) => setTempChange(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
-            />
+            <div className="py-1">
+              <input
+                type="range"
+                min="-15"
+                max="20"
+                step="1"
+                value={tempChange}
+                onChange={(e) => setTempChange(Number(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400 touch-manipulation"
+              />
+            </div>
           </div>
 
           {/* Humidity Slider */}
@@ -87,15 +89,17 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
                 {humChange > 0 ? `+${humChange}` : humChange}%
               </span>
             </div>
-            <input
-              type="range"
-              min="-40"
-              max="40"
-              step="1"
-              value={humChange}
-              onChange={(e) => setHumChange(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
-            />
+            <div className="py-1">
+              <input
+                type="range"
+                min="-40"
+                max="40"
+                step="1"
+                value={humChange}
+                onChange={(e) => setHumChange(Number(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 touch-manipulation"
+              />
+            </div>
           </div>
 
           {/* Pressure Slider */}
@@ -106,21 +110,23 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
                 {presChange > 0 ? `+${presChange}` : presChange} hPa
               </span>
             </div>
-            <input
-              type="range"
-              min="-30"
-              max="30"
-              step="1"
-              value={presChange}
-              onChange={(e) => setPresChange(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-400"
-            />
+            <div className="py-1">
+              <input
+                type="range"
+                min="-30"
+                max="30"
+                step="1"
+                value={presChange}
+                onChange={(e) => setPresChange(Number(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-400 touch-manipulation"
+              />
+            </div>
           </div>
 
           <button
             onClick={handleSimulate}
             disabled={loading}
-            className="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-orbitron font-bold text-xs rounded-lg transition-all shadow-lg shadow-sky-500/20"
+            className="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-orbitron font-bold text-xs rounded-lg transition-all shadow-lg shadow-sky-500/20 active:scale-[0.98] min-h-[44px]"
           >
             {loading ? 'RUNNING PHYSICAL CORRELATION ENGINE...' : 'RUN SIMULATION'}
           </button>
@@ -128,7 +134,7 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
 
         {/* Results */}
         {result && (
-          <div className="space-y-3 p-4 bg-slate-900/80 rounded-xl border border-sky-500/30 text-xs font-mono">
+          <div className="space-y-3 p-3.5 sm:p-4 bg-slate-900/80 rounded-xl border border-sky-500/30 text-xs font-mono">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <span className="text-slate-400 font-semibold uppercase">ANOMALY EXPECTED?</span>
               <span className={`font-orbitron font-bold px-2 py-0.5 rounded text-xs ${

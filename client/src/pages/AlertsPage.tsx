@@ -59,15 +59,15 @@ export const AlertsPage: React.FC = () => {
           filtered.map((alt) => (
             <div
               key={alt._id}
-              className={`glass-card p-4 rounded-xl border flex flex-wrap items-center justify-between gap-4 transition-all ${
+              className={`glass-card p-3.5 sm:p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all min-w-0 ${
                 alt.level === 'CRITICAL' || alt.category === 'CRITICAL' ? 'border-rose-500/40 bg-rose-500/10' :
                 (alt.level === 'HIGH' || alt.category === 'HIGH' ? 'border-amber-500/40 bg-amber-500/10' :
                 (alt.level === 'WEATHER_EVENT' ? 'border-sky-500/40 bg-sky-500/10' : 'border-emerald-500/40 bg-emerald-500/10'))
               }`}
             >
-              <div>
-                <div className="flex items-center gap-3">
-                  <span className="font-orbitron font-bold text-xs text-slate-100">{alt.title}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <span className="font-orbitron font-bold text-xs sm:text-sm text-slate-100">{alt.title}</span>
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold ${
                     alt.level === 'CRITICAL' ? 'bg-rose-600 text-white' :
                     (alt.level === 'HIGH' ? 'bg-amber-600 text-white' :
@@ -76,9 +76,9 @@ export const AlertsPage: React.FC = () => {
                     {alt.level === 'CRITICAL' ? '🔴 CRITICAL' : (alt.level === 'HIGH' ? '🟠 HIGH' : (alt.level === 'WARNING' ? '🟡 WARNING' : '🟢 INFO'))}
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1">{alt.message}</p>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">{alt.message}</p>
                 {alt.aiExplanation && (
-                  <p className="text-[11px] text-sky-300/80 mt-1 font-mono">AI Rationale: {alt.aiExplanation}</p>
+                  <p className="text-[11px] text-sky-300/80 mt-1 font-mono leading-relaxed">AI Rationale: {alt.aiExplanation}</p>
                 )}
                 <span className="text-[10px] text-slate-500 font-mono mt-2 block">
                   Station: {alt.stationId} • {new Date(alt.timestamp).toLocaleString()}
@@ -88,12 +88,12 @@ export const AlertsPage: React.FC = () => {
               {!alt.acknowledged ? (
                 <button
                   onClick={() => handleAck(alt._id)}
-                  className="w-full sm:w-auto px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold touch-manipulation text-center"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold touch-manipulation text-center active:scale-[0.98] min-h-[44px] flex-shrink-0"
                 >
                   ACKNOWLEDGE
                 </button>
               ) : (
-                <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-mono">
+                <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-mono flex-shrink-0">
                   <CheckCircle2 className="w-4 h-4" /> ACKNOWLEDGED
                 </span>
               )}

@@ -231,7 +231,7 @@ export const IndiaStationMap: React.FC<IndiaStationMapProps> = ({ stations, late
     };
 
     return (
-      <div className="w-full h-[400px] rounded-xl overflow-hidden glass-card border border-sky-500/20 relative z-0">
+      <div className="w-full h-[280px] xs:h-[340px] sm:h-[400px] md:h-[450px] rounded-xl overflow-hidden glass-card border border-sky-500/20 relative z-0">
         <MapContainer center={center} zoom={5} scrollWheelZoom={false} className="w-full h-full">
           <TileLayer
             attribution='&copy; <a href="https://carto.com/">CARTO</a> Dark Matter'
@@ -301,7 +301,7 @@ export const IndiaStationMap: React.FC<IndiaStationMapProps> = ({ stations, late
   }
 
   return (
-    <div className="w-full h-[400px] rounded-xl overflow-hidden glass-card border border-sky-500/20 relative z-0">
+    <div className="w-full h-[280px] xs:h-[340px] sm:h-[400px] md:h-[450px] rounded-xl overflow-hidden glass-card border border-sky-500/20 relative z-0">
       <div ref={mapRef} className="w-full h-full" />
     </div>
   );

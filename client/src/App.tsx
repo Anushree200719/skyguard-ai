@@ -20,7 +20,7 @@ export const App: React.FC = () => {
         <div className="flex flex-1 relative w-full max-w-full overflow-x-hidden">
           <Sidebar />
 
-          <main className="flex-1 p-3 sm:p-6 overflow-y-auto w-full max-w-full overflow-x-hidden">
+          <main className="flex-1 p-2.5 sm:p-4 md:p-6 overflow-y-auto w-full max-w-full overflow-x-hidden min-w-0">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/stations" element={<Stations />} />

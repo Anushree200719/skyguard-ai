@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --bg-dark: #070a12;
     --panel-bg: rgba(15, 23, 42, 0.75);
     --border-color: rgba(56, 189, 248, 0.2);
@@ -404,3 +404,43 @@ select {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
 }
+
+/* RESPONSIVE BREAKPOINTS FOR FALLBACK SYSTEM */
+@media (max-width: 992px) {
+    body {
+        height: auto;
+        overflow-y: auto;
+    }
+    .app-container {
+        height: auto;
+    }
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    .radar-container {
+        width: 100%;
+        max-width: 400px;
+        height: 400px;
+    }
+    canvas#radarCanvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .tactical-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .system-status {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    .radar-container {
+        max-width: 280px;
+        height: 280px;
+    }
+}
+

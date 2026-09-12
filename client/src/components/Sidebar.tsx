@@ -22,8 +22,8 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="hidden md:flex w-64 glass-card border-r border-sky-500/20 p-4 flex-col gap-2 min-h-[calc(100vh-4rem)] flex-shrink-0">
-      <div className="text-[10px] font-orbitron text-sky-400 font-bold px-3 py-1 tracking-widest text-slate-400 uppercase">
+    <aside className="hidden md:flex md:w-56 lg:w-64 glass-card border-r border-sky-500/20 p-3 lg:p-4 flex-col gap-2 min-h-[calc(100vh-4rem)] flex-shrink-0">
+      <div className="text-[10px] font-orbitron text-sky-400 font-bold px-2 lg:px-3 py-1 tracking-widest text-slate-400 uppercase">
         COMMAND CENTER NAVIGATION
       </div>
       <nav className="flex flex-col gap-1 mt-1">
@@ -34,21 +34,21 @@ export const Sidebar: React.FC = () => {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                `flex items-center gap-2.5 lg:gap-3 px-3 lg:px-3.5 py-2.5 rounded-lg font-medium text-xs lg:text-sm transition-all ${
                   isActive
-                    ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-lg shadow-sky-500/10'
+                    ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-lg shadow-sky-500/10 font-semibold'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                 }`
               }
             >
-              <Icon className="w-4 h-4" />
-              <span>{link.label}</span>
+              <Icon className="w-4 h-4 flex-shrink-0 text-sky-400" />
+              <span className="truncate">{link.label}</span>
             </NavLink>
           );
         })}
       </nav>
 
-      <div className="mt-auto p-3.5 bg-slate-900/80 border border-slate-800 rounded-lg space-y-1 text-xs">
+      <div className="mt-auto p-3 lg:p-3.5 bg-slate-900/80 border border-slate-800 rounded-lg space-y-1 text-[11px] lg:text-xs">
         <div className="flex items-center justify-between text-slate-400">
           <span>AI Engine:</span>
           <span className="text-emerald-400 font-semibold font-mono">HYBRID ML</span>
