@@ -214,5 +214,17 @@ router.get('/:id/explain', async (req, res) => {
   }
 });
 
+// GET /api/stations/:id/history
+router.get('/:id/history', async (req, res) => {
+  try {
+    const historicalEngine = require('../services/historicalEngine');
+    const { range = '24h', parameter = 'temperature' } = req.query;
+    const analysis = await historicalEngine.getHistoricalAnalysis(req.params.id, range, parameter);
+    return res.json(analysis);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
 

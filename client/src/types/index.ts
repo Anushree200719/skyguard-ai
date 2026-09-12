@@ -292,3 +292,35 @@ export interface WhatIfResult {
   summary: string;
 }
 
+export interface HistoricalPoint {
+  timestamp: string;
+  timeLabel: string;
+  value: number | null;
+  isAnomaly?: boolean;
+  anomalyType?: string | null;
+  severity?: string | null;
+  shortExplanation?: string | null;
+}
+
+export interface HistoricalStats {
+  minimum: number | null;
+  maximum: number | null;
+  average: number | null;
+  trend: 'INCREASING' | 'DECREASING' | 'STABLE';
+  trendLabel: string;
+  totalObservations: number;
+  anomaliesDetected: number;
+}
+
+export interface HistoricalAnalysisResult {
+  stationId: string;
+  stationName: string;
+  parameter: 'temperature' | 'humidity' | 'pressure' | 'windSpeed' | 'rainfall' | string;
+  range: '1h' | '6h' | '24h' | '7d' | '30d' | string;
+  unit: string;
+  statistics: HistoricalStats;
+  points: HistoricalPoint[];
+  dataSource: string;
+  lastUpdated: string;
+}
+

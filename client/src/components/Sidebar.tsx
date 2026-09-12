@@ -8,6 +8,7 @@ import {
   Bell, 
   Wrench, 
   BrainCircuit,
+  Calendar,
   Shield,
   X 
 } from 'lucide-react';
@@ -24,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileMenuOpen = false, onCl
     { to: '/monitoring', label: 'Live Monitoring', icon: LineChart },
     { to: '/anomalies', label: 'Anomaly Explorer', icon: Search },
     { to: '/alerts', label: 'Live Alerts', icon: Bell },
+    { to: '/history', label: 'Historical Analysis', icon: Calendar },
     { to: '/maintenance', label: 'Maintenance Queue', icon: Wrench },
     { to: '/analytics', label: 'Analytics & Insights', icon: BrainCircuit }
   ];
