@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchStationById, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison } from '../services/api';
-import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult } from '../types';
+import { fetchStationById, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison, fetchStationSensorHealthDiagnostics } from '../services/api';
+import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult, StationSensorHealthResult } from '../types';
 import { StationTrustCard } from '../components/StationTrustCard';
 import { OpenMeteoComparisonCard } from '../components/OpenMeteoComparisonCard';
+import { SensorHealthCard } from '../components/SensorHealthCard';
 import { 
   ArrowLeft, 
   Thermometer, 
@@ -24,6 +25,7 @@ export const StationDetail: React.FC = () => {
   const [openMeteoData, setOpenMeteoData] = useState<any>(null);
   const [trustDetails, setTrustDetails] = useState<TrustScoreDetails | null>(null);
   const [comparisonData, setComparisonData] = useState<OpenMeteoComparisonResult | null>(null);
+  const [sensorHealthData, setSensorHealthData] = useState<StationSensorHealthResult | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -32,14 +34,15 @@ export const StationDetail: React.FC = () => {
 
     setLoading(true);
 
-    // Parallel execution for station metadata, telemetry observations, Open-Meteo weather, Trust Score & Comparison
+    // Parallel execution for station metadata, telemetry observations, Open-Meteo weather, Trust Score, Comparison & Sensor Health
     Promise.allSettled([
       fetchStationById(id),
       fetchStationObservations(id, 40),
       fetchStationLiveWeather(id),
       fetchStationTrustScore(id),
-      fetchStationOpenMeteoComparison(id)
-    ]).then(([stResult, obsResult, weatherResult, trustResult, compResult]) => {
+      fetchStationOpenMeteoComparison(id),
+      fetchStationSensorHealthDiagnostics(id)
+    ]).then(([stResult, obsResult, weatherResult, trustResult, compResult, healthResult]) => {
       if (!isMounted) return;
 
       if (stResult.status === 'fulfilled' && stResult.value) {
@@ -56,6 +59,9 @@ export const StationDetail: React.FC = () => {
       }
       if (compResult.status === 'fulfilled' && compResult.value) {
         setComparisonData(compResult.value);
+      }
+      if (healthResult.status === 'fulfilled' && healthResult.value) {
+        setSensorHealthData(healthResult.value);
       }
       setLoading(false);
     });
@@ -146,6 +152,9 @@ export const StationDetail: React.FC = () => {
 
       {/* AWS STATION VS. OPEN-METEO COMPARISON MATRIX CARD */}
       <OpenMeteoComparisonCard station={currentStation} comparisonData={comparisonData} loading={loading} />
+
+      {/* SENSOR HEALTH MONITORING & HARDWARE DIAGNOSTICS CARD */}
+      <SensorHealthCard station={currentStation} healthData={sensorHealthData} loading={loading} />
 
       {/* Maintenance Insight Card */}
       <div className={`p-4 rounded-xl border flex flex-wrap items-center justify-between gap-4 font-mono text-xs ${

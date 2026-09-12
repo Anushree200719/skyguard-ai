@@ -54,24 +54,27 @@ router.get('/:id/observations', async (req, res) => {
 // GET /api/stations/:id/health
 router.get('/:id/health', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) {
-      const station = await Station.findOne({ stationId: req.params.id });
-      if (station) {
-        return res.json({
-          stationId: station.stationId,
-          healthScore: station.healthScore,
-          status: station.status,
-          healthHistory: [],
-          recentAnomalies: []
-        });
-      }
-    }
+    const SensorHealthEngine = require('../services/sensorHealthEngine');
+    const openMeteoService = require('../services/openMeteoService');
+
     const st = store.getStation(req.params.id);
     if (!st) return res.status(404).json({ message: 'Station not found' });
+
+    const obsList = store.getObservations(req.params.id, 30);
+    const anomalies = store.getAnomalies({ station: req.params.id, limit: 20 });
+    let openMeteoData = null;
+    try {
+      openMeteoData = await openMeteoService.fetchForecast(st.latitude, st.longitude);
+    } catch (e) {
+      // non-blocking
+    }
+
+    const healthDiagnostics = SensorHealthEngine.evaluateStationSensors(st, obsList, anomalies, openMeteoData);
     return res.json({
       stationId: st.stationId,
-      healthScore: st.healthScore,
+      healthScore: healthDiagnostics.overallHealthScore,
       status: st.status,
+      healthDiagnostics,
       healthHistory: [],
       recentAnomalies: store.getAnomalies({ station: st.stationId, limit: 10 })
     });
@@ -85,6 +88,31 @@ router.get('/:id/health', async (req, res) => {
       healthHistory: [],
       recentAnomalies: store.getAnomalies({ station: st.stationId, limit: 10 })
     });
+  }
+});
+
+// GET /api/stations/:id/sensor-health
+router.get('/:id/sensor-health', async (req, res) => {
+  try {
+    const SensorHealthEngine = require('../services/sensorHealthEngine');
+    const openMeteoService = require('../services/openMeteoService');
+
+    const st = store.getStation(req.params.id);
+    if (!st) return res.status(404).json({ message: 'Station not found' });
+
+    const obsList = store.getObservations(req.params.id, 30);
+    const anomalies = store.getAnomalies({ station: req.params.id, limit: 20 });
+    let openMeteoData = null;
+    try {
+      openMeteoData = await openMeteoService.fetchForecast(st.latitude, st.longitude);
+    } catch (e) {
+      // non-blocking
+    }
+
+    const healthDiagnostics = SensorHealthEngine.evaluateStationSensors(st, obsList, anomalies, openMeteoData);
+    return res.json(healthDiagnostics);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 

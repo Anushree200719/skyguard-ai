@@ -2,6 +2,30 @@ export type StationStatus = 'NORMAL' | 'WARNING' | 'CRITICAL' | 'WEATHER_EVENT' 
 export type TrustStatusCategory = 'HIGHLY_TRUSTED' | 'TRUSTED' | 'CAUTION' | 'UNRELIABLE' | 'CRITICAL';
 export type ComparisonStatus = 'NORMAL' | 'WARNING' | 'CRITICAL' | 'UNAVAILABLE';
 export type OverallAgreementTier = 'EXCELLENT' | 'MODERATE' | 'POOR';
+export type SensorHealthLevel = 'HEALTHY' | 'WARNING' | 'UNSTABLE' | 'CRITICAL' | 'OFFLINE';
+
+export interface IndividualSensorHealth {
+  id: 'temperature' | 'humidity' | 'pressure' | 'windSpeed' | 'rainfall';
+  name: string;
+  type: string;
+  unit: string;
+  healthPercentage: number;
+  status: SensorHealthLevel;
+  statusLabel: string;
+  statusColor: string;
+  statusBg: string;
+  lastReading: string;
+  lastUpdate: string;
+  issues: string[];
+}
+
+export interface StationSensorHealthResult {
+  stationId: string;
+  stationName: string;
+  overallHealthScore: number;
+  sensors: IndividualSensorHealth[];
+  timestamp: string;
+}
 
 export interface ParameterComparison {
   id: 'temperature' | 'humidity' | 'pressure' | 'windSpeed' | 'rainfall';
