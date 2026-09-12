@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { Stations } from './pages/Stations';
+import { RankingsPage } from './pages/RankingsPage';
 import { StationDetail } from './pages/StationDetail';
 import { LiveMonitoring } from './pages/LiveMonitoring';
 import { AnomalyExplorer } from './pages/AnomalyExplorer';
@@ -33,6 +34,7 @@ export const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/stations" element={<Stations />} />
+              <Route path="/rankings" element={<RankingsPage />} />
               <Route path="/stations/:id" element={<StationDetail />} />
               <Route path="/monitoring" element={<LiveMonitoring />} />
               <Route path="/anomalies" element={<AnomalyExplorer />} />

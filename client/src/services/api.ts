@@ -23,6 +23,7 @@ export const api = axios.create({
 });
 
 export const fetchStations = async () => (await api.get('/stations')).data;
+export const fetchStationRankings = async (refresh = false) => (await api.get(`/stations/rankings?refresh=${refresh}`)).data;
 export const fetchStationById = async (id: string) => (await api.get(`/stations/${id}`)).data;
 export const fetchStationObservations = async (id: string, limit = 50) => (await api.get(`/stations/${id}/observations?limit=${limit}`)).data;
 export const fetchStationLiveWeather = async (id: string) => (await api.get(`/stations/${id}/live-weather`)).data;

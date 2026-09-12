@@ -324,3 +324,31 @@ export interface HistoricalAnalysisResult {
   lastUpdated: string;
 }
 
+export interface StationRankingItem {
+  rank: number;
+  rankLabel: string;
+  trend: 'IMPROVED' | 'DECLINED' | 'STABLE';
+  trendLabel: string;
+  medal?: string;
+  stationId: string;
+  name: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  elevation: number;
+  trustScore: number;
+  status: TrustStatusCategory;
+  statusLabel: string;
+  statusColor: string;
+  trustDetails?: TrustScoreDetails;
+  lastSeen: string;
+}
+
+export interface StationRankingsResult {
+  totalStations: number;
+  topReliable: StationRankingItem[];
+  needsAttention: StationRankingItem[];
+  allRankings: StationRankingItem[];
+  calculatedAt: string;
+}
+

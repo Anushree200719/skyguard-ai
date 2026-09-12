@@ -18,6 +18,17 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/stations/rankings - Bulk station reliability rankings
+router.get('/rankings', async (req, res) => {
+  try {
+    const rankingEngine = require('../services/rankingEngine');
+    const rankings = rankingEngine.getStationRankings(req.query.refresh === 'true');
+    return res.json(rankings);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/stations/:id
 router.get('/:id', async (req, res) => {
   try {
