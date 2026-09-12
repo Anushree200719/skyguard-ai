@@ -128,7 +128,7 @@ body {
 /* Grid Layout */
 .main-grid {
     display: grid;
-    grid-template-columns: 320px 1fr 340px;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr) minmax(0, 340px);
     gap: 16px;
     flex: 1;
     min-height: 0;

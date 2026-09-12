@@ -38,39 +38,49 @@ export const Stations: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
         {filtered.map((st) => (
-          <div key={st.stationId} className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 hover:border-sky-500/40 transition-all flex flex-col justify-between min-w-0">
-            <div>
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                <span className="font-orbitron font-bold text-xs sm:text-sm text-sky-400">{st.stationId}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+          <div key={st.stationId} className="glass-card p-4 rounded-xl border border-sky-500/20 hover:border-sky-500/40 transition-all flex flex-col justify-between w-full min-w-0">
+            <div className="space-y-3">
+              {/* Header: Station ID & Status Badge */}
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <span className="font-orbitron font-bold text-sm sm:text-base text-sky-400">{st.stationId}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono uppercase ${
                   st.status === 'NORMAL' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                   (st.status === 'WARNING' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                   (st.status === 'CRITICAL' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-sky-500/20 text-sky-300 border border-sky-500/30'))
                 }`}>
-                  {st.status.replace('_', ' ')}
+                  {st.status.replace(/_/g, ' ')}
                 </span>
               </div>
 
-              <h3 className="font-bold text-slate-100 text-xs sm:text-sm mb-1 truncate">{st.name}</h3>
-              <p className="text-xs text-slate-400 flex items-center gap-1 truncate">
-                <MapPin className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-                <span className="truncate">{st.location}</span>
-              </p>
+              {/* Station Name & Location */}
+              <div>
+                <h3 className="font-bold text-slate-100 text-sm sm:text-base leading-snug break-words">{st.name}</h3>
+                <p className="text-xs text-slate-400 flex items-start gap-1.5 mt-1 break-words">
+                  <MapPin className="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5" />
+                  <span>{st.location}</span>
+                </p>
+              </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              {/* Health Score & Coordinates */}
+              <div className="pt-2.5 border-t border-slate-800/80 space-y-2 font-mono text-xs">
                 <div className="flex items-center gap-2">
                   <Heart className={`w-4 h-4 flex-shrink-0 ${st.healthScore >= 90 ? 'text-emerald-400' : (st.healthScore >= 70 ? 'text-amber-400' : 'text-rose-400')}`} />
-                  <span className="text-xs font-mono font-bold text-slate-200">HEALTH: {st.healthScore}%</span>
+                  <span className="font-bold text-slate-200">HEALTH: {st.healthScore}%</span>
                 </div>
-                <span className="text-[10px] text-slate-500 font-mono">LAT: {st.latitude}°</span>
+                
+                <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-900/60 px-2.5 py-1.5 rounded border border-slate-800/80">
+                  <span>LAT: {st.latitude.toFixed(4)}°</span>
+                  <span>LON: {st.longitude.toFixed(4)}°</span>
+                </div>
               </div>
             </div>
 
+            {/* Action Button */}
             <Link
               to={`/stations/${st.stationId}`}
-              className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-lg font-orbitron font-semibold text-xs transition-all active:scale-[0.98] min-h-[44px] touch-manipulation"
+              className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-lg font-orbitron font-semibold text-xs transition-all active:scale-[0.98] min-h-[44px] touch-manipulation cursor-pointer"
             >
               <span>STATION ANALYTICS</span>
               <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" />
