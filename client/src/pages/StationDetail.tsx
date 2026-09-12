@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchStationById, fetchStationObservations, fetchStationLiveWeather } from '../services/api';
-import { Station, Observation } from '../types';
+import { fetchStationById, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore } from '../services/api';
+import { Station, Observation, TrustScoreDetails } from '../types';
+import { StationTrustCard } from '../components/StationTrustCard';
 import { 
   ArrowLeft, 
   Thermometer, 
@@ -20,6 +21,7 @@ export const StationDetail: React.FC = () => {
   const [station, setStation] = useState<Station | null>(null);
   const [observations, setObservations] = useState<Observation[]>([]);
   const [openMeteoData, setOpenMeteoData] = useState<any>(null);
+  const [trustDetails, setTrustDetails] = useState<TrustScoreDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -28,12 +30,13 @@ export const StationDetail: React.FC = () => {
 
     setLoading(true);
 
-    // Parallel execution for station metadata, telemetry observations & Open-Meteo weather
+    // Parallel execution for station metadata, telemetry observations, Open-Meteo weather & Trust Score
     Promise.allSettled([
       fetchStationById(id),
       fetchStationObservations(id, 40),
-      fetchStationLiveWeather(id)
-    ]).then(([stResult, obsResult, weatherResult]) => {
+      fetchStationLiveWeather(id),
+      fetchStationTrustScore(id)
+    ]).then(([stResult, obsResult, weatherResult, trustResult]) => {
       if (!isMounted) return;
 
       if (stResult.status === 'fulfilled' && stResult.value) {
@@ -44,6 +47,9 @@ export const StationDetail: React.FC = () => {
       }
       if (weatherResult.status === 'fulfilled' && weatherResult.value?.openMeteo) {
         setOpenMeteoData(weatherResult.value.openMeteo);
+      }
+      if (trustResult.status === 'fulfilled' && trustResult.value) {
+        setTrustDetails(trustResult.value);
       }
       setLoading(false);
     });
@@ -128,6 +134,9 @@ export const StationDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* AI-POWERED STATION TRUST SCORE CARD */}
+      <StationTrustCard station={currentStation} trustDetails={trustDetails} loading={loading} />
 
       {/* Maintenance Insight Card */}
       <div className={`p-4 rounded-xl border flex flex-wrap items-center justify-between gap-4 font-mono text-xs ${

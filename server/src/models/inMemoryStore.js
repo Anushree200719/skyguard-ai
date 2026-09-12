@@ -51,7 +51,7 @@ const INITIAL_STATIONS = [
 
 class InMemoryStore {
   constructor() {
-    this.stations = new Map(INITIAL_STATIONS.map(s => [s.stationId, { ...s }]));
+    this.stations = new Map(INITIAL_STATIONS.map(s => [s.stationId, { ...s, trustScore: 95 }]));
     this.observations = [];
     this.anomalies = [];
     this.alerts = [];

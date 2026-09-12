@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchStations, fetchStationObservations, fetchStationLiveWeather } from '../services/api';
+import { fetchStations, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore } from '../services/api';
 import { socket } from '../services/socket';
-import { Station, Observation } from '../types';
+import { Station, Observation, TrustScoreDetails } from '../types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
 import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders, Search, ChevronDown, Check, X, MapPin, RadioTower } from 'lucide-react';
 import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
+import { StationTrustCard } from '../components/StationTrustCard';
 
 const STATION_DICTIONARY: Record<string, Partial<Station>> = {
   'AWS-101': { stationId: 'AWS-101', name: 'New Delhi IMD Headquarters', location: 'New Delhi, Delhi', latitude: 28.6139, longitude: 77.2090, elevation: 216 },
@@ -26,6 +27,8 @@ export const LiveMonitoring: React.FC = () => {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [openMeteoData, setOpenMeteoData] = useState<any>(null);
   const [loadingWeather, setLoadingWeather] = useState<boolean>(false);
+  const [trustDetails, setTrustDetails] = useState<TrustScoreDetails | null>(null);
+  const [loadingTrust, setLoadingTrust] = useState<boolean>(false);
   const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
 
   // Searchable Station Dropdown State
@@ -73,19 +76,21 @@ export const LiveMonitoring: React.FC = () => {
     }
   };
 
-  // 2. Fetch observations & Open-Meteo data accurately when selectedStationId changes
+  // 2. Fetch observations, Open-Meteo & Trust Score when selectedStationId changes
   useEffect(() => {
     let isMounted = true;
     if (!selectedStationId) return;
 
     setOpenMeteoData(null);
     setLoadingWeather(true);
+    setLoadingTrust(true);
 
-    // Run telemetry fetch and Open-Meteo satellite fetch in parallel for exact station
+    // Run telemetry fetch, Open-Meteo satellite fetch, and Trust Score fetch in parallel
     Promise.allSettled([
       fetchStationObservations(selectedStationId, 30),
-      fetchStationLiveWeather(selectedStationId)
-    ]).then(([obsResult, weatherResult]) => {
+      fetchStationLiveWeather(selectedStationId),
+      fetchStationTrustScore(selectedStationId)
+    ]).then(([obsResult, weatherResult, trustResult]) => {
       if (!isMounted) return;
 
       if (obsResult.status === 'fulfilled' && obsResult.value) {
@@ -94,7 +99,11 @@ export const LiveMonitoring: React.FC = () => {
       if (weatherResult.status === 'fulfilled' && weatherResult.value?.openMeteo) {
         setOpenMeteoData(weatherResult.value.openMeteo);
       }
+      if (trustResult.status === 'fulfilled' && trustResult.value) {
+        setTrustDetails(trustResult.value);
+      }
       setLoadingWeather(false);
+      setLoadingTrust(false);
     });
 
     const onUpdate = (data: any) => {
@@ -304,6 +313,9 @@ export const LiveMonitoring: React.FC = () => {
       </div>
 
       <WhatIfSimulatorModal isOpen={isWhatIfOpen} onClose={() => setIsWhatIfOpen(false)} />
+
+      {/* AI-POWERED STATION TRUST SCORE CARD */}
+      <StationTrustCard station={selectedStation} trustDetails={trustDetails} loading={loadingTrust} />
 
       {/* Primary 5 Real-Time Sensor Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-3">

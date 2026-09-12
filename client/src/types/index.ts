@@ -1,4 +1,38 @@
 export type StationStatus = 'NORMAL' | 'WARNING' | 'CRITICAL' | 'WEATHER_EVENT' | 'UNDER_ANALYSIS';
+export type TrustStatusCategory = 'HIGHLY_TRUSTED' | 'TRUSTED' | 'CAUTION' | 'UNRELIABLE' | 'CRITICAL';
+
+export interface SensorTrustBreakdown {
+  temperature: number;
+  humidity: number;
+  pressure: number;
+  wind: number;
+  rainfall: number;
+}
+
+export interface TrustFactor {
+  type: 'positive' | 'warning' | 'negative';
+  message: string;
+}
+
+export interface TrustScoreDetails {
+  stationId: string;
+  overallScore: number;
+  status: TrustStatusCategory;
+  statusLabel: string;
+  statusColor: string;
+  sensorTrust: SensorTrustBreakdown;
+  factors: TrustFactor[];
+  formulaBreakdown: {
+    baseScore: number;
+    anomalyDeductions: number;
+    openMeteoDiscrepancyPenalty: number;
+    sensorFlatlineSpikePenalty: number;
+    packetLossPenalty: number;
+    sensorHealthContribution: number;
+    explanation: string;
+  };
+  lastCalculated: string;
+}
 
 export interface Station {
   _id?: string;
@@ -25,6 +59,8 @@ export interface Station {
   maintenanceWarning?: string | null;
   learningActive?: boolean;
   expectedRange?: string;
+  trustScore?: number;
+  trustDetails?: TrustScoreDetails;
 }
 
 export interface Observation {

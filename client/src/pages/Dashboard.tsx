@@ -67,8 +67,8 @@ export const Dashboard: React.FC = () => {
       {/* Top 8 Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
         <StatCard title="Total AWS Stations" value={analytics?.totalStations || stations.length || 10} subtitle="India Command Network" icon={RadioTower} color="sky" />
-        <StatCard title="Active Stations" value={activeStations} subtitle="Receiving Telemetry" icon={CheckCircle2} color="emerald" />
-        <StatCard title="Normal Stations" value={normalStations} subtitle="Nominal Performance" icon={ShieldCheck} color="emerald" />
+        <StatCard title="Network Trust Score" value={`${stations.length > 0 ? Math.round(stations.reduce((acc, s) => acc + (s.trustScore ?? s.healthScore ?? 95), 0) / stations.length) : 96}%`} subtitle="Dynamic AI Trust Index" icon={ShieldCheck} color="emerald" />
+        <StatCard title="Normal Stations" value={normalStations} subtitle="Nominal Performance" icon={CheckCircle2} color="emerald" />
         <StatCard title="Under Analysis" value={stations.filter(s => s.status !== 'NORMAL').length} subtitle="AI Trust Processing" icon={Activity} color="amber" />
         <StatCard title="Detected Anomalies" value={analytics?.totalAnomalies || anomalies.length} subtitle="Auto-Flagged" icon={Search} color="amber" />
         <StatCard title="Sensor Faults" value={analytics?.sensorFaults || 0} subtitle="Hardware Issues" icon={AlertTriangle} color="rose" />

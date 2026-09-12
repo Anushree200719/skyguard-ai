@@ -5,6 +5,7 @@ const Alert = require('../models/Alert');
 const MlClient = require('./mlClient');
 const store = require('../models/inMemoryStore');
 const openMeteoService = require('./openMeteoService');
+const TrustScoreEngine = require('./trustScoreEngine');
 
 const INITIAL_STATIONS = store.getStations();
 
@@ -184,6 +185,17 @@ class SimulatorService {
       const expectedMaxTemp = Number((learnedBaseTemp + 2.5).toFixed(1));
       const expectedRangeStr = `${expectedMinTemp}°C – ${expectedMaxTemp}°C`;
 
+      const updatedStationObj = { 
+        ...station,
+        status: newStatus, 
+        healthScore: overallHealth,
+        sensorHealth: { ...currentHealth, temperature: newTempHealth }
+      };
+
+      const stationObs = store.getObservations(station.stationId, 20);
+      const stationAnoms = store.getAnomalies({ station: station.stationId, limit: 15 });
+      const trustDetails = TrustScoreEngine.calculate(updatedStationObj, stationObs, stationAnoms);
+
       store.updateStation(station.stationId, { 
         status: newStatus, 
         healthScore: overallHealth,
@@ -192,6 +204,8 @@ class SimulatorService {
         maintenanceWarning,
         learningActive: true,
         expectedRange: expectedRangeStr,
+        trustScore: trustDetails.overallScore,
+        trustDetails,
         lastSeen: now 
       });
 

@@ -88,6 +88,32 @@ router.get('/:id/health', async (req, res) => {
   }
 });
 
+// GET /api/stations/:id/trust
+router.get('/:id/trust', async (req, res) => {
+  try {
+    const TrustScoreEngine = require('../services/trustScoreEngine');
+    const openMeteoService = require('../services/openMeteoService');
+
+    const station = store.getStation(req.params.id);
+    if (!station) return res.status(404).json({ message: 'Station not found' });
+
+    const obs = store.getObservations(req.params.id, 30);
+    const anomalies = store.getAnomalies({ station: req.params.id, limit: 20 });
+    let openMeteoData = null;
+
+    try {
+      openMeteoData = await openMeteoService.fetchForecast(station.latitude, station.longitude);
+    } catch (e) {
+      // non-blocking fallback
+    }
+
+    const trustDetails = TrustScoreEngine.calculate(station, obs, anomalies, openMeteoData);
+    return res.json(trustDetails);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/stations/:id/live-weather
 router.get('/:id/live-weather', async (req, res) => {
   try {
@@ -109,3 +135,4 @@ router.get('/:id/live-weather', async (req, res) => {
 });
 
 module.exports = router;
+
