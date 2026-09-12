@@ -1,5 +1,36 @@
 export type StationStatus = 'NORMAL' | 'WARNING' | 'CRITICAL' | 'WEATHER_EVENT' | 'UNDER_ANALYSIS';
 export type TrustStatusCategory = 'HIGHLY_TRUSTED' | 'TRUSTED' | 'CAUTION' | 'UNRELIABLE' | 'CRITICAL';
+export type ComparisonStatus = 'NORMAL' | 'WARNING' | 'CRITICAL' | 'UNAVAILABLE';
+export type OverallAgreementTier = 'EXCELLENT' | 'MODERATE' | 'POOR';
+
+export interface ParameterComparison {
+  id: 'temperature' | 'humidity' | 'pressure' | 'windSpeed' | 'rainfall';
+  name: string;
+  unit: string;
+  awsValue: number | null;
+  openMeteoValue: number | null;
+  difference: number | null;
+  agreementPercentage: number | null;
+  status: ComparisonStatus;
+  statusLabel: string;
+  statusColor: string;
+  thresholdText: string;
+}
+
+export interface OpenMeteoComparisonResult {
+  stationId: string;
+  stationName: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  overallAgreement: number;
+  overallStatus: OverallAgreementTier;
+  overallStatusLabel: string;
+  overallStatusColor: string;
+  parameters: ParameterComparison[];
+  timestamp: string;
+}
 
 export interface SensorTrustBreakdown {
   temperature: number;

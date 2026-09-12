@@ -134,5 +134,31 @@ router.get('/:id/live-weather', async (req, res) => {
   }
 });
 
+// GET /api/stations/:id/openmeteo-comparison
+router.get('/:id/openmeteo-comparison', async (req, res) => {
+  try {
+    const ComparisonEngine = require('../services/comparisonEngine');
+    const openMeteoService = require('../services/openMeteoService');
+
+    const station = store.getStation(req.params.id);
+    if (!station) return res.status(404).json({ message: 'Station not found' });
+
+    const obsList = store.getObservations(req.params.id, 10);
+    const latestObs = obsList && obsList.length > 0 ? obsList[obsList.length - 1] : null;
+
+    let openMeteoData = null;
+    try {
+      openMeteoData = await openMeteoService.fetchForecast(station.latitude, station.longitude);
+    } catch (e) {
+      console.warn(`[StationRoute] Open-Meteo fetch note for comparison:`, e.message);
+    }
+
+    const comparisonResult = ComparisonEngine.compare(station, latestObs, openMeteoData);
+    return res.json(comparisonResult);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
 

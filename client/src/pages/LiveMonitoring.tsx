@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchStations, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore } from '../services/api';
+import { fetchStations, fetchStationObservations, fetchStationLiveWeather, fetchStationTrustScore, fetchStationOpenMeteoComparison } from '../services/api';
 import { socket } from '../services/socket';
-import { Station, Observation, TrustScoreDetails } from '../types';
+import { Station, Observation, TrustScoreDetails, OpenMeteoComparisonResult } from '../types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
 import { LineChart as ChartIcon, Thermometer, Droplets, Gauge, Wind, CloudRain, Sun, Eye, Layers, Compass, Satellite, RefreshCw, Sliders, Search, ChevronDown, Check, X, MapPin, RadioTower } from 'lucide-react';
 import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
 import { StationTrustCard } from '../components/StationTrustCard';
+import { OpenMeteoComparisonCard } from '../components/OpenMeteoComparisonCard';
 
 const STATION_DICTIONARY: Record<string, Partial<Station>> = {
   'AWS-101': { stationId: 'AWS-101', name: 'New Delhi IMD Headquarters', location: 'New Delhi, Delhi', latitude: 28.6139, longitude: 77.2090, elevation: 216 },
@@ -29,6 +30,8 @@ export const LiveMonitoring: React.FC = () => {
   const [loadingWeather, setLoadingWeather] = useState<boolean>(false);
   const [trustDetails, setTrustDetails] = useState<TrustScoreDetails | null>(null);
   const [loadingTrust, setLoadingTrust] = useState<boolean>(false);
+  const [comparisonData, setComparisonData] = useState<OpenMeteoComparisonResult | null>(null);
+  const [loadingComparison, setLoadingComparison] = useState<boolean>(false);
   const [isWhatIfOpen, setIsWhatIfOpen] = useState<boolean>(false);
 
   // Searchable Station Dropdown State
@@ -76,7 +79,7 @@ export const LiveMonitoring: React.FC = () => {
     }
   };
 
-  // 2. Fetch observations, Open-Meteo & Trust Score when selectedStationId changes
+  // 2. Fetch observations, Open-Meteo, Trust Score & Comparison when selectedStationId changes
   useEffect(() => {
     let isMounted = true;
     if (!selectedStationId) return;
@@ -84,13 +87,15 @@ export const LiveMonitoring: React.FC = () => {
     setOpenMeteoData(null);
     setLoadingWeather(true);
     setLoadingTrust(true);
+    setLoadingComparison(true);
 
-    // Run telemetry fetch, Open-Meteo satellite fetch, and Trust Score fetch in parallel
+    // Run telemetry fetch, Open-Meteo satellite fetch, Trust Score & Comparison fetch in parallel
     Promise.allSettled([
       fetchStationObservations(selectedStationId, 30),
       fetchStationLiveWeather(selectedStationId),
-      fetchStationTrustScore(selectedStationId)
-    ]).then(([obsResult, weatherResult, trustResult]) => {
+      fetchStationTrustScore(selectedStationId),
+      fetchStationOpenMeteoComparison(selectedStationId)
+    ]).then(([obsResult, weatherResult, trustResult, compResult]) => {
       if (!isMounted) return;
 
       if (obsResult.status === 'fulfilled' && obsResult.value) {
@@ -102,8 +107,12 @@ export const LiveMonitoring: React.FC = () => {
       if (trustResult.status === 'fulfilled' && trustResult.value) {
         setTrustDetails(trustResult.value);
       }
+      if (compResult.status === 'fulfilled' && compResult.value) {
+        setComparisonData(compResult.value);
+      }
       setLoadingWeather(false);
       setLoadingTrust(false);
+      setLoadingComparison(false);
     });
 
     const onUpdate = (data: any) => {
@@ -316,6 +325,9 @@ export const LiveMonitoring: React.FC = () => {
 
       {/* AI-POWERED STATION TRUST SCORE CARD */}
       <StationTrustCard station={selectedStation} trustDetails={trustDetails} loading={loadingTrust} />
+
+      {/* AWS STATION VS. OPEN-METEO COMPARISON MATRIX CARD */}
+      <OpenMeteoComparisonCard station={selectedStation} comparisonData={comparisonData} loading={loadingComparison} />
 
       {/* Primary 5 Real-Time Sensor Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-3">
