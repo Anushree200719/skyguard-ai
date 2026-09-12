@@ -6,6 +6,7 @@ const MlClient = require('./mlClient');
 const store = require('../models/inMemoryStore');
 const openMeteoService = require('./openMeteoService');
 const TrustScoreEngine = require('./trustScoreEngine');
+const alertEngine = require('./alertEngine');
 
 const INITIAL_STATIONS = store.getStations();
 
@@ -260,20 +261,21 @@ class SimulatorService {
           estimatedValueDisclaimer: 'Estimated value based on historical patterns and other sensor observations.'
         });
 
-        const alertObj = store.addAlert({
-          stationId: station.stationId,
-          title: `${evalRes.classification.replace(/_/g, ' ')} AT ${station.stationId}`,
-          message: evalRes.probable_cause,
-          level: evalRes.severity,
-          category,
-          acknowledged: false,
-          timestamp: now,
-          aiExplanation: shortExplanation
-        });
+        // Evaluate Smart Alerts with deduplication
+        const createdAlerts = await alertEngine.evaluateStationAlerts(
+          station.stationId,
+          obs,
+          [anomObj],
+          trustDetails,
+          null,
+          null
+        );
 
         if (this.io) {
           this.io.emit('anomaly_detected', anomObj);
-          this.io.emit('alert_created', alertObj);
+          if (createdAlerts && createdAlerts.length > 0) {
+            createdAlerts.forEach(alt => this.io.emit('alert_created', alt));
+          }
         }
       }
     }

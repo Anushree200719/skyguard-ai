@@ -218,13 +218,27 @@ export interface Anomaly {
 export interface Alert {
   _id: string;
   stationId: string;
+  stationName?: string;
+  sensor?: string;
   title: string;
   message: string;
-  level: 'CRITICAL' | 'HIGH' | 'WARNING' | 'INFO' | 'WEATHER_EVENT';
-  category: 'CRITICAL' | 'HIGH' | 'WARNING' | 'INFO';
+  level: 'INFO' | 'WARNING' | 'HIGH RISK' | 'CRITICAL' | string;
+  category?: string;
+  explanation?: string;
+  aiExplanation?: string;
+  aiConfidence?: number;
+  anomalyId?: string;
+  dedupKey?: string;
   acknowledged: boolean;
   timestamp: string;
-  aiExplanation?: string;
+}
+
+export interface AlertSummary {
+  critical: number;
+  highRisk: number;
+  warning: number;
+  info: number;
+  totalActive: number;
 }
 
 export interface AnalyticsSummary {

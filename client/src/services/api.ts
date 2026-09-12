@@ -35,7 +35,8 @@ export const fetchOpenMeteoForecast = async (latitude = 21.1492, longitude = 79.
   (await api.get(`/open-meteo/forecast?latitude=${latitude}&longitude=${longitude}`)).data;
 
 export const fetchAnomalies = async (params = {}) => (await api.get('/anomalies', { params })).data;
-export const fetchAlerts = async () => (await api.get('/alerts')).data;
+export const fetchAlerts = async (params = {}) => (await api.get('/alerts', { params })).data;
+export const fetchAlertsSummary = async () => (await api.get('/alerts/summary')).data;
 export const acknowledgeAlert = async (id: string) => (await api.post(`/alerts/${id}/acknowledge`)).data;
 export const fetchAnalytics = async () => (await api.get('/analytics')).data;
 export const fetchMaintenance = async () => (await api.get('/maintenance')).data;

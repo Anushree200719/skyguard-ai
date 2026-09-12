@@ -99,19 +99,51 @@ class InMemoryStore {
   }
 
   addAlert(alert) {
-    const obj = { _id: `alt_${Date.now()}_${Math.random()}`, ...alert };
+    const obj = { 
+      _id: `alt_${Date.now()}_${Math.floor(Math.random() * 10000)}`, 
+      stationId: alert.stationId || 'AWS-701',
+      stationName: alert.stationName || alert.stationId || 'Nagpur Central Meteorology Station',
+      sensor: alert.sensor || 'overall',
+      title: alert.title || 'System Alert',
+      message: alert.message || 'Telemetry anomaly detected',
+      level: alert.level || 'WARNING',
+      explanation: alert.explanation || 'Automated AI rule trigger',
+      aiConfidence: alert.aiConfidence || 0.94,
+      dedupKey: alert.dedupKey || `${alert.stationId}_${alert.sensor || 'overall'}_${alert.title}`,
+      acknowledged: alert.acknowledged || false,
+      timestamp: alert.timestamp || new Date().toISOString()
+    };
     this.alerts.push(obj);
-    if (this.alerts.length > 200) this.alerts.shift();
+    if (this.alerts.length > 300) this.alerts.shift();
     return obj;
   }
 
   getAlerts(query = {}) {
     let result = [...this.alerts];
-    if (query.category) result = result.filter(a => a.category === query.category);
-    if (query.acknowledged !== undefined) {
-      result = result.filter(a => a.acknowledged === (query.acknowledged === 'true'));
+    if (query.station || query.stationId) {
+      const st = query.station || query.stationId;
+      result = result.filter(a => a.stationId === st);
     }
-    return result.reverse().slice(0, query.limit || 50);
+    if (query.level || query.severity || query.category) {
+      const lvl = query.level || query.severity || query.category;
+      result = result.filter(a => a.level === lvl || a.category === lvl);
+    }
+    if (query.acknowledged !== undefined && query.acknowledged !== '') {
+      const isAck = String(query.acknowledged) === 'true';
+      result = result.filter(a => a.acknowledged === isAck);
+    }
+    return result.reverse().slice(0, parseInt(query.limit || 100));
+  }
+
+  getAlertsSummary() {
+    const activeAlerts = this.alerts.filter(a => !a.acknowledged);
+    return {
+      critical: activeAlerts.filter(a => a.level === 'CRITICAL').length,
+      highRisk: activeAlerts.filter(a => a.level === 'HIGH RISK' || a.level === 'HIGH').length,
+      warning: activeAlerts.filter(a => a.level === 'WARNING').length,
+      info: activeAlerts.filter(a => a.level === 'INFO' || a.level === 'WEATHER_EVENT').length,
+      totalActive: activeAlerts.length
+    };
   }
 
   acknowledgeAlert(id) {
