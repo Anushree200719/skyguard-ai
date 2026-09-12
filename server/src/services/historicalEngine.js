@@ -6,6 +6,7 @@
 const store = require('../models/inMemoryStore');
 const mongoose = require('mongoose');
 const openMeteoService = require('./openMeteoService');
+const supabaseService = require('./supabaseService');
 
 class HistoricalEngine {
   constructor() {
@@ -32,9 +33,20 @@ class HistoricalEngine {
 
     const startTime = new Date(now.getTime() - windowMs);
 
-    // 1. Fetch raw telemetry observations from MongoDB or MemoryStore
+    // 1. Fetch raw telemetry observations from Supabase, MongoDB, or MemoryStore
     let rawObs = [];
-    if (mongoose.connection.readyState === 1) {
+    if (supabaseService.isAvailable()) {
+      try {
+        const supaData = await supabaseService.fetchHistoricalTelemetry(stationId, startTime);
+        if (supaData && supaData.length > 0) {
+          rawObs = supaData;
+        }
+      } catch (err) {
+        console.warn('Supabase history query fallback:', err.message);
+      }
+    }
+
+    if ((!rawObs || rawObs.length === 0) && mongoose.connection.readyState === 1) {
       try {
         const Observation = require('../models/Observation');
         rawObs = await Observation.find({

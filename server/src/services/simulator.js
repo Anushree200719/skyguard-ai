@@ -7,6 +7,7 @@ const store = require('../models/inMemoryStore');
 const openMeteoService = require('./openMeteoService');
 const TrustScoreEngine = require('./trustScoreEngine');
 const alertEngine = require('./alertEngine');
+const supabaseService = require('./supabaseService');
 
 const INITIAL_STATIONS = store.getStations();
 
@@ -143,14 +144,16 @@ class SimulatorService {
         qualityFlag = 'ESTIMATED';
       }
 
-      // Save observation to MemoryStore
-      store.addObservation({
+      // Save observation to MemoryStore & Supabase
+      const obsRecord = {
         ...obs,
         correctedTemperature: correctedTemp,
         imputationMethod,
         qualityFlag,
         anomalyScore: evalRes.anomaly_score
-      });
+      };
+      store.addObservation(obsRecord);
+      supabaseService.insertTelemetry(obsRecord).catch(() => {});
 
       // Update per-sensor health metrics
       const currentHealth = station.sensorHealth || { temperature: 95, humidity: 95, pressure: 95, wind: 95, rainfall: 95 };
@@ -261,6 +264,8 @@ class SimulatorService {
           estimatedValueDisclaimer: 'Estimated value based on historical patterns and other sensor observations.'
         });
 
+        supabaseService.insertAnomaly(anomObj).catch(() => {});
+
         // Evaluate Smart Alerts with deduplication
         const createdAlerts = await alertEngine.evaluateStationAlerts(
           station.stationId,
@@ -270,6 +275,10 @@ class SimulatorService {
           null,
           null
         );
+
+        if (createdAlerts && createdAlerts.length > 0) {
+          createdAlerts.forEach(alt => supabaseService.insertAlert(alt).catch(() => {}));
+        }
 
         if (this.io) {
           this.io.emit('anomaly_detected', anomObj);
