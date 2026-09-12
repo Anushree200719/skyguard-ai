@@ -10,6 +10,7 @@ import { LiveMonitoring } from './pages/LiveMonitoring';
 import { AnomalyExplorer } from './pages/AnomalyExplorer';
 import { AlertsPage } from './pages/AlertsPage';
 import { HistoricalAnalysisPage } from './pages/HistoricalAnalysisPage';
+import { PredictionPage } from './pages/PredictionPage';
 import { MaintenancePage } from './pages/MaintenancePage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 
@@ -35,6 +36,7 @@ export const App: React.FC = () => {
               <Route path="/" element={<Dashboard />} />
               <Route path="/stations" element={<Stations />} />
               <Route path="/rankings" element={<RankingsPage />} />
+              <Route path="/prediction" element={<PredictionPage />} />
               <Route path="/stations/:id" element={<StationDetail />} />
               <Route path="/monitoring" element={<LiveMonitoring />} />
               <Route path="/anomalies" element={<AnomalyExplorer />} />

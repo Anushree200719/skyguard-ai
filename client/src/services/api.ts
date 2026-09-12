@@ -34,6 +34,8 @@ export const fetchStationXAIExplanation = async (id: string) => (await api.get(`
 export const fetchAnomalyXAIExplanation = async (id: string) => (await api.get(`/anomalies/${id}/explain`)).data;
 export const fetchStationHistory = async (id: string, range = '24h', parameter = 'temperature') => 
   (await api.get(`/stations/${id}/history?range=${range}&parameter=${parameter}`)).data;
+export const fetchStationPrediction = async (id: string) => 
+  (await api.get(`/stations/${id}/prediction`)).data;
 export const fetchOpenMeteoForecast = async (latitude = 21.1492, longitude = 79.1613) => 
   (await api.get(`/open-meteo/forecast?latitude=${latitude}&longitude=${longitude}`)).data;
 

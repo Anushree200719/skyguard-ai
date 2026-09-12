@@ -237,5 +237,30 @@ router.get('/:id/history', async (req, res) => {
   }
 });
 
+// GET /api/stations/:id/prediction
+router.get('/:id/prediction', async (req, res) => {
+  try {
+    const predictionEngine = require('../services/predictionEngine');
+    const openMeteoService = require('../services/openMeteoService');
+
+    const station = store.getStation(req.params.id);
+    if (!station) return res.status(404).json({ message: 'Station not found' });
+
+    const obsList = store.getObservations(req.params.id, 30);
+    let openMeteoData = null;
+    try {
+      openMeteoData = await openMeteoService.fetchForecast(station.latitude, station.longitude);
+    } catch (e) {
+      // non-blocking fallback
+    }
+
+    const prediction = predictionEngine.generatePrediction(station, obsList, openMeteoData);
+    return res.json(prediction);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
+
 

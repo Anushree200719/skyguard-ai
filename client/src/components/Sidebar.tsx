@@ -11,6 +11,7 @@ import {
   Calendar,
   Trophy,
   Shield,
+  Sparkles,
   X 
 } from 'lucide-react';
 
@@ -24,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileMenuOpen = false, onCl
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/stations', label: 'AWS Stations', icon: CloudSun },
     { to: '/rankings', label: 'Reliability Rankings', icon: Trophy },
+    { to: '/prediction', label: 'Weather Outlook', icon: Sparkles },
     { to: '/monitoring', label: 'Live Monitoring', icon: LineChart },
     { to: '/anomalies', label: 'Anomaly Explorer', icon: Search },
     { to: '/alerts', label: 'Live Alerts', icon: Bell },

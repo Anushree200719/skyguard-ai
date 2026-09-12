@@ -143,6 +143,14 @@ export const StationDetail: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+          <Link
+            to="/prediction"
+            className="flex items-center gap-1.5 px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[40px] touch-manipulation active:scale-[0.98]"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-sky-400 flex-shrink-0 animate-pulse" />
+            <span>AI OUTLOOK</span>
+          </Link>
+
           <button
             onClick={() => setIsExplainOpen(true)}
             className="flex items-center gap-1.5 px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[40px] touch-manipulation active:scale-[0.98]"
