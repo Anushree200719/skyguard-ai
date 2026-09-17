@@ -109,49 +109,51 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
   };
 
   return (
-    <div className="glass-card p-4 sm:p-5 rounded-xl border border-cyan-500/30 bg-[#091428]/90 relative overflow-hidden font-mono space-y-4">
+    <div className="liquid-glass p-4 sm:p-5 rounded-3xl border-none relative overflow-hidden font-poppins space-y-4">
       {/* Loading Overlay */}
       {loading && (
-        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm z-20 flex items-center justify-center text-xs text-cyan-400 font-bold animate-pulse">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-20 flex items-center justify-center text-xs text-white font-medium animate-pulse font-mono">
           🛰️ Cross-referencing AWS Telemetry against Open-Meteo Satellite Data...
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-        <div className="flex items-center gap-2">
-          <Scale className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl liquid-glass text-white">
+            <Scale className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h2 className="font-orbitron font-bold text-xs text-slate-100 uppercase tracking-wider">
+            <h2 className="font-poppins font-medium text-xs sm:text-sm text-white uppercase tracking-wider">
               AWS STATION VS. OPEN-METEO SATELLITE COMPARISON
             </h2>
-            <span className="text-[10px] text-slate-400 block font-sans">
+            <span className="text-[10px] text-white/50 block font-light">
               Exact parameter agreement matrix using coordinates: {station.latitude?.toFixed(4)}°N, {station.longitude?.toFixed(4)}°E ({station.name})
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className={`px-2.5 py-1 rounded text-xs font-bold font-orbitron border ${overallStatusBg}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-mono font-medium ${overallStatusBg}`}>
             {overallStatusText}
           </span>
         </div>
       </div>
 
       {/* Overall Data Agreement Badge Banner */}
-      <div className="p-3 bg-slate-900/70 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-cyan-500/10 rounded-lg border border-cyan-500/30 text-center">
-            <span className="text-[10px] text-slate-400 block font-bold">OVERALL AGREEMENT</span>
-            <span className="font-orbitron font-extrabold text-2xl text-slate-100">{agreement}%</span>
+      <div className="p-4 liquid-glass rounded-2xl flex flex-wrap items-center justify-between gap-3 border-none">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 liquid-glass rounded-xl text-center">
+            <span className="text-[10px] text-white/50 block font-mono font-medium">OVERALL AGREEMENT</span>
+            <span className="font-poppins font-medium text-2xl text-white">{agreement}%</span>
           </div>
 
           <div className="space-y-0.5 text-xs">
-            <div className="flex items-center gap-1.5 text-slate-300 font-bold">
-              <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="flex items-center gap-1.5 text-white font-medium">
+              <MapPin className="w-3.5 h-3.5 text-white/80" />
               <span>{station.stationId} ({station.name})</span>
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-white/60 font-light">
               Cross-validating 5 active AWS sensor channels against localized satellite weather radar.
             </p>
           </div>
@@ -159,9 +161,9 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
 
         {/* Agreement Status Tiers Legend */}
         <div className="flex items-center gap-2 text-[10px] font-mono">
-          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">🟢 Excellent (≥90%)</span>
-          <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">🟡 Moderate (70-89%)</span>
-          <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">🔴 Poor (&lt;70%)</span>
+          <span className="px-2.5 py-1 rounded-full liquid-glass text-emerald-300 border border-emerald-500/30">🟢 Excellent (≥90%)</span>
+          <span className="px-2.5 py-1 rounded-full liquid-glass text-amber-300 border border-amber-500/30">🟡 Moderate (70-89%)</span>
+          <span className="px-2.5 py-1 rounded-full liquid-glass text-rose-300 border border-rose-500/30">🔴 Poor (&lt;70%)</span>
         </div>
       </div>
 
@@ -174,53 +176,53 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
           return (
             <div 
               key={param.id} 
-              className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/90 flex flex-col justify-between space-y-2 relative"
+              className="p-3.5 liquid-glass rounded-2xl flex flex-col justify-between space-y-2.5 relative border-none"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <div className="flex items-center gap-1.5">
                   {getParamIcon(param.id)}
-                  <span className="font-orbitron font-bold text-xs text-slate-200">{param.name}</span>
+                  <span className="font-poppins font-medium text-xs text-white">{param.name}</span>
                 </div>
               </div>
 
               {/* AWS vs Open-Meteo Values */}
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center justify-between p-1.5 bg-slate-950/60 rounded border border-slate-800">
-                  <span className="text-[10px] text-sky-400 font-bold">AWS Station:</span>
-                  <span className="font-bold text-slate-100">
+              <div className="space-y-1.5 text-xs font-mono">
+                <div className="flex items-center justify-between p-2 liquid-glass rounded-xl">
+                  <span className="text-[10px] text-white/50 font-medium">AWS Station:</span>
+                  <span className="font-semibold text-white">
                     {param.awsValue !== null && param.awsValue !== undefined ? `${param.awsValue}${param.unit}` : 'N/A'}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between p-1.5 bg-slate-950/60 rounded border border-slate-800">
-                  <span className="text-[10px] text-cyan-400 font-bold">Open-Meteo:</span>
-                  <span className="font-bold text-slate-100">
+                <div className="flex items-center justify-between p-2 liquid-glass rounded-xl">
+                  <span className="text-[10px] text-white/50 font-medium">Open-Meteo:</span>
+                  <span className="font-semibold text-white">
                     {param.openMeteoValue !== null && param.openMeteoValue !== undefined ? `${param.openMeteoValue}${param.unit}` : 'N/A'}
                   </span>
                 </div>
               </div>
 
               {/* Difference & Agreement */}
-              <div className="space-y-1 pt-1 border-t border-slate-800/80">
+              <div className="space-y-1 pt-1.5 border-t border-white/10 font-mono">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">Difference:</span>
-                  <span className="font-bold text-amber-300">
+                  <span className="text-white/50">Difference:</span>
+                  <span className="font-semibold text-white">
                     {param.difference !== null && param.difference !== undefined ? `${param.difference}${param.unit}` : '--'}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">Agreement:</span>
-                  <span className="font-bold text-emerald-400">
+                  <span className="text-white/50">Agreement:</span>
+                  <span className="font-semibold text-emerald-300">
                     {isUnavailable ? 'N/A' : `${agreementVal}%`}
                   </span>
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-1">
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden my-1">
                   <div 
-                    className="h-full transition-all duration-700"
+                    className="h-full transition-all duration-700 rounded-full"
                     style={{ 
                       width: `${isUnavailable ? 0 : agreementVal}%`, 
                       backgroundColor: param.statusColor || gaugeColor 
@@ -232,10 +234,10 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
               {/* Status Badge */}
               <div className="pt-1 flex items-center justify-between">
                 <span 
-                  className="text-[9px] font-bold px-2 py-0.5 rounded uppercase font-orbitron"
+                  className="text-[9px] font-mono font-medium px-2 py-0.5 rounded-full uppercase"
                   style={{ 
-                    backgroundColor: `${param.statusColor}20`, 
-                    color: param.statusColor,
+                    backgroundColor: `${param.statusColor}25`, 
+                    color: '#ffffff',
                     borderColor: `${param.statusColor}40`,
                     borderWidth: '1px'
                   }}
@@ -244,8 +246,8 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
                 </span>
 
                 <div className="group relative">
-                  <Info className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300 cursor-help" />
-                  <div className="hidden group-hover:block absolute bottom-full right-0 mb-1 w-48 p-2 bg-slate-950 text-[10px] text-slate-300 rounded shadow-xl border border-slate-700 font-sans z-30">
+                  <Info className="w-3.5 h-3.5 text-white/40 hover:text-white cursor-help" />
+                  <div className="hidden group-hover:block absolute bottom-full right-0 mb-1.5 w-48 p-2.5 liquid-glass-strong text-[10px] text-white/80 rounded-2xl shadow-2xl font-sans z-30 border border-white/20">
                     {param.thresholdText}
                   </div>
                 </div>

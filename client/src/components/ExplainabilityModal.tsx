@@ -39,26 +39,28 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 font-mono text-xs">
-      <div className="glass-card w-full max-w-2xl p-4 sm:p-6 rounded-2xl border border-sky-500/40 bg-[#0a1426] shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 sm:p-6 font-poppins text-xs animate-in fade-in duration-200">
+      <div className="liquid-glass-strong w-full max-w-2xl p-6 sm:p-8 rounded-3xl border border-white/20 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-5">
         
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center gap-2 text-sky-400 font-bold animate-pulse">
-            <Brain className="w-8 h-8 text-sky-400 animate-bounce" />
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-2 text-white font-medium animate-pulse">
+            <Brain className="w-8 h-8 text-white animate-bounce" />
             <span>🧠 Synthesizing Transparent AI Explanation Matrix...</span>
           </div>
         )}
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl liquid-glass text-white">
+              <Sparkles className="w-5 h-5 stroke-[1.5]" />
+            </div>
             <div>
-              <h2 className="font-orbitron font-bold text-sm text-slate-100 uppercase tracking-wider flex items-center gap-2">
+              <h2 className="font-poppins font-medium text-sm text-white tracking-tight flex items-center gap-2">
                 AI ANALYSIS EXPLANATION — {explanation?.stationId || 'AWS STATION'}
               </h2>
-              <span className="text-[10px] text-slate-400 block font-sans">
+              <span className="text-[10px] text-white/50 block font-light">
                 Transparent multi-layer decision breakdown & empirical evidence log
               </span>
             </div>
@@ -66,25 +68,25 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-100 rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-2 text-white/60 hover:text-white rounded-full liquid-glass transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* AI Confidence & Status Banner */}
-        <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-sky-500/10 rounded-lg border border-sky-500/30 text-center">
-              <span className="text-[10px] text-slate-400 block font-bold">AI CONFIDENCE</span>
-              <span className="font-orbitron font-extrabold text-2xl text-sky-300">{confPercent}%</span>
+        <div className="p-4 liquid-glass rounded-2xl flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <div className="p-3 liquid-glass rounded-xl text-center">
+              <span className="text-[10px] text-white/50 block font-mono font-medium">AI CONFIDENCE</span>
+              <span className="font-poppins font-medium text-2xl text-white">{confPercent}%</span>
             </div>
 
-            <div className="space-y-0.5">
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded font-orbitron uppercase border ${severityBg}`}>
+            <div className="space-y-1">
+              <span className={`text-[10px] font-mono font-medium px-2.5 py-0.5 rounded-full uppercase ${severityBg}`}>
                 {classification} ({severity})
               </span>
-              <p className="text-xs text-slate-200 font-bold mt-1">
+              <p className="text-xs text-white font-medium mt-1">
                 {explanation?.summary || 'Sensor telemetry analyzed across 5 meteorological channels.'}
               </p>
             </div>
@@ -92,32 +94,32 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
         </div>
 
         {/* Primary Factors List */}
-        <div className="space-y-2 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-          <span className="text-sky-400 font-bold uppercase text-[11px] font-orbitron flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-sky-400" />
+        <div className="space-y-2.5 liquid-glass p-4 sm:p-5 rounded-2xl border-none">
+          <span className="text-white font-medium text-xs font-mono flex items-center gap-2 uppercase tracking-wider">
+            <CheckCircle2 className="w-4 h-4 text-emerald-300" />
             PRIMARY FACTORS ("WHY WAS THIS FLAGGED?"):
           </span>
 
-          <div className="space-y-1.5 pt-1">
+          <div className="space-y-2 pt-1">
             {primaryFactors.map((factor, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-slate-200">
-                <span className="text-sky-400 font-bold text-sm">✓</span>
-                <span className="text-xs">{factor}</span>
+              <div key={idx} className="flex items-start gap-2.5 text-white/90">
+                <span className="text-emerald-300 font-bold text-sm">✓</span>
+                <span className="text-xs font-light">{factor}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Empirical Evidence & Telemetry Metrics */}
-        <div className="space-y-2 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-          <span className="text-emerald-400 font-bold uppercase text-[11px] font-orbitron flex items-center gap-1.5">
-            <Info className="w-4 h-4 text-emerald-400" />
+        <div className="space-y-2.5 liquid-glass p-4 sm:p-5 rounded-2xl border-none">
+          <span className="text-white font-medium text-xs font-mono flex items-center gap-2 uppercase tracking-wider">
+            <Info className="w-4 h-4 text-white/80" />
             EMPIRICAL EVIDENCE & TELEMETRY METRICS:
           </span>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 font-mono">
             {empiricalEvidence.map((ev, idx) => (
-              <div key={idx} className="p-2 bg-slate-950/60 rounded border border-slate-800/80 text-slate-300">
+              <div key={idx} className="p-2.5 liquid-glass rounded-xl text-white/80">
                 • {ev}
               </div>
             ))}
@@ -126,19 +128,19 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
 
         {/* Data Comparisons Grid (if available) */}
         {explanation?.dataComparisons && explanation.dataComparisons.length > 0 && (
-          <div className="space-y-2 border-t border-slate-800 pt-3">
-            <span className="text-cyan-400 font-bold uppercase text-[11px] font-orbitron flex items-center gap-1.5">
-              <Scale className="w-4 h-4 text-cyan-400" />
+          <div className="space-y-2.5 border-t border-white/10 pt-3">
+            <span className="text-white font-medium text-xs font-mono flex items-center gap-2 uppercase tracking-wider">
+              <Scale className="w-4 h-4 text-white/80" />
               AWS TELEMETRY VS. SATELLITE COMPARISON EVIDENCE:
             </span>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-mono">
               {explanation.dataComparisons.map((comp, idx) => (
-                <div key={idx} className="p-2 bg-slate-900/80 rounded border border-slate-800 text-[10px]">
-                  <span className="text-slate-400 block font-bold mb-0.5">{comp.name}</span>
-                  <div className="text-slate-200">AWS: <span className="font-bold">{comp.aws}</span></div>
-                  <div className="text-slate-400">Meteo: {comp.openMeteo}</div>
-                  <div className="text-amber-300 font-bold mt-0.5">Diff: {comp.diff}</div>
+                <div key={idx} className="p-2.5 liquid-glass rounded-xl text-[10px] space-y-0.5">
+                  <span className="text-white/50 block font-medium mb-0.5">{comp.name}</span>
+                  <div className="text-white">AWS: <span className="font-semibold">{comp.aws}</span></div>
+                  <div className="text-white/60">Meteo: {comp.openMeteo}</div>
+                  <div className="text-white font-semibold mt-0.5">Diff: {comp.diff}</div>
                 </div>
               ))}
             </div>
@@ -146,28 +148,28 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
         )}
 
         {/* AI Methodology & System Transparency Notice */}
-        <div className="p-3 bg-slate-950/90 rounded-xl border border-slate-800/90 space-y-1">
-          <span className="text-[10px] text-slate-400 font-bold font-orbitron flex items-center gap-1">
-            <Cpu className="w-3.5 h-3.5 text-sky-400" />
+        <div className="p-4 liquid-glass rounded-2xl space-y-1.5 font-mono">
+          <span className="text-[10px] text-white/50 font-medium flex items-center gap-1.5 uppercase tracking-wider">
+            <Cpu className="w-3.5 h-3.5 text-white/80" />
             AI METHODOLOGY & TRANSPARENCY NOTICE
           </span>
-          <p className="text-[10px] text-slate-400 leading-relaxed font-mono">
+          <p className="text-[10px] text-white/70 leading-relaxed font-light">
             {explanation?.systemTransparency || 'This explanation is synthesized from physical quality control rules combined with PyTorch LSTM Autoencoder reconstruction loss, Isolation Forest SHAP feature impacts, and Spatial Consensus ratios across surrounding AWS stations.'}
           </p>
         </div>
 
         {/* Actionable Recommendation */}
-        <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 flex items-center justify-between text-xs font-semibold text-amber-300">
+        <div className="p-4 liquid-glass rounded-2xl flex items-center justify-between text-xs font-medium text-white border border-white/20">
           <span>Recommended Action: {explanation?.recommendedAction || 'Schedule regular calibration inspection.'}</span>
         </div>
 
         {/* Footer Close */}
-        <div className="pt-2 border-t border-slate-800 flex justify-end">
+        <div className="pt-3 border-t border-white/10 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold font-mono"
+            className="liquid-glass rounded-full px-6 py-2.5 text-xs font-medium uppercase tracking-wider text-white hover:bg-white/10 transition cursor-pointer"
           >
-            CLOSE EXPLANATION
+            Close Explanation
           </button>
         </div>
       </div>
