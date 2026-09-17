@@ -22,7 +22,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isMobileMenuOpen = false, onCloseMobile = () => {} }) => {
   const links = [
-    { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/stations', label: 'AWS Stations', icon: CloudSun },
     { to: '/rankings', label: 'Reliability Rankings', icon: Trophy },
     { to: '/prediction', label: 'Weather Outlook', icon: Sparkles },

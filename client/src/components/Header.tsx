@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Radio, Activity, Menu, X, LayoutDashboard, CloudSun, LineChart, Search, Bell, Wrench, BrainCircuit } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { socket } from '../services/socket';
 
 interface HeaderProps {
@@ -42,17 +42,19 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
           {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
-        <div className="p-1.5 sm:p-2 bg-sky-500/10 border border-sky-500/30 rounded-lg shadow-lg shadow-sky-500/10 flex-shrink-0">
-          <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400 animate-pulse" />
-        </div>
-        <div className="min-w-0 truncate">
-          <h1 className="font-orbitron font-bold text-sm sm:text-base md:text-lg tracking-wider text-slate-100 flex items-center gap-1.5 truncate">
-            SKYGUARD <span className="text-sky-400">AI</span>
-          </h1>
-          <p className="hidden md:block text-[9px] lg:text-[10px] text-slate-400 tracking-widest font-semibold uppercase truncate">
-            AUTOMATIC WEATHER STATION TRUST LAYER & INTELLIGENCE COMMAND
-          </p>
-        </div>
+        <Link to="/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0 group cursor-pointer">
+          <div className="p-1.5 sm:p-2 bg-sky-500/10 border border-sky-500/30 rounded-lg shadow-lg shadow-sky-500/10 flex-shrink-0 group-hover:bg-sky-500/20 transition">
+            <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400 animate-pulse" />
+          </div>
+          <div className="min-w-0 truncate">
+            <h1 className="font-orbitron font-bold text-sm sm:text-base md:text-lg tracking-wider text-slate-100 flex items-center gap-1.5 truncate group-hover:text-sky-300 transition">
+              SKYGUARD <span className="text-sky-400">AI</span>
+            </h1>
+            <p className="hidden md:block text-[9px] lg:text-[10px] text-slate-400 tracking-widest font-semibold uppercase truncate">
+              AUTOMATIC WEATHER STATION TRUST LAYER & INTELLIGENCE COMMAND
+            </p>
+          </div>
+        </Link>
       </div>
 
       {/* Desktop Status Bar */}
