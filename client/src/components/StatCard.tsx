@@ -5,7 +5,7 @@ interface StatCardProps {
   value: string | number;
   subtitle?: string;
   icon: React.ComponentType<{ className?: string }>;
-  color?: 'sky' | 'emerald' | 'amber' | 'rose' | 'indigo';
+  color?: 'sky' | 'emerald' | 'amber' | 'rose' | 'indigo' | 'slate';
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -20,7 +20,8 @@ export const StatCard: React.FC<StatCardProps> = ({
     emerald: 'border-t-4 border-t-emerald-600 bg-white',
     amber: 'border-t-4 border-t-amber-600 bg-white',
     rose: 'border-t-4 border-t-red-600 bg-white',
-    indigo: 'border-t-4 border-t-indigo-600 bg-white'
+    indigo: 'border-t-4 border-t-indigo-600 bg-white',
+    slate: 'border-t-4 border-t-slate-600 bg-white'
   };
 
   const iconBgMap = {
@@ -28,7 +29,8 @@ export const StatCard: React.FC<StatCardProps> = ({
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     amber: 'bg-amber-50 text-amber-700 border-amber-200',
     rose: 'bg-red-50 text-red-700 border-red-200',
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    slate: 'bg-slate-100 text-slate-700 border-slate-300'
   };
 
   return (

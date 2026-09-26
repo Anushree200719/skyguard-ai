@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Radio, Activity, Menu, X, Globe, Eye, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Shield, Radio, Activity, Menu, X, Globe, Lock, Search, FileText, BarChart2, AlertTriangle, MapPin, Database, Server, Info, Home } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { socket } from '../services/socket';
 
 interface HeaderProps {
   isMobileMenuOpen: boolean;
   onToggleMobileMenu: () => void;
+  onOpenLogin?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobileMenu }) => {
+export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobileMenu, onOpenLogin }) => {
   const [timeStr, setTimeStr] = useState<string>('');
   const [istTimeStr, setIstTimeStr] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
   const [lang, setLang] = useState<'EN' | 'HI'>('EN');
+  const location = useLocation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -35,43 +37,62 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
     };
   }, []);
 
+  const navLinks = [
+    { name: 'HOME', path: '/' },
+    { name: 'DASHBOARD', path: '/dashboard' },
+    { name: 'AWS NETWORK', path: '/stations' },
+    { name: 'LIVE DATA', path: '/monitoring' },
+    { name: 'DATA QUALITY', path: '/anomalies' },
+    { name: 'ALERTS', path: '/alerts' },
+    { name: 'REPORTS', path: '/analytics' },
+    { name: 'PREDICTIONS', path: '/prediction' },
+    { name: 'MAINTENANCE', path: '/maintenance' },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === '/' && (location.pathname === '/' || location.pathname === '/dashboard')) return true;
+    return location.pathname === path;
+  };
+
   return (
-    <header className="sticky top-0 z-40 w-full flex flex-col shadow-md">
-      {/* 1. TOP OFFICIAL GOVERNMENT STRIP */}
-      <div className="gov-header-bar px-3 sm:px-6 py-1.5 text-[11px] font-medium flex items-center justify-between border-b border-slate-700">
+    <header className="sticky top-0 z-40 w-full flex flex-col shadow-md font-sans">
+      {/* 1. TOP UTILITY STRIP */}
+      <div className="gov-header-bar px-3 sm:px-6 py-1 text-[11px] font-medium flex flex-wrap items-center justify-between border-b border-slate-700 select-none">
         <div className="flex items-center gap-2 sm:gap-3 text-slate-200">
           <div className="flex items-center gap-1.5 font-semibold text-amber-400">
-            {/* National Emblem Silhouette Placeholder */}
-            <div className="w-4 h-4 rounded-full border border-amber-400 flex items-center justify-center text-[9px] font-serif font-bold">
-              🇮🇳
-            </div>
-            <span>GOVERNMENT OF INDIA</span>
+            <span className="text-xs">🇮🇳</span>
+            <span>{lang === 'HI' ? 'भारत सरकार' : 'भारत सरकार | Government of India'}</span>
           </div>
           <span className="hidden md:inline text-slate-500">|</span>
-          <span className="hidden md:inline text-slate-300">MINISTRY OF EARTH SCIENCES</span>
+          <span className="hidden md:inline text-slate-300">
+            {lang === 'HI' ? 'पृथ्वी विज्ञान मंत्रालय' : 'Ministry of Earth Sciences'}
+          </span>
           <span className="hidden lg:inline text-slate-500">|</span>
-          <span className="hidden lg:inline text-slate-300">INDIA METEOROLOGICAL DEPARTMENT</span>
+          <span className="hidden lg:inline text-slate-300">
+            {lang === 'HI' ? 'भारत मौसम विज्ञान विभाग' : 'India Meteorological Department'}
+          </span>
         </div>
 
         <div className="flex items-center gap-3 text-slate-300">
-          {/* Clock */}
-          <div className="hidden sm:flex items-center gap-2 font-mono text-[11px] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
-            <span className="text-amber-400 font-bold">{istTimeStr || '00:00:00 IST'}</span>
+          {/* Real-time Dual Clock */}
+          <div className="hidden sm:flex items-center gap-2 font-mono text-[11px] bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700">
+            <span className="text-amber-400 font-bold">{istTimeStr || '12:42:00 IST'}</span>
             <span className="text-slate-500">/</span>
-            <span className="text-slate-300">{timeStr || '00:00:00 UTC'}</span>
+            <span className="text-slate-300">{timeStr || '07:12:00 UTC'}</span>
           </div>
 
           {/* Accessibility Font Size Switcher */}
-          <div className="hidden lg:flex items-center gap-1 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
-            <button onClick={() => setFontSize('sm')} className={`px-1 rounded text-[10px] ${fontSize === 'sm' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}>A-</button>
-            <button onClick={() => setFontSize('base')} className={`px-1 rounded text-[10px] ${fontSize === 'base' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}>A</button>
-            <button onClick={() => setFontSize('lg')} className={`px-1 rounded text-[10px] ${fontSize === 'lg' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}>A+</button>
+          <div className="hidden lg:flex items-center gap-1 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700 text-[10px]">
+            <span className="text-slate-400 mr-1">Text:</span>
+            <button onClick={() => setFontSize('sm')} className={`px-1 rounded ${fontSize === 'sm' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}>A-</button>
+            <button onClick={() => setFontSize('base')} className={`px-1 rounded ${fontSize === 'base' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}>A</button>
+            <button onClick={() => setFontSize('lg')} className={`px-1 rounded ${fontSize === 'lg' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}>A+</button>
           </div>
 
-          {/* Language Selector */}
+          {/* Language Toggle */}
           <button 
             onClick={() => setLang(lang === 'EN' ? 'HI' : 'EN')} 
-            className="flex items-center gap-1 text-[11px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-slate-200 hover:text-white"
+            className="flex items-center gap-1 text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-slate-700 text-slate-200 hover:text-white transition-colors"
           >
             <Globe className="w-3 h-3 text-amber-400" />
             <span>{lang === 'EN' ? 'English' : 'हिन्दी'}</span>
@@ -79,9 +100,9 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
         </div>
       </div>
 
-      {/* 2. MAIN BRAND & NAVIGATION BANNER */}
-      <div className="bg-white text-slate-900 border-b border-slate-200 px-3 sm:px-6 py-2.5 flex items-center justify-between">
-        {/* Brand Logo & Mobile Trigger */}
+      {/* 2. GOVERNMENT IDENTITY AREA */}
+      <div className="bg-white text-slate-900 border-b border-slate-200 px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+        {/* Left Identity & Neutral Emblem Placeholder */}
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleMobileMenu}
@@ -91,41 +112,78 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          <Link to="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded bg-blue-900 border-2 border-amber-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
-              <Shield className="w-6 h-6 text-amber-400" />
+          <div className="flex items-center gap-3">
+            {/* Government-style neutral emblem placeholder */}
+            <div className="w-11 h-11 rounded border-2 border-blue-900 bg-slate-50 flex flex-col items-center justify-center text-blue-900 shadow-sm flex-shrink-0">
+              <span className="text-base font-serif font-bold leading-none">🇮🇳</span>
+              <span className="text-[7px] font-bold tracking-tighter uppercase mt-0.5 text-blue-950">GOV SEC</span>
             </div>
+
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-base sm:text-lg tracking-tight text-blue-950 font-sans leading-none">
-                  SKYGUARD AI
-                </h1>
-                <span className="gov-badge-blue text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
-                  Govt Portal
+                <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
+                  GOVERNMENT OF INDIA • AWS TECHNICAL MONITORING DIVISION
                 </span>
               </div>
-              <p className="text-[10px] sm:text-xs text-slate-600 font-medium tracking-normal mt-0.5">
-                National Automatic Weather Station (AWS) Data Quality & Trust Infrastructure
+              <h1 className="font-bold text-lg sm:text-xl text-blue-950 tracking-tight font-sans leading-snug">
+                SKYGUARD AI
+              </h1>
+              <p className="text-[11px] text-slate-600 font-medium">
+                Trust Layer for Automatic Weather Stations | AI-assisted AWS Data Quality Monitoring System
               </p>
             </div>
-          </Link>
+          </div>
         </div>
 
-        {/* Operational Status Badges */}
-        <div className="hidden md:flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 text-xs font-medium">
-            <Activity className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span>ML QC ENGINE: ACTIVE</span>
+        {/* Right Academic / Demo Badge & Live Connection Badges */}
+        <div className="flex items-center gap-3">
+          {/* ACADEMIC / DEMONSTRATION PROJECT BADGE */}
+          <div className="px-3 py-1 bg-amber-50 border border-amber-300 text-amber-900 rounded font-semibold text-xs flex flex-col items-end">
+            <span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">PROJECT STATUS</span>
+            <span className="text-amber-950 font-bold">ACADEMIC / DEMONSTRATION PROJECT</span>
           </div>
 
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border ${
-            isConnected ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-amber-50 border-amber-200 text-amber-800'
-          }`}>
-            <Radio className={`w-3.5 h-3.5 ${isConnected ? 'text-blue-600 animate-pulse' : 'text-amber-600'}`} />
-            <span>{isConnected ? 'TELEMETRY STREAM: CONNECTED' : 'STREAM: RECONNECTING'}</span>
+          <div className="hidden lg:flex flex-col gap-1 text-right text-xs">
+            <div className="flex items-center justify-end gap-1.5 text-emerald-700 font-semibold text-[11px]">
+              <Activity className="w-3.5 h-3.5 animate-pulse text-emerald-600" />
+              <span>WMO QC ENGINE: ACTIVE</span>
+            </div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              {isConnected ? 'LIVE TELEMETRY: CONNECTED' : 'STREAM: RECONNECTING'}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* 3. INDIAN TRICOLOUR VISUAL ACCENT STRIP */}
+      <div className="w-full flex h-1.5 select-none">
+        <div className="h-full w-1/3 bg-[#FF9933]"></div>
+        <div className="h-full w-1/3 bg-[#FFFFFF]"></div>
+        <div className="h-full w-1/3 bg-[#138808]"></div>
+      </div>
+
+      {/* 4. GOVERNMENT-STYLE HORIZONTAL NAVIGATION BAR */}
+      <nav className="gov-subnav-bar hidden md:flex items-center px-4 sm:px-6 py-0 text-xs font-semibold uppercase tracking-wider shadow-inner overflow-x-auto border-b border-blue-900">
+        <div className="flex items-center space-x-1 min-w-max">
+          {navLinks.map((link) => {
+            const active = isActive(link.path);
+            return (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`px-3 py-2.5 transition-colors border-b-2 flex items-center gap-1.5 ${
+                  active
+                    ? 'bg-blue-900 text-white font-bold border-amber-400'
+                    : 'text-slate-100 hover:bg-blue-800 hover:text-white border-transparent'
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </header>
   );
 };
+

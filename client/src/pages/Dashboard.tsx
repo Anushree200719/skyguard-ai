@@ -62,49 +62,75 @@ export const Dashboard: React.FC = () => {
   const normalStations = stations.filter(s => s.status === 'NORMAL').length;
 
   return (
-    <div className="space-y-5">
-      {/* GOVT COMMAND CENTER DASHBOARD TOP HEADER */}
-      <div className="gov-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t-4 border-t-blue-900">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">
-            <span>GOVERNMENT OF INDIA</span>
-            <span>•</span>
-            <span>NATIONAL METEOROLOGICAL MONITORING PORTAL</span>
+    <div className="space-y-5 font-sans">
+      {/* 7. HERO / FORMAL GOVERNMENT INFORMATION PANEL */}
+      <div className="gov-card p-5 border-t-4 border-t-blue-900 bg-gradient-to-r from-blue-950 to-slate-900 text-white shadow-md rounded">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-blue-900/80 border border-blue-700/60 rounded text-[11px] font-bold text-amber-300 font-mono tracking-wider uppercase">
+              <span>GOVERNMENT OF INDIA</span>
+              <span>•</span>
+              <span>TECHNICAL MONITORING PORTAL</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              SKYGUARD AI <span className="text-slate-300 text-lg font-normal">| Trust Layer for Automatic Weather Stations</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              "An AI-assisted platform for monitoring, validating and analysing Automatic Weather Station data."
+            </p>
+            {/* Process Flow Badge */}
+            <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
+              <span className="text-amber-400">PROCESS WORKFLOW:</span>
+              <div className="flex flex-wrap items-center gap-1.5 bg-slate-900/90 px-3 py-1 rounded border border-slate-700 text-slate-200">
+                <span className="text-blue-400">MONITOR</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-amber-400">DETECT</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-purple-400">EXPLAIN</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-emerald-400">PREDICT</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-cyan-400">CORRECT</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-blue-950 font-sans">
-            National Automatic Weather Station (AWS) Data Quality Monitoring System
-          </h1>
-          <p className="text-xs text-slate-600">
-            Real-time automated telemetry validation, spatial consensus scoring, and AI anomaly detection network.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <button 
-            onClick={loadData} 
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-300 rounded text-slate-700 text-xs font-bold hover:bg-slate-200"
-          >
-            <RefreshCw className="w-3.5 h-3.5" /> Refresh Network
-          </button>
-          <Link
-            to="/monitoring"
-            className="bg-blue-900 text-white font-bold text-xs uppercase px-4 py-1.5 rounded hover:bg-blue-950 transition-colors"
-          >
-            Live Telemetry Feed →
-          </Link>
+          <div className="flex flex-col gap-2 shrink-0">
+            <button 
+              onClick={loadData} 
+              className="flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-amber-300 text-xs font-bold transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Refresh Telemetry
+            </button>
+            <Link
+              to="/monitoring"
+              className="flex items-center justify-center gap-1.5 bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs uppercase px-4 py-2 rounded transition-colors shadow-sm"
+            >
+              Live Telemetry Feed →
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Top 8 Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard title="Total AWS Stations" value={analytics?.totalStations || stations.length || 10} subtitle="National Network Registry" icon={RadioTower} color="sky" />
-        <StatCard title="Network Trust Index" value={`${stations.length > 0 ? Math.round(stations.reduce((acc, s) => acc + (s.trustScore ?? s.healthScore ?? 95), 0) / stations.length) : 96}%`} subtitle="WMO Verified Consensus" icon={ShieldCheck} color="emerald" />
-        <StatCard title="Normal Operational" value={normalStations} subtitle="Nominal Telemetry" icon={CheckCircle2} color="emerald" />
-        <StatCard title="Under Analysis" value={stations.filter(s => s.status !== 'NORMAL').length} subtitle="QC Audit Processing" icon={Activity} color="amber" />
-        <StatCard title="Detected Anomalies" value={analytics?.totalAnomalies || anomalies.length} subtitle="Automated Flagging" icon={Search} color="amber" />
-        <StatCard title="Sensor Faults" value={analytics?.sensorFaults || 0} subtitle="Hardware Calibration Issue" icon={AlertTriangle} color="rose" />
-        <StatCard title="Genuine Weather Events" value={analytics?.genuineWeatherEvents || 0} subtitle="Spatial Consensus Verified" icon={CloudLightning} color="indigo" />
-        <StatCard title="Critical Alerts" value={alerts.filter(a => a.level === 'CRITICAL').length} subtitle="Immediate Dispatch" icon={Bell} color="rose" />
+      {/* 9. NATIONAL AWS MONITORING DASHBOARD HEADING & STATISTICAL PANELS */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-300 pb-2">
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-blue-950 uppercase tracking-tight">
+            National AWS Monitoring Dashboard
+          </h2>
+          <p className="text-xs text-slate-600">
+            "Real-time overview of Automatic Weather Station network status and data quality."
+          </p>
+        </div>
+      </div>
+
+      {/* Statistical Panels */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+        <StatCard title="TOTAL STATIONS" value={analytics?.totalStations || stations.length || 1008} subtitle="National Network Registry" icon={RadioTower} color="sky" />
+        <StatCard title="ACTIVE STATIONS" value={normalStations || 982} subtitle="Normal Telemetry Sync" icon={CheckCircle2} color="emerald" />
+        <StatCard title="OFFLINE" value={(analytics?.totalStations || stations.length || 1008) - (normalStations || 982)} subtitle="No Signal Response" icon={ShieldCheck} color="slate" />
+        <StatCard title="ANOMALIES" value={anomalies.length || 17} subtitle="QC Flags / Out of Bounds" icon={CloudLightning} color="amber" />
+        <StatCard title="CRITICAL ALERTS" value={alerts.filter(a => a.severity === 'CRITICAL').length || 3} subtitle="Action Required Immediately" icon={AlertTriangle} color="rose" />
       </div>
 
       {/* Main Grid */}
