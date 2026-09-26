@@ -1,4 +1,4 @@
---extra-index-url https://download.pytorch.org/whl/cpu
+--find-links https://download.pytorch.org/whl/cpu
 fastapi>=0.100.0,<1.0.0
 uvicorn>=0.20.0,<1.0.0
 gunicorn>=21.0.0,<23.0.0

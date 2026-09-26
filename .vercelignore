@@ -1,0 +1,6 @@
+# Exclude Python ML service & Python configuration files from Vercel deployment
+requirements.txt
+runtime.txt
+.python-version
+ml-service/
+trained_models/
