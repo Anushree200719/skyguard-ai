@@ -5,8 +5,9 @@ const { execSync } = require('child_process');
 // Auto-install node modules if missing
 try {
   require.resolve('express');
+  require.resolve('@supabase/supabase-js');
 } catch (e) {
-  console.log('📦 Express or node_modules missing. Auto-installing npm dependencies...');
+  console.log('📦 Express or @supabase/supabase-js missing. Auto-installing npm dependencies...');
   const serverDir = path.resolve(__dirname, '..');
   const rootDir = path.resolve(__dirname, '../..');
   const targetDir = fs.existsSync(path.join(serverDir, 'package.json')) ? serverDir : rootDir;
