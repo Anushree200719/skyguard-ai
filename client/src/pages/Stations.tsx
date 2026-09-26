@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchStations } from '../services/api';
 import { Station } from '../types';
-import { RadioTower, Heart, MapPin, ArrowRight } from 'lucide-react';
+import { RadioTower, Heart, MapPin, ArrowRight, Search, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Stations: React.FC = () => {
@@ -19,58 +19,70 @@ export const Stations: React.FC = () => {
   );
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+    <div className="space-y-4">
+      {/* Header Bar */}
+      <div className="gov-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t-4 border-t-blue-900">
         <div>
-          <h1 className="font-orbitron font-bold text-lg sm:text-xl text-slate-100 flex items-center gap-2">
-            <RadioTower className="w-5 h-5 text-sky-400 flex-shrink-0" />
-            AUTOMATIC WEATHER STATIONS ({filtered.length})
+          <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">
+            <span>NATIONAL AWS DIRECTORY</span>
+            <span>•</span>
+            <span>OFFICIAL INVENTORY</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-blue-950 flex items-center gap-2 mt-0.5">
+            <RadioTower className="w-5 h-5 text-blue-900 flex-shrink-0" />
+            AUTOMATIC WEATHER STATIONS REGISTRY ({filtered.length})
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Complete AWS network inventory across India</p>
+          <p className="text-xs text-slate-600">Complete AWS network inventory, spatial coordinates, and operational health</p>
         </div>
 
-        <input
-          type="text"
-          placeholder="Search by Station ID or location..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-slate-100 w-full sm:w-64 focus:outline-none focus:border-sky-500 font-mono shadow-sm"
-        />
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search station ID, district, state..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-slate-50 border border-slate-300 rounded pl-8 pr-3 py-1.5 text-xs text-slate-900 w-full focus:outline-none focus:border-blue-900 font-mono"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+      {/* Grid of Station Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((st) => (
-          <div key={st.stationId} className="glass-card p-4 rounded-xl border border-sky-500/20 hover:border-sky-500/40 transition-all flex flex-col justify-between w-full min-w-0">
+          <div key={st.stationId} className="gov-card p-4 flex flex-col justify-between hover:border-slate-400 transition-colors">
             <div className="space-y-3">
-              {/* Header: Station ID & Status Badge */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                <span className="font-orbitron font-bold text-sm sm:text-base text-sky-400">{st.stationId}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono uppercase ${
-                  st.status === 'NORMAL' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                  (st.status === 'WARNING' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                  (st.status === 'CRITICAL' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-sky-500/20 text-sky-300 border border-sky-500/30'))
+              {/* Header: ID & Badge */}
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-mono font-bold text-sm text-blue-950">{st.stationId}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border font-mono uppercase ${
+                  st.status === 'NORMAL' ? 'gov-badge-green' :
+                  (st.status === 'WARNING' ? 'gov-badge-amber' :
+                  (st.status === 'CRITICAL' ? 'gov-badge-red' : 'gov-badge-blue'))
                 }`}>
                   {st.status.replace(/_/g, ' ')}
                 </span>
               </div>
 
-              {/* Station Name & Location */}
+              {/* Name & Location */}
               <div>
-                <h3 className="font-bold text-slate-100 text-sm sm:text-base leading-snug break-words">{st.name}</h3>
-                <p className="text-xs text-slate-400 flex items-start gap-1.5 mt-1 break-words">
+                <h3 className="font-bold text-slate-900 text-sm leading-snug">{st.name}</h3>
+                <p className="text-xs text-slate-600 flex items-start gap-1.5 mt-1">
                   <MapPin className="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5" />
                   <span>{st.location}</span>
                 </p>
               </div>
 
               {/* Health Score & Coordinates */}
-              <div className="pt-2.5 border-t border-slate-800/80 space-y-2 font-mono text-xs">
-                <div className="flex items-center gap-2">
-                  <Heart className={`w-4 h-4 flex-shrink-0 ${st.healthScore >= 90 ? 'text-emerald-400' : (st.healthScore >= 70 ? 'text-amber-400' : 'text-rose-400')}`} />
-                  <span className="font-bold text-slate-200">HEALTH: {st.healthScore}%</span>
+              <div className="pt-2 border-t border-slate-200 space-y-1.5 font-mono text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">HEALTH SCORE:</span>
+                  <span className="font-bold text-blue-950">{st.healthScore}%</span>
                 </div>
                 
-                <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-900/60 px-2.5 py-1.5 rounded border border-slate-800/80">
+                <div className="flex items-center justify-between text-[11px] text-slate-600 bg-slate-50 px-2.5 py-1 rounded border border-slate-200">
                   <span>LAT: {st.latitude.toFixed(4)}°</span>
                   <span>LON: {st.longitude.toFixed(4)}°</span>
                 </div>
@@ -80,9 +92,9 @@ export const Stations: React.FC = () => {
             {/* Action Button */}
             <Link
               to={`/stations/${st.stationId}`}
-              className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-lg font-orbitron font-semibold text-xs transition-all active:scale-[0.98] min-h-[44px] touch-manipulation cursor-pointer"
+              className="mt-3 flex items-center justify-center gap-1.5 w-full py-2 bg-blue-900 hover:bg-blue-950 text-white rounded font-bold text-xs uppercase transition-colors"
             >
-              <span>STATION ANALYTICS</span>
+              <span>INSPECT STATION DOSSIER</span>
               <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" />
             </Link>
           </div>

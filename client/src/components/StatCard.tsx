@@ -15,23 +15,31 @@ export const StatCard: React.FC<StatCardProps> = ({
   icon: Icon,
   color = 'sky'
 }) => {
-  const colorMap = {
-    sky: 'bg-white/10 text-white border-white/20',
-    emerald: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-    amber: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-    rose: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-    indigo: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+  const accentBorderMap = {
+    sky: 'border-t-4 border-t-blue-600 bg-white',
+    emerald: 'border-t-4 border-t-emerald-600 bg-white',
+    amber: 'border-t-4 border-t-amber-600 bg-white',
+    rose: 'border-t-4 border-t-red-600 bg-white',
+    indigo: 'border-t-4 border-t-indigo-600 bg-white'
+  };
+
+  const iconBgMap = {
+    sky: 'bg-blue-50 text-blue-700 border-blue-200',
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    amber: 'bg-amber-50 text-amber-700 border-amber-200',
+    rose: 'bg-red-50 text-red-700 border-red-200',
+    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200'
   };
 
   return (
-    <div className="liquid-glass p-3.5 sm:p-4 rounded-2xl flex items-center justify-between border-none gap-2.5 transition-all hover:scale-[1.02] hover:bg-white/[0.04] min-w-0">
+    <div className={`gov-card p-4 flex items-center justify-between gap-3 min-w-0 ${accentBorderMap[color]}`}>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] sm:text-xs font-medium text-white/50 tracking-wider uppercase truncate">{title}</p>
-        <h3 className="text-lg sm:text-xl md:text-2xl font-poppins font-medium text-white mt-0.5 sm:mt-1 truncate tracking-tight">{value}</h3>
-        {subtitle && <p className="text-[10px] sm:text-[11px] text-white/60 mt-0.5 font-light truncate">{subtitle}</p>}
+        <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase truncate">{title}</p>
+        <h3 className="text-xl sm:text-2xl font-bold text-blue-950 mt-1 truncate tracking-tight font-mono">{value}</h3>
+        {subtitle && <p className="text-[11px] text-slate-600 mt-0.5 truncate font-medium">{subtitle}</p>}
       </div>
-      <div className={`p-2.5 sm:p-3 rounded-xl border flex-shrink-0 ${colorMap[color]}`}>
-        <Icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" />
+      <div className={`p-3 rounded border flex-shrink-0 ${iconBgMap[color]}`}>
+        <Icon className="w-5 h-5" />
       </div>
     </div>
   );

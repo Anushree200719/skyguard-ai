@@ -19,23 +19,32 @@ export const MaintenancePage: React.FC = () => {
   };
 
   const handleGenerateReport = (stId: string) => {
-    alert(`Generated AI Diagnostic & Maintenance Calibration Report for Station ${stId}!`);
+    alert(`Generated Official Government Calibration & Maintenance Audit Report for Station ${stId}!`);
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-orbitron font-bold text-xl text-slate-100 flex items-center gap-2">
-          <Wrench className="w-5 h-5 text-amber-400" />
-          PREDICTIVE MAINTENANCE QUEUE ({data.totalMaintenanceRequired})
-        </h1>
-        <p className="text-xs text-slate-400">AWS stations automatically ranked by multi-parameter health degradation & Remaining Useful Life (RUL)</p>
+    <div className="space-y-4">
+      {/* Header Bar */}
+      <div className="gov-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t-4 border-t-blue-900">
+        <div>
+          <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">
+            <span>FIELD SERVICE OPERATIONS</span>
+            <span>•</span>
+            <span>CALIBRATION QUEUE</span>
+          </div>
+          <h1 className="text-xl font-bold text-blue-950 flex items-center gap-2 mt-0.5">
+            <Wrench className="w-5 h-5 text-blue-900 flex-shrink-0" />
+            PRIORITY FIELD MAINTENANCE & CALIBRATION QUEUE ({data.totalMaintenanceRequired})
+          </h1>
+          <p className="text-xs text-slate-600">AWS stations automatically ranked for technician dispatch based on hardware degradation & RUL</p>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      {/* Queue Items */}
+      <div className="space-y-3 font-mono">
         {data.queue.length === 0 ? (
-          <div className="glass-card p-12 text-center text-slate-400 text-xs font-mono">
-            No maintenance required. All AWS sensor health scores are within nominal parameters (&gt;90%).
+          <div className="gov-card p-10 text-center text-slate-500 text-xs">
+            No maintenance dispatches required. All AWS sensor health scores are within nominal parameters (&gt;90%).
           </div>
         ) : (
           data.queue.map((item) => {
@@ -45,96 +54,85 @@ export const MaintenancePage: React.FC = () => {
             return (
               <div
                 key={item.stationId}
-                className={`glass-card p-4 sm:p-5 rounded-xl border flex flex-col gap-4 transition-all ${
-                  item.priority === 'PRIORITY 1' ? 'border-rose-500/40 bg-rose-500/10' :
-                  (item.priority === 'PRIORITY 2' ? 'border-amber-500/40 bg-amber-500/10' : 'border-sky-500/40 bg-sky-500/10')
-                }`}
+                className="gov-card p-4 flex flex-col gap-3"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-3">
                   <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <span className={`font-orbitron font-bold text-xs px-2.5 py-1 rounded ${
-                        item.priority === 'PRIORITY 1' ? 'bg-rose-600 text-white' :
-                        (item.priority === 'PRIORITY 2' ? 'bg-amber-600 text-white' : 'bg-sky-600 text-white')
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
+                        item.priority === 'PRIORITY 1' ? 'gov-badge-red' :
+                        (item.priority === 'PRIORITY 2' ? 'gov-badge-amber' : 'gov-badge-blue')
                       }`}>
                         {item.priority}
                       </span>
-                      <span className="font-orbitron font-bold text-sm text-sky-400">{item.stationId}</span>
-                      <span className="text-xs font-bold text-slate-200">{item.stationName}</span>
+                      <span className="font-bold text-sm text-blue-900">{item.stationId}</span>
+                      <span className="font-bold text-slate-900 text-xs">{item.stationName}</span>
                     </div>
 
-                    <p className="text-xs font-semibold text-slate-300">Issue: {item.issue}</p>
-                    <p className="text-xs text-emerald-400 font-medium">Action: {item.recommendedAction}</p>
+                    <p className="text-xs font-bold text-slate-800">Issue: {item.issue}</p>
+                    <p className="text-xs text-blue-950">Recommended Action: {item.recommendedAction}</p>
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-6 w-full lg:w-auto">
-                    <div className="flex-1 sm:flex-initial text-center bg-slate-900/80 px-3.5 py-2 rounded-lg border border-slate-800">
-                      <span className="text-[9px] text-slate-400 block font-semibold">OVERALL HEALTH</span>
-                      <span className={`font-orbitron font-bold text-base sm:text-lg ${
-                        item.healthScore < 50 ? 'text-rose-400' : (item.healthScore < 70 ? 'text-amber-400' : 'text-sky-400')
-                      }`}>
-                        {item.healthScore}/100
-                      </span>
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="p-2 bg-slate-50 border border-slate-200 rounded text-center">
+                      <span className="text-[9px] text-slate-500 block uppercase">HEALTH SCORE</span>
+                      <span className="font-bold text-blue-950 text-base">{item.healthScore}/100</span>
                     </div>
 
-                    <div className="flex-1 sm:flex-initial text-center bg-slate-900/80 px-3.5 py-2 rounded-lg border border-slate-800">
-                      <span className="text-[9px] text-slate-400 block font-semibold">EST. RUL</span>
-                      <span className="font-orbitron font-bold text-base sm:text-lg text-indigo-400">
-                        {item.rulDays || 45} DAYS
-                      </span>
+                    <div className="p-2 bg-slate-50 border border-slate-200 rounded text-center">
+                      <span className="text-[9px] text-slate-500 block uppercase">EST. RUL</span>
+                      <span className="font-bold text-blue-950 text-base">{item.rulDays || 45} DAYS</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Per-Sensor Parameter Health Score Breakdown */}
-                <div className="pt-3 border-t border-slate-800/80">
-                  <span className="text-[10px] font-orbitron font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                    PER-SENSOR PARAMETER HEALTH SCORES:
+                {/* Per-Sensor Breakdown */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">
+                    PER-SENSOR PARAMETER HEALTH BREAKDOWN:
                   </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-center text-xs font-mono">
-                    <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
-                      <span className="text-[9px] text-slate-400 block">TEMP SENSOR</span>
-                      <span className={`font-bold ${sh.temperature < 50 ? 'text-rose-400' : 'text-emerald-400'}`}>{sh.temperature}/100</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+                    <div className="p-1.5 bg-slate-50 border border-slate-200 rounded">
+                      <span className="text-[9px] text-slate-500 block">TEMP</span>
+                      <span className="font-bold text-slate-900">{sh.temperature}/100</span>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
-                      <span className="text-[9px] text-slate-400 block">HUMIDITY SENSOR</span>
-                      <span className="font-bold text-emerald-400">{sh.humidity}/100</span>
+                    <div className="p-1.5 bg-slate-50 border border-slate-200 rounded">
+                      <span className="text-[9px] text-slate-500 block">HUMIDITY</span>
+                      <span className="font-bold text-slate-900">{sh.humidity}/100</span>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
-                      <span className="text-[9px] text-slate-400 block">PRESSURE SENSOR</span>
-                      <span className="font-bold text-emerald-400">{sh.pressure}/100</span>
+                    <div className="p-1.5 bg-slate-50 border border-slate-200 rounded">
+                      <span className="text-[9px] text-slate-500 block">PRESSURE</span>
+                      <span className="font-bold text-slate-900">{sh.pressure}/100</span>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded border border-slate-800">
-                      <span className="text-[9px] text-slate-400 block">WIND SENSOR</span>
-                      <span className="font-bold text-emerald-400">{sh.wind}/100</span>
+                    <div className="p-1.5 bg-slate-50 border border-slate-200 rounded">
+                      <span className="text-[9px] text-slate-500 block">WIND</span>
+                      <span className="font-bold text-slate-900">{sh.wind}/100</span>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded border border-slate-800 col-span-2 sm:col-span-1">
-                      <span className="text-[9px] text-slate-400 block">RAIN SENSOR</span>
-                      <span className="font-bold text-emerald-400">{sh.rainfall}/100</span>
+                    <div className="p-1.5 bg-slate-50 border border-slate-200 rounded col-span-2 sm:col-span-1">
+                      <span className="text-[9px] text-slate-500 block">RAINFALL</span>
+                      <span className="font-bold text-slate-900">{sh.rainfall}/100</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800/80 justify-stretch sm:justify-end">
+                <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
                   <button
                     onClick={() => toggleMarkInspection(item.stationId)}
-                    className={`flex-1 sm:flex-initial justify-center px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all touch-manipulation min-h-[44px] active:scale-[0.98] ${
+                    className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
                       isMarked
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
                     }`}
                   >
-                    <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" />
-                    {isMarked ? 'MARKED FOR INSPECTION' : 'MARK FOR INSPECTION'}
+                    {isMarked ? 'MARKED FOR DISPATCH' : 'MARK FOR DISPATCH'}
                   </button>
 
                   <button
                     onClick={() => handleGenerateReport(item.stationId)}
-                    className="flex-1 sm:flex-initial justify-center px-4 py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 touch-manipulation min-h-[44px] active:scale-[0.98]"
+                    className="px-3.5 py-1.5 bg-blue-900 hover:bg-blue-950 text-white rounded text-xs font-bold uppercase transition-colors"
                   >
-                    <FileText className="w-3.5 h-3.5 flex-shrink-0" />
-                    GENERATE REPORT
+                    GENERATE CALIBRATION REPORT
                   </button>
                 </div>
               </div>

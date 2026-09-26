@@ -30,41 +30,39 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
-      <div className="glass-card w-full max-w-xl p-4 sm:p-6 rounded-2xl border border-sky-500/40 bg-[#0a1220] shadow-2xl relative space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 text-xs">
+      <div className="bg-white w-full max-w-xl p-5 rounded border border-slate-300 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto text-slate-900">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <div className="p-1.5 sm:p-2 bg-sky-500/10 border border-sky-500/30 rounded-lg flex-shrink-0">
-              <Sliders className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
-            </div>
-            <div className="min-w-0">
-              <h2 className="font-orbitron font-bold text-xs sm:text-sm text-slate-100 flex items-center gap-2 truncate">
-                WHAT-IF WEATHER SIMULATOR
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div className="flex items-center gap-2">
+            <Sliders className="w-5 h-5 text-blue-900" />
+            <div>
+              <h2 className="font-bold text-sm text-blue-950 uppercase tracking-wide">
+                WHAT-IF SENSOR DELTA & PHYSICAL CORRELATION SIMULATOR
               </h2>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Educational sensor reaction and physical correlation modeling</p>
+              <p className="text-[11px] text-slate-600">Simulate hypothetical sensor drifts and evaluate physical rule responses</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0 ml-2"
+            className="p-1 rounded border border-slate-300 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Controls */}
-        <div className="space-y-4 bg-slate-900/60 p-3 sm:p-4 rounded-xl border border-slate-800">
-          <div className="text-[11px] sm:text-xs font-semibold text-sky-300 uppercase tracking-wider font-orbitron flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" /> HYPOTHETICAL SENSOR DELTAS:
+        <div className="space-y-4 bg-slate-50 p-4 rounded border border-slate-200">
+          <div className="text-xs font-bold text-blue-950 uppercase tracking-wider font-mono flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-600" /> HYPOTHETICAL SENSOR DELTAS:
           </div>
 
           {/* Temperature Slider */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-slate-300 font-semibold">Temperature Change:</span>
-              <span className={`font-bold ${tempChange > 0 ? 'text-rose-400' : (tempChange < 0 ? 'text-sky-400' : 'text-slate-300')}`}>
+              <span className="text-slate-700 font-bold">Temperature Change:</span>
+              <span className={`font-bold ${tempChange > 0 ? 'text-red-700' : (tempChange < 0 ? 'text-blue-700' : 'text-slate-900')}`}>
                 {tempChange > 0 ? `+${tempChange}` : tempChange}°C
               </span>
             </div>
@@ -76,7 +74,7 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
                 step="1"
                 value={tempChange}
                 onChange={(e) => setTempChange(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400 touch-manipulation"
+                className="w-full h-2 bg-slate-200 rounded appearance-none cursor-pointer accent-blue-900"
               />
             </div>
           </div>
@@ -84,8 +82,8 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
           {/* Humidity Slider */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-slate-300 font-semibold">Humidity Change:</span>
-              <span className={`font-bold ${humChange > 0 ? 'text-cyan-400' : (humChange < 0 ? 'text-amber-400' : 'text-slate-300')}`}>
+              <span className="text-slate-700 font-bold">Humidity Change:</span>
+              <span className={`font-bold ${humChange > 0 ? 'text-cyan-800' : (humChange < 0 ? 'text-amber-700' : 'text-slate-900')}`}>
                 {humChange > 0 ? `+${humChange}` : humChange}%
               </span>
             </div>
@@ -97,7 +95,7 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
                 step="1"
                 value={humChange}
                 onChange={(e) => setHumChange(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 touch-manipulation"
+                className="w-full h-2 bg-slate-200 rounded appearance-none cursor-pointer accent-blue-900"
               />
             </div>
           </div>
@@ -105,8 +103,8 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
           {/* Pressure Slider */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-slate-300 font-semibold">Pressure Change:</span>
-              <span className={`font-bold ${presChange > 0 ? 'text-indigo-400' : (presChange < 0 ? 'text-amber-400' : 'text-slate-300')}`}>
+              <span className="text-slate-700 font-bold">Pressure Change:</span>
+              <span className={`font-bold ${presChange > 0 ? 'text-indigo-800' : (presChange < 0 ? 'text-amber-700' : 'text-slate-900')}`}>
                 {presChange > 0 ? `+${presChange}` : presChange} hPa
               </span>
             </div>
@@ -118,7 +116,7 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
                 step="1"
                 value={presChange}
                 onChange={(e) => setPresChange(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-400 touch-manipulation"
+                className="w-full h-2 bg-slate-200 rounded appearance-none cursor-pointer accent-blue-900"
               />
             </div>
           </div>
@@ -126,52 +124,52 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ isOp
           <button
             onClick={handleSimulate}
             disabled={loading}
-            className="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-orbitron font-bold text-xs rounded-lg transition-all shadow-lg shadow-sky-500/20 active:scale-[0.98] min-h-[44px]"
+            className="w-full py-2.5 bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs uppercase rounded transition-colors"
           >
-            {loading ? 'RUNNING PHYSICAL CORRELATION ENGINE...' : 'RUN SIMULATION'}
+            {loading ? 'RUNNING CORRELATION ENGINE...' : 'RUN PHYSICAL CORRELATION SIMULATION'}
           </button>
         </div>
 
         {/* Results */}
         {result && (
-          <div className="space-y-3 p-3.5 sm:p-4 bg-slate-900/80 rounded-xl border border-sky-500/30 text-xs font-mono">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-slate-400 font-semibold uppercase">ANOMALY EXPECTED?</span>
-              <span className={`font-orbitron font-bold px-2 py-0.5 rounded text-xs ${
-                result.anomalyExpected ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+          <div className="space-y-3 p-4 bg-slate-50 rounded border border-slate-200 text-xs font-mono text-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="text-slate-600 font-bold uppercase">ANOMALY EXPECTED?</span>
+              <span className={`font-bold px-2 py-0.5 rounded text-xs border ${
+                result.anomalyExpected ? 'gov-badge-amber' : 'gov-badge-green'
               }`}>
-                {result.anomalyExpected ? 'YES' : 'NO'}
+                {result.anomalyExpected ? 'YES (ANOMALY TRIGGERED)' : 'NO (NOMINAL)'}
               </span>
             </div>
 
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-slate-400 font-semibold uppercase">SENSOR FAULT POSSIBILITY:</span>
-              <span className="font-bold text-slate-200">{result.sensorFaultPossibility}</span>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="text-slate-600 font-bold uppercase">SENSOR FAULT PROBABILITY:</span>
+              <span className="font-bold text-slate-900">{result.sensorFaultPossibility}</span>
             </div>
 
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-slate-400 font-semibold uppercase">ALERT LEVEL:</span>
-              <span className={`font-bold px-2 py-0.5 rounded ${
-                result.alertLevel === 'CRITICAL' ? 'bg-rose-500/20 text-rose-400' :
-                (result.alertLevel === 'HIGH' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400')
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="text-slate-600 font-bold uppercase">ALERT SEVERITY LEVEL:</span>
+              <span className={`font-bold px-2 py-0.5 rounded border ${
+                result.alertLevel === 'CRITICAL' ? 'gov-badge-red' :
+                (result.alertLevel === 'HIGH' ? 'gov-badge-amber' : 'gov-badge-green')
               }`}>
                 {result.alertLevel}
               </span>
             </div>
 
             <div className="space-y-1.5 pt-1">
-              <span className="text-slate-400 font-semibold uppercase block">EXPECTED RESPONSE OF OTHER SENSORS:</span>
+              <span className="text-slate-600 font-bold uppercase block">EXPECTED SENSOR RESPONSE CORRELATION:</span>
               <ul className="space-y-1">
                 {result.expectedResponse.map((item, idx) => (
-                  <li key={idx} className="p-2 rounded bg-slate-950/60 border border-slate-800/80 text-slate-300 flex items-start gap-2 text-[11px]">
+                  <li key={idx} className="p-2 rounded bg-white border border-slate-200 text-slate-800 flex items-start gap-2 text-[11px]">
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="p-2.5 rounded bg-sky-950/40 border border-sky-500/20 text-[11px] text-sky-200 space-y-0.5">
-              <span className="font-bold block uppercase text-[10px] text-sky-400 font-orbitron">AI SUMMARY:</span>
+            <div className="p-2.5 rounded bg-blue-50 border border-blue-200 text-[11px] text-blue-950 space-y-0.5">
+              <span className="font-bold block uppercase text-[10px] text-blue-900">CORRELATION SUMMARY:</span>
               <p>{result.summary}</p>
             </div>
           </div>

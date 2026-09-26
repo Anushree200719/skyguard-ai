@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchAnalytics } from '../services/api';
 import { StatCard } from '../components/StatCard';
 import { BrainCircuit, ShieldCheck, AlertTriangle, CloudLightning, Activity, BarChart2, Sliders, Cpu } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { WhatIfSimulatorModal } from '../components/WhatIfSimulatorModal';
 
 export const AnalyticsPage: React.FC = () => {
@@ -14,11 +14,11 @@ export const AnalyticsPage: React.FC = () => {
   }, []);
 
   const anomalyTypeData = [
-    { name: 'Genuine Weather Events', count: data?.genuineWeatherEvents || 4, color: '#38bdf8' },
-    { name: 'Sensor Spikes', count: 3, color: '#f59e0b' },
-    { name: 'Sensor Drift', count: 2, color: '#ef4444' },
-    { name: 'Frozen Sensor', count: 1, color: '#818cf8' },
-    { name: 'Missing Data', count: data?.communicationFailures || 1, color: '#ec4899' }
+    { name: 'Genuine Weather Events', count: data?.genuineWeatherEvents || 4, color: '#1d4ed8' },
+    { name: 'Sensor Spikes', count: 3, color: '#b45309' },
+    { name: 'Sensor Drift', count: 2, color: '#b91c1c' },
+    { name: 'Frozen Sensor', count: 1, color: '#4f46e5' },
+    { name: 'Missing Data', count: data?.communicationFailures || 1, color: '#475569' }
   ];
 
   const stationPerformanceData = [
@@ -32,99 +32,92 @@ export const AnalyticsPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+    <div className="space-y-4">
+      {/* Header Bar */}
+      <div className="gov-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t-4 border-t-blue-900">
         <div>
-          <h1 className="font-orbitron font-bold text-lg sm:text-xl text-slate-100 flex items-center gap-2">
-            <BrainCircuit className="w-5 h-5 text-sky-400 flex-shrink-0" />
-            ANALYTICS & AI INSIGHTS ENGINE
+          <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">
+            <span>SYSTEM ANALYTICS</span>
+            <span>•</span>
+            <span>DATA QUALITY ENGINE</span>
+          </div>
+          <h1 className="text-xl font-bold text-blue-950 flex items-center gap-2 mt-0.5">
+            <BrainCircuit className="w-5 h-5 text-blue-900 flex-shrink-0" />
+            NATIONAL AWS DATA QUALITY ANALYTICS & AI METRICS
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Historical meteorological data quality trends, sensor health decay, and anomaly distributions</p>
+          <p className="text-xs text-slate-600">Meteorological data quality statistics, sensor degradation profiles & anomaly distributions</p>
         </div>
 
         <button
           onClick={() => setIsWhatIfOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-mono font-bold transition-all min-h-[44px] active:scale-[0.98] touch-manipulation"
+          className="flex items-center gap-1 px-3.5 py-1.5 bg-blue-900 hover:bg-blue-950 text-white rounded text-xs font-bold uppercase transition-colors"
         >
-          <Sliders className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+          <Sliders className="w-3.5 h-3.5" />
           <span>WHAT-IF SIMULATOR</span>
         </button>
       </div>
 
       <WhatIfSimulatorModal isOpen={isWhatIfOpen} onClose={() => setIsWhatIfOpen(false)} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard title="Overall Quality Score" value={`${data?.overallQualityScore || 96}%`} icon={ShieldCheck} color="emerald" />
         <StatCard title="Total Anomalies Processed" value={data?.totalAnomalies || 11} icon={AlertTriangle} color="amber" />
         <StatCard title="Sensor Fault Frequency" value={data?.sensorFaults || 7} icon={Activity} color="rose" />
         <StatCard title="Genuine Weather Events" value={data?.genuineWeatherEvents || 4} icon={CloudLightning} color="indigo" />
       </div>
 
-      {/* Modular Pipeline & Edge AI Status Banner */}
-      <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 bg-slate-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 flex-shrink-0">
-            <Cpu className="w-4 h-4" />
-          </div>
-          <div className="min-w-0">
-            <span className="font-bold text-slate-100 uppercase tracking-wider font-orbitron block text-[10px] sm:text-[11px] truncate">
-              EDGE AI ARCHITECTURE READY: ENABLED
+      {/* Edge AI Banner */}
+      <div className="gov-card p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
+        <div className="flex items-center gap-2.5">
+          <Cpu className="w-5 h-5 text-blue-900" />
+          <div>
+            <span className="font-bold text-blue-950 uppercase block text-xs">
+              SYSTEM ARCHITECTURE: HYBRID CLOUD / EDGE AI ACTIVE
             </span>
-            <span className="text-[10px] text-slate-400 block truncate">
-              Pipeline Topology: {data?.edgeAiSupport?.architecture || 'Sensor → Data Processing → AI Model → Anomaly Detection → Dashboard'}
+            <span className="text-[11px] text-slate-600 block">
+              Topology: {data?.edgeAiSupport?.architecture || 'Sensor Node → Rule Check → IsoForest & PyTorch LSTM → Spatial Consensus → Dashboard'}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
-          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-            CURRENT MODE: CLOUD AI
-          </span>
-          <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold">
-            EDGE AI CAPABLE
-          </span>
-        </div>
+        <span className="gov-badge-green text-xs font-bold px-2.5 py-1 rounded border">
+          STATUS: OPERATIONAL
+        </span>
       </div>
 
-      {/* Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Most Common Anomaly Types */}
-        <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 min-w-0">
-          <h2 className="font-orbitron font-bold text-xs text-slate-100 mb-3 flex items-center gap-2">
-            <BarChart2 className="w-4 h-4 text-sky-400 flex-shrink-0" />
-            MOST COMMON ANOMALY TYPES BREAKDOWN
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="gov-card p-4">
+          <h2 className="font-bold text-xs text-blue-950 uppercase mb-3 flex items-center gap-2">
+            <BarChart2 className="w-4 h-4 text-blue-900" />
+            ANOMALY CLASSIFICATION BREAKDOWN
           </h2>
-          <div className="h-56 sm:h-64 w-full">
+          <div className="h-60 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={anomalyTypeData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" stroke="#64748b" fontSize={10} />
-                <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={9} width={115} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#38bdf8', fontSize: '11px' }} />
-                <Bar dataKey="count" fill="#38bdf8" radius={[0, 4, 4, 0]}>
-                  {anomalyTypeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
+                <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} width={130} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', fontSize: '11px', color: '#0f172a' }} />
+                <Bar dataKey="count" fill="#1d4ed8" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Station Performance Metrics */}
-        <div className="glass-card p-3.5 sm:p-4 rounded-xl border border-sky-500/20 min-w-0">
-          <h2 className="font-orbitron font-bold text-xs text-slate-100 mb-3 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            AWS STATION HEALTH SCORE COMPARISON (%)
+        <div className="gov-card p-4">
+          <h2 className="font-bold text-xs text-blue-950 uppercase mb-3 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-blue-900" />
+            AWS STATION HEALTH INDEX COMPARISON (%)
           </h2>
-          <div className="h-56 sm:h-64 w-full">
+          <div className="h-60 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stationPerformanceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="station" stroke="#64748b" fontSize={10} />
                 <YAxis stroke="#64748b" fontSize={10} domain={[60, 100]} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#38bdf8', fontSize: '11px' }} />
-                <Bar dataKey="health" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', fontSize: '11px', color: '#0f172a' }} />
+                <Bar dataKey="health" fill="#15803d" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

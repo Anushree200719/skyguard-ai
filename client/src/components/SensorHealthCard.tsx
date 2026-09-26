@@ -11,26 +11,26 @@ interface SensorHealthCardProps {
 export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, healthData, loading = false }) => {
   const overallHealth = healthData?.overallHealthScore ?? station.healthScore ?? 95;
 
-  let overallStatusLabel = 'ALL SENSORS NOMINAL 🟢';
-  let overallStatusBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-  let progressColor = '#10b981';
+  let overallStatusLabel = 'ALL SENSORS NOMINAL';
+  let overallStatusBadge = 'gov-badge-green';
+  let progressColor = '#15803d';
 
   if (overallHealth >= 90) {
-    overallStatusLabel = 'ALL SENSORS NOMINAL 🟢';
-    overallStatusBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-    progressColor = '#10b981';
+    overallStatusLabel = 'ALL SENSORS NOMINAL';
+    overallStatusBadge = 'gov-badge-green';
+    progressColor = '#15803d';
   } else if (overallHealth >= 75) {
-    overallStatusLabel = 'MINOR ATTENTION NEEDED 🟢';
-    overallStatusBg = 'bg-green-500/20 text-green-300 border-green-500/40';
-    progressColor = '#22c55e';
+    overallStatusLabel = 'MINOR ATTENTION NEEDED';
+    overallStatusBadge = 'gov-badge-blue';
+    progressColor = '#1d4ed8';
   } else if (overallHealth >= 50) {
-    overallStatusLabel = 'UNSTABLE HARDWARE SENSORS 🟠';
-    overallStatusBg = 'bg-orange-500/20 text-orange-300 border-orange-500/40';
-    progressColor = '#f97316';
+    overallStatusLabel = 'UNSTABLE HARDWARE DEGRADATION';
+    overallStatusBadge = 'gov-badge-amber';
+    progressColor = '#b45309';
   } else {
-    overallStatusLabel = 'CRITICAL HARDWARE DEGRADATION 🔴';
-    overallStatusBg = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-    progressColor = '#ef4444';
+    overallStatusLabel = 'CRITICAL HARDWARE FAULT';
+    overallStatusBadge = 'gov-badge-red';
+    progressColor = '#b91c1c';
   }
 
   const sensors = healthData?.sensors || [
@@ -41,9 +41,9 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
       unit: '°C',
       healthPercentage: station.sensorHealth?.temperature || 98,
       status: 'HEALTHY',
-      statusLabel: 'HEALTHY 🟢',
-      statusColor: '#10b981',
-      statusBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      statusLabel: 'NOMINAL',
+      statusBadge: 'gov-badge-green',
+      statusColor: '#15803d',
       lastReading: '27.99°C',
       lastUpdate: 'Live Streaming',
       issues: ['Thermistor operating within nominal meteorological parameters', 'Thermal calibration nominal & spatial consensus verified']
@@ -55,9 +55,9 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
       unit: '%',
       healthPercentage: station.sensorHealth?.humidity || 96,
       status: 'HEALTHY',
-      statusLabel: 'HEALTHY 🟢',
-      statusColor: '#10b981',
-      statusBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      statusLabel: 'NOMINAL',
+      statusBadge: 'gov-badge-green',
+      statusColor: '#15803d',
       lastReading: '64.8%',
       lastUpdate: 'Live Streaming',
       issues: ['Capacitive hygrometer element operating nominally', 'Relative humidity response curve calibrated']
@@ -69,9 +69,9 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
       unit: 'hPa',
       healthPercentage: station.sensorHealth?.pressure || 99,
       status: 'HEALTHY',
-      statusLabel: 'HEALTHY 🟢',
-      statusColor: '#10b981',
-      statusBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      statusLabel: 'NOMINAL',
+      statusBadge: 'gov-badge-green',
+      statusColor: '#15803d',
       lastReading: '1012.3 hPa',
       lastUpdate: 'Live Streaming',
       issues: ['Barometric MEMS pressure sensor responding normally', 'Sea-level pressure reduction offset aligned']
@@ -83,9 +83,9 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
       unit: 'm/s',
       healthPercentage: station.sensorHealth?.wind || 88,
       status: 'WARNING',
-      statusLabel: 'WARNING 🟢',
-      statusColor: '#22c55e',
-      statusBg: 'bg-green-500/20 text-green-300 border-green-500/40',
+      statusLabel: 'WARNING',
+      statusBadge: 'gov-badge-amber',
+      statusColor: '#b45309',
       lastReading: '11.8 m/s',
       lastUpdate: 'Live Streaming',
       issues: ['Ultrasonic anemometer cups spinning freely', 'Minor speed variance recorded during peak gusts']
@@ -97,9 +97,9 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
       unit: 'mm',
       healthPercentage: station.sensorHealth?.rainfall || 95,
       status: 'HEALTHY',
-      statusLabel: 'HEALTHY 🟢',
-      statusColor: '#10b981',
-      statusBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      statusLabel: 'NOMINAL',
+      statusBadge: 'gov-badge-green',
+      statusColor: '#15803d',
       lastReading: '0.0 mm',
       lastUpdate: 'Live Streaming',
       issues: ['Tipping bucket mechanism clean and unobstructed', 'Precipitation rate transducer active']
@@ -108,70 +108,60 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
 
   const getSensorIcon = (id: string) => {
     switch (id) {
-      case 'temperature': return <Thermometer className="w-4 h-4 text-sky-400" />;
-      case 'humidity': return <Droplets className="w-4 h-4 text-cyan-400" />;
-      case 'pressure': return <Gauge className="w-4 h-4 text-indigo-400" />;
-      case 'windSpeed': return <Wind className="w-4 h-4 text-amber-400" />;
-      case 'rainfall': return <CloudRain className="w-4 h-4 text-emerald-400" />;
-      default: return <Cpu className="w-4 h-4 text-sky-400" />;
+      case 'temperature': return <Thermometer className="w-4 h-4 text-blue-900" />;
+      case 'humidity': return <Droplets className="w-4 h-4 text-cyan-800" />;
+      case 'pressure': return <Gauge className="w-4 h-4 text-indigo-900" />;
+      case 'windSpeed': return <Wind className="w-4 h-4 text-amber-800" />;
+      case 'rainfall': return <CloudRain className="w-4 h-4 text-emerald-800" />;
+      default: return <Cpu className="w-4 h-4 text-blue-900" />;
     }
   };
 
   return (
-    <div className="liquid-glass p-4 sm:p-5 rounded-3xl border-none relative overflow-hidden font-poppins space-y-4">
+    <div className="gov-card p-4 space-y-4">
       {/* Loading Overlay */}
       {loading && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-20 flex items-center justify-center text-xs text-white font-medium animate-pulse">
+        <div className="bg-blue-50 border border-blue-200 text-blue-900 p-2 text-xs font-mono text-center rounded animate-pulse">
           🩺 Inspecting physical sensor channels & telemetry health...
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl liquid-glass text-white">
-            <Activity className="w-5 h-5 text-white" />
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <div className="flex items-center gap-2">
+          <Activity className="w-5 h-5 text-blue-900" />
           <div>
-            <h2 className="font-poppins font-medium text-xs sm:text-sm text-white uppercase tracking-wider">
-              AWS SENSOR HEALTH MONITORING & HARDWARE DIAGNOSTICS
+            <h2 className="font-bold text-xs sm:text-sm text-blue-950 uppercase tracking-wider">
+              AWS SENSOR HARDWARE DIAGNOSTICS & CHANNEL STATUS
             </h2>
-            <span className="text-[10px] text-white/50 block font-light">
-              Real-time hardware channel analysis for {station.stationId} ({station.name})
+            <span className="text-[11px] text-slate-600 block">
+              Hardware channel health audit for {station.stationId} ({station.name})
             </span>
           </div>
         </div>
 
-        <span className={`px-3 py-1 rounded-full text-xs font-mono font-medium ${overallStatusBg}`}>
+        <span className={`px-2.5 py-1 rounded text-xs font-bold font-mono border ${overallStatusBadge}`}>
           {overallStatusLabel}
         </span>
       </div>
 
-      {/* Station Overall Health Progress Banner */}
-      <div className="p-4 liquid-glass rounded-2xl flex flex-wrap items-center justify-between gap-3 border-none">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 liquid-glass rounded-xl text-center">
-            <span className="text-[10px] text-white/50 block font-mono font-medium">OVERALL SENSOR HEALTH</span>
-            <span className="font-poppins font-medium text-2xl text-white">{overallHealth}%</span>
+      {/* Overall Health Progress */}
+      <div className="p-3.5 bg-slate-50 border border-slate-200 rounded flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-white border border-slate-200 rounded text-center">
+            <span className="text-[10px] text-slate-500 font-bold block uppercase">OVERALL HEALTH</span>
+            <span className="font-mono font-bold text-2xl text-blue-950">{overallHealth}%</span>
           </div>
 
           <div className="space-y-0.5 text-xs">
-            <div className="flex items-center gap-1.5 text-white font-medium">
-              <RadioTower className="w-3.5 h-3.5 text-white/80" />
-              <span>5 Active Physical Sensor Transducers</span>
+            <div className="flex items-center gap-1.5 font-bold text-slate-800">
+              <RadioTower className="w-4 h-4 text-blue-900" />
+              <span>5 Physical Sensor Transducers Monitored</span>
             </div>
-            <p className="text-[11px] text-white/60 font-light">
-              Health level derived from physical bounds, telemetry noise, flatlines, step jump spikes, and Open-Meteo alignment.
+            <p className="text-[11px] text-slate-600">
+              Evaluated against thermal noise, flatline locks, step jump anomalies, and Open-Meteo satellite feeds.
             </p>
           </div>
-        </div>
-
-        {/* Health Status Legend */}
-        <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono">
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-emerald-300 border border-emerald-500/30">🟢 HEALTHY (90-100%)</span>
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-green-300 border border-green-500/30">🟢 WARNING (75-89%)</span>
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-amber-300 border border-amber-500/30">🟠 UNSTABLE (50-74%)</span>
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-rose-300 border border-rose-500/30">🔴 CRITICAL (1-49%)</span>
         </div>
       </div>
 
@@ -181,67 +171,63 @@ export const SensorHealthCard: React.FC<SensorHealthCardProps> = ({ station, hea
           return (
             <div 
               key={sensor.id}
-              className="p-3.5 liquid-glass rounded-2xl flex flex-col justify-between space-y-2.5 relative border-none"
+              className="p-3 bg-slate-50 border border-slate-200 rounded flex flex-col justify-between space-y-2.5"
             >
-              {/* Card Header: Icon & Sensor Name */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              {/* Sensor Header */}
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <div className="flex items-center gap-1.5 truncate">
                   {getSensorIcon(sensor.id)}
-                  <span className="font-poppins font-medium text-xs text-white truncate">{sensor.name}</span>
+                  <span className="font-bold text-xs text-slate-900 truncate">{sensor.name}</span>
                 </div>
               </div>
 
-              {/* Sensor Health % & Progress Bar */}
+              {/* Progress Bar */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-white/50 text-[11px]">Health Level:</span>
-                  <span className="font-medium font-mono text-white">{sensor.healthPercentage}%</span>
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-slate-600 text-[11px]">Health:</span>
+                  <span className="font-bold text-slate-900">{sensor.healthPercentage}%</span>
                 </div>
 
-                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                   <div 
-                    className="h-full transition-all duration-700 rounded-full" 
+                    className="h-full rounded-full" 
                     style={{ width: `${sensor.healthPercentage}%`, backgroundColor: sensor.statusColor }} 
                   />
                 </div>
               </div>
 
-              {/* Status Badge & Sensor Type */}
+              {/* Status Badge */}
               <div className="flex items-center justify-between pt-1">
-                <span className={`text-[9px] font-mono font-medium px-2 py-0.5 rounded-full uppercase ${sensor.statusBg}`}>
+                <span className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded border uppercase ${sensor.statusBadge || 'gov-badge-green'}`}>
                   {sensor.statusLabel}
                 </span>
-                <span className="text-[9px] text-white/50 italic truncate max-w-[90px]">{sensor.type}</span>
+                <span className="text-[9px] text-slate-500 italic truncate">{sensor.type}</span>
               </div>
 
-              {/* Last Reading & Last Update */}
-              <div className="space-y-1 p-2.5 liquid-glass rounded-xl text-[11px] font-mono">
+              {/* Last Reading */}
+              <div className="space-y-1 p-2 bg-white border border-slate-200 rounded text-[11px] font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="text-white/50">Last Reading:</span>
-                  <span className="font-medium text-white">{sensor.lastReading}</span>
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-white/50">
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-white/40" /> Updated:</span>
-                  <span>{sensor.lastUpdate}</span>
+                  <span className="text-slate-500">Reading:</span>
+                  <span className="font-bold text-slate-900">{sensor.lastReading}</span>
                 </div>
               </div>
 
-              {/* Problems & Issues Detected List */}
-              <div className="space-y-1.5 pt-1.5 border-t border-white/10">
-                <span className="text-[9px] text-white/50 font-mono font-medium uppercase block tracking-wider">
-                  PROBLEMS / ISSUES DETECTED:
+              {/* Problems & Issues */}
+              <div className="space-y-1 pt-1.5 border-t border-slate-200">
+                <span className="text-[9px] text-slate-500 font-bold uppercase block tracking-wider">
+                  CHANNEL DIAGNOSTICS:
                 </span>
-                <div className="space-y-1 max-h-24 overflow-y-auto">
+                <div className="space-y-1 max-h-20 overflow-y-auto">
                   {sensor.issues.map((issue, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 text-[10px] text-white/80 font-light leading-tight">
+                    <div key={idx} className="flex items-start gap-1.5 text-[10px] text-slate-700">
                       {sensor.status === 'HEALTHY' ? (
-                        <CheckCircle2 className="w-3 h-3 text-emerald-300 flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5" />
                       ) : (sensor.status === 'WARNING' ? (
-                        <AlertTriangle className="w-3 h-3 text-amber-300 flex-shrink-0 mt-0.5" />
+                        <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <XCircle className="w-3 h-3 text-rose-300 flex-shrink-0 mt-0.5" />
+                        <XCircle className="w-3 h-3 text-red-600 flex-shrink-0 mt-0.5" />
                       ))}
-                      <span className="text-[10px]">{issue}</span>
+                      <span>{issue}</span>
                     </div>
                   ))}
                 </div>

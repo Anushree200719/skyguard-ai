@@ -11,22 +11,18 @@ interface OpenMeteoComparisonCardProps {
 export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = ({ station, comparisonData, loading = false }) => {
   const agreement = comparisonData?.overallAgreement ?? 94;
 
-  let overallStatusText = 'EXCELLENT AGREEMENT 🟢';
-  let overallStatusBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-  let gaugeColor = '#10b981';
+  let overallStatusText = 'HIGH SATELLITE AGREEMENT';
+  let overallStatusBadge = 'gov-badge-green';
 
   if (agreement >= 90) {
-    overallStatusText = 'EXCELLENT AGREEMENT 🟢';
-    overallStatusBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-    gaugeColor = '#10b981';
+    overallStatusText = 'HIGH SATELLITE AGREEMENT';
+    overallStatusBadge = 'gov-badge-green';
   } else if (agreement >= 70) {
-    overallStatusText = 'MODERATE AGREEMENT 🟡';
-    overallStatusBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-    gaugeColor = '#eab308';
+    overallStatusText = 'MODERATE DISCREPANCY';
+    overallStatusBadge = 'gov-badge-amber';
   } else {
-    overallStatusText = 'POOR AGREEMENT 🔴';
-    overallStatusBg = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-    gaugeColor = '#ef4444';
+    overallStatusText = 'CRITICAL DISCREPANCY';
+    overallStatusBadge = 'gov-badge-red';
   }
 
   const parameters = comparisonData?.parameters || [
@@ -39,8 +35,8 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
       difference: 0.41,
       agreementPercentage: 98,
       status: 'NORMAL',
-      statusLabel: 'NORMAL ✓',
-      statusColor: '#10b981',
+      statusLabel: 'VERIFIED MATCH',
+      statusBadge: 'gov-badge-green',
       thresholdText: 'Normal ≤ 2.0°C | Warning ≤ 4.0°C | Critical > 4.0°C'
     },
     {
@@ -52,8 +48,8 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
       difference: 2.4,
       agreementPercentage: 94,
       status: 'NORMAL',
-      statusLabel: 'NORMAL ✓',
-      statusColor: '#10b981',
+      statusLabel: 'VERIFIED MATCH',
+      statusBadge: 'gov-badge-green',
       thresholdText: 'Normal ≤ 10% | Warning ≤ 20% | Critical > 20%'
     },
     {
@@ -65,8 +61,8 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
       difference: 0.8,
       agreementPercentage: 95,
       status: 'NORMAL',
-      statusLabel: 'NORMAL ✓',
-      statusColor: '#10b981',
+      statusLabel: 'VERIFIED MATCH',
+      statusBadge: 'gov-badge-green',
       thresholdText: 'Normal ≤ 3.0 hPa | Warning ≤ 6.0 hPa | Critical > 6.0 hPa'
     },
     {
@@ -78,8 +74,8 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
       difference: 0.6,
       agreementPercentage: 95,
       status: 'NORMAL',
-      statusLabel: 'NORMAL ✓',
-      statusColor: '#10b981',
+      statusLabel: 'VERIFIED MATCH',
+      statusBadge: 'gov-badge-green',
       thresholdText: 'Normal ≤ 3.0 m/s | Warning ≤ 6.0 m/s | Critical > 6.0 m/s'
     },
     {
@@ -91,83 +87,72 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
       difference: 0.0,
       agreementPercentage: 100,
       status: 'NORMAL',
-      statusLabel: 'NORMAL ✓',
-      statusColor: '#10b981',
+      statusLabel: 'VERIFIED MATCH',
+      statusBadge: 'gov-badge-green',
       thresholdText: 'Normal ≤ 2.0 mm | Warning ≤ 5.0 mm | Critical > 5.0 mm'
     }
   ];
 
   const getParamIcon = (id: string) => {
     switch (id) {
-      case 'temperature': return <Thermometer className="w-4 h-4 text-sky-400" />;
-      case 'humidity': return <Droplets className="w-4 h-4 text-cyan-400" />;
-      case 'pressure': return <Gauge className="w-4 h-4 text-indigo-400" />;
-      case 'windSpeed': return <Wind className="w-4 h-4 text-amber-400" />;
-      case 'rainfall': return <CloudRain className="w-4 h-4 text-emerald-400" />;
-      default: return <Satellite className="w-4 h-4 text-sky-400" />;
+      case 'temperature': return <Thermometer className="w-4 h-4 text-blue-900" />;
+      case 'humidity': return <Droplets className="w-4 h-4 text-cyan-800" />;
+      case 'pressure': return <Gauge className="w-4 h-4 text-indigo-900" />;
+      case 'windSpeed': return <Wind className="w-4 h-4 text-amber-800" />;
+      case 'rainfall': return <CloudRain className="w-4 h-4 text-emerald-800" />;
+      default: return <Satellite className="w-4 h-4 text-blue-900" />;
     }
   };
 
   return (
-    <div className="liquid-glass p-4 sm:p-5 rounded-3xl border-none relative overflow-hidden font-poppins space-y-4">
+    <div className="gov-card p-4 space-y-4">
       {/* Loading Overlay */}
       {loading && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-20 flex items-center justify-center text-xs text-white font-medium animate-pulse font-mono">
+        <div className="bg-blue-50 border border-blue-200 text-blue-900 p-2 text-xs font-mono text-center rounded animate-pulse">
           🛰️ Cross-referencing AWS Telemetry against Open-Meteo Satellite Data...
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl liquid-glass text-white">
-            <Scale className="w-5 h-5 text-white" />
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <div className="flex items-center gap-2">
+          <Scale className="w-5 h-5 text-blue-900" />
           <div>
-            <h2 className="font-poppins font-medium text-xs sm:text-sm text-white uppercase tracking-wider">
-              AWS STATION VS. OPEN-METEO SATELLITE COMPARISON
+            <h2 className="font-bold text-xs sm:text-sm text-blue-950 uppercase tracking-wider">
+              AWS GROUND TELEMETRY VS. OPEN-METEO SATELLITE COMPARISON
             </h2>
-            <span className="text-[10px] text-white/50 block font-light">
-              Exact parameter agreement matrix using coordinates: {station.latitude?.toFixed(4)}°N, {station.longitude?.toFixed(4)}°E ({station.name})
+            <span className="text-[11px] text-slate-600 block">
+              Co-located verification at {station.latitude?.toFixed(4)}°N, {station.longitude?.toFixed(4)}°E ({station.name})
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-mono font-medium ${overallStatusBg}`}>
-            {overallStatusText}
-          </span>
-        </div>
+        <span className={`px-2.5 py-1 rounded text-xs font-bold font-mono border ${overallStatusBadge}`}>
+          {overallStatusText}
+        </span>
       </div>
 
-      {/* Overall Data Agreement Badge Banner */}
-      <div className="p-4 liquid-glass rounded-2xl flex flex-wrap items-center justify-between gap-3 border-none">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 liquid-glass rounded-xl text-center">
-            <span className="text-[10px] text-white/50 block font-mono font-medium">OVERALL AGREEMENT</span>
-            <span className="font-poppins font-medium text-2xl text-white">{agreement}%</span>
+      {/* Summary Banner */}
+      <div className="p-3 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white border border-slate-200 rounded text-center">
+            <span className="text-[10px] text-slate-500 font-bold block uppercase">SATELLITE AGREEMENT</span>
+            <span className="font-mono font-bold text-2xl text-blue-950">{agreement}%</span>
           </div>
 
           <div className="space-y-0.5 text-xs">
-            <div className="flex items-center gap-1.5 text-white font-medium">
-              <MapPin className="w-3.5 h-3.5 text-white/80" />
+            <div className="flex items-center gap-1.5 font-bold text-slate-800">
+              <MapPin className="w-3.5 h-3.5 text-blue-900" />
               <span>{station.stationId} ({station.name})</span>
             </div>
-            <p className="text-[11px] text-white/60 font-light">
-              Cross-validating 5 active AWS sensor channels against localized satellite weather radar.
+            <p className="text-[11px] text-slate-600">
+              Comparing 5 parameters against Open-Meteo high-resolution reanalysis models.
             </p>
           </div>
         </div>
-
-        {/* Agreement Status Tiers Legend */}
-        <div className="flex items-center gap-2 text-[10px] font-mono">
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-emerald-300 border border-emerald-500/30">🟢 Excellent (≥90%)</span>
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-amber-300 border border-amber-500/30">🟡 Moderate (70-89%)</span>
-          <span className="px-2.5 py-1 rounded-full liquid-glass text-rose-300 border border-rose-500/30">🔴 Poor (&lt;70%)</span>
-        </div>
       </div>
 
-      {/* 5-Parameter Detailed Grid */}
+      {/* 5-Parameter Grid */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         {parameters.map((param) => {
           const isUnavailable = param.status === 'UNAVAILABLE';
@@ -176,78 +161,66 @@ export const OpenMeteoComparisonCard: React.FC<OpenMeteoComparisonCardProps> = (
           return (
             <div 
               key={param.id} 
-              className="p-3.5 liquid-glass rounded-2xl flex flex-col justify-between space-y-2.5 relative border-none"
+              className="p-3 bg-slate-50 border border-slate-200 rounded flex flex-col justify-between space-y-2"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              {/* Parameter Title */}
+              <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
                 <div className="flex items-center gap-1.5">
                   {getParamIcon(param.id)}
-                  <span className="font-poppins font-medium text-xs text-white">{param.name}</span>
+                  <span className="font-bold text-xs text-slate-900">{param.name}</span>
                 </div>
               </div>
 
-              {/* AWS vs Open-Meteo Values */}
-              <div className="space-y-1.5 text-xs font-mono">
-                <div className="flex items-center justify-between p-2 liquid-glass rounded-xl">
-                  <span className="text-[10px] text-white/50 font-medium">AWS Station:</span>
-                  <span className="font-semibold text-white">
+              {/* AWS vs Satellite */}
+              <div className="space-y-1 text-xs font-mono">
+                <div className="flex items-center justify-between p-1.5 bg-white border border-slate-200 rounded">
+                  <span className="text-[10px] text-slate-500 font-bold">AWS Station:</span>
+                  <span className="font-bold text-slate-900">
                     {param.awsValue !== null && param.awsValue !== undefined ? `${param.awsValue}${param.unit}` : 'N/A'}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between p-2 liquid-glass rounded-xl">
-                  <span className="text-[10px] text-white/50 font-medium">Open-Meteo:</span>
-                  <span className="font-semibold text-white">
+                <div className="flex items-center justify-between p-1.5 bg-white border border-slate-200 rounded">
+                  <span className="text-[10px] text-slate-500 font-bold">Open-Meteo:</span>
+                  <span className="font-bold text-slate-900">
                     {param.openMeteoValue !== null && param.openMeteoValue !== undefined ? `${param.openMeteoValue}${param.unit}` : 'N/A'}
                   </span>
                 </div>
               </div>
 
               {/* Difference & Agreement */}
-              <div className="space-y-1 pt-1.5 border-t border-white/10 font-mono">
+              <div className="space-y-1 pt-1 border-t border-slate-200 font-mono">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-white/50">Difference:</span>
-                  <span className="font-semibold text-white">
+                  <span className="text-slate-500">Delta:</span>
+                  <span className="font-bold text-slate-900">
                     {param.difference !== null && param.difference !== undefined ? `${param.difference}${param.unit}` : '--'}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-white/50">Agreement:</span>
-                  <span className="font-semibold text-emerald-300">
+                  <span className="text-slate-500">Agreement:</span>
+                  <span className="font-bold text-blue-900">
                     {isUnavailable ? 'N/A' : `${agreementVal}%`}
                   </span>
                 </div>
 
-                {/* Progress bar */}
-                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden my-1">
+                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden my-1">
                   <div 
-                    className="h-full transition-all duration-700 rounded-full"
-                    style={{ 
-                      width: `${isUnavailable ? 0 : agreementVal}%`, 
-                      backgroundColor: param.statusColor || gaugeColor 
-                    }} 
+                    className="h-full bg-blue-800 rounded-full"
+                    style={{ width: `${isUnavailable ? 0 : agreementVal}%` }} 
                   />
                 </div>
               </div>
 
               {/* Status Badge */}
               <div className="pt-1 flex items-center justify-between">
-                <span 
-                  className="text-[9px] font-mono font-medium px-2 py-0.5 rounded-full uppercase"
-                  style={{ 
-                    backgroundColor: `${param.statusColor}25`, 
-                    color: '#ffffff',
-                    borderColor: `${param.statusColor}40`,
-                    borderWidth: '1px'
-                  }}
-                >
+                <span className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded border uppercase ${param.statusBadge || 'gov-badge-green'}`}>
                   {param.statusLabel}
                 </span>
 
                 <div className="group relative">
-                  <Info className="w-3.5 h-3.5 text-white/40 hover:text-white cursor-help" />
-                  <div className="hidden group-hover:block absolute bottom-full right-0 mb-1.5 w-48 p-2.5 liquid-glass-strong text-[10px] text-white/80 rounded-2xl shadow-2xl font-sans z-30 border border-white/20">
+                  <Info className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-help" />
+                  <div className="hidden group-hover:block absolute bottom-full right-0 mb-1.5 w-48 p-2 bg-white text-[10px] text-slate-800 rounded shadow-lg border border-slate-300 z-30 font-mono">
                     {param.thresholdText}
                   </div>
                 </div>

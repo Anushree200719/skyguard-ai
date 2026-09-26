@@ -1,6 +1,6 @@
 import React from 'react';
 import { XAIExplanationResult } from '../types';
-import { Brain, CheckCircle2, AlertTriangle, XCircle, Info, Scale, ShieldCheck, X, Sparkles, Cpu } from 'lucide-react';
+import { Brain, CheckCircle2, AlertTriangle, XCircle, Info, Scale, ShieldCheck, X, Sparkles, Cpu, FileText } from 'lucide-react';
 
 interface ExplainabilityModalProps {
   isOpen: boolean;
@@ -18,12 +18,12 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
   if (!isOpen) return null;
 
   const confPercent = explanation?.confidencePercentage ?? 94;
-  const classification = explanation?.classification ? explanation.classification.replace(/_/g, ' ') : 'POSSIBLE SENSOR FAULT';
+  const classification = explanation?.classification ? explanation.classification.replace(/_/g, ' ') : 'SENSOR FAULT DETECTED';
   const severity = explanation?.severity || 'HIGH';
 
-  let severityBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-  if (severity === 'CRITICAL') severityBg = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-  else if (severity === 'LOW' || severity === 'NORMAL') severityBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+  let severityBadge = 'gov-badge-amber';
+  if (severity === 'CRITICAL') severityBadge = 'gov-badge-red';
+  else if (severity === 'LOW' || severity === 'NORMAL') severityBadge = 'gov-badge-green';
 
   const primaryFactors = explanation?.primaryFactors || [
     'Sudden temperature step jump: Δ8.4°C in single 3-second cycle',
@@ -33,143 +33,120 @@ export const ExplainabilityModal: React.FC<ExplainabilityModalProps> = ({
 
   const empiricalEvidence = explanation?.empiricalEvidence || [
     'AWS Thermistor Telemetry: 42.80°C',
-    'Open-Meteo Satellite Radar Baseline: 34.40°C',
+    'Open-Meteo Satellite Baseline: 34.40°C',
     'Historical Expected Envelope: 28.0°C – 34.0°C',
     'Spatial Consensus Matching Ratio: 0% (0/3 nearby stations confirm 42.8°C)'
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 sm:p-6 font-poppins text-xs animate-in fade-in duration-200">
-      <div className="liquid-glass-strong w-full max-w-2xl p-6 sm:p-8 rounded-3xl border border-white/20 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 text-xs">
+      <div className="bg-white w-full max-w-2xl p-6 rounded border border-slate-300 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4 text-slate-900">
         
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-2 text-white font-medium animate-pulse">
-            <Brain className="w-8 h-8 text-white animate-bounce" />
-            <span>🧠 Synthesizing Transparent AI Explanation Matrix...</span>
+          <div className="absolute inset-0 bg-white/95 z-30 flex flex-col items-center justify-center gap-2 text-blue-950 font-bold font-mono animate-pulse">
+            <Brain className="w-8 h-8 text-blue-900 animate-bounce" />
+            <span>🧠 Synthesizing Official SHAP & AI Explanation Matrix...</span>
           </div>
         )}
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl liquid-glass text-white">
-              <Sparkles className="w-5 h-5 stroke-[1.5]" />
-            </div>
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div className="flex items-center gap-2.5">
+            <FileText className="w-5 h-5 text-blue-900" />
             <div>
-              <h2 className="font-poppins font-medium text-sm text-white tracking-tight flex items-center gap-2">
-                AI ANALYSIS EXPLANATION — {explanation?.stationId || 'AWS STATION'}
+              <h2 className="font-bold text-sm text-blue-950 uppercase tracking-wide">
+                TECHNICAL AI ANOMALY EXPLANATION DOSSIER — {explanation?.stationId || 'AWS STATION'}
               </h2>
-              <span className="text-[10px] text-white/50 block font-light">
-                Transparent multi-layer decision breakdown & empirical evidence log
+              <span className="text-[11px] text-slate-600 block">
+                Official decision audit log & empirical evidence breakdown
               </span>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-white/60 hover:text-white rounded-full liquid-glass transition cursor-pointer"
+            className="p-1 rounded border border-slate-300 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* AI Confidence & Status Banner */}
-        <div className="p-4 liquid-glass rounded-2xl flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 liquid-glass rounded-xl text-center">
-              <span className="text-[10px] text-white/50 block font-mono font-medium">AI CONFIDENCE</span>
-              <span className="font-poppins font-medium text-2xl text-white">{confPercent}%</span>
+        {/* AI Confidence Banner */}
+        <div className="p-3 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white border border-slate-200 rounded text-center font-mono">
+              <span className="text-[10px] text-slate-500 font-bold block">CONFIDENCE</span>
+              <span className="font-bold text-xl text-blue-950">{confPercent}%</span>
             </div>
 
             <div className="space-y-1">
-              <span className={`text-[10px] font-mono font-medium px-2.5 py-0.5 rounded-full uppercase ${severityBg}`}>
+              <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded border uppercase ${severityBadge}`}>
                 {classification} ({severity})
               </span>
-              <p className="text-xs text-white font-medium mt-1">
+              <p className="text-xs font-semibold text-slate-800 mt-1">
                 {explanation?.summary || 'Sensor telemetry analyzed across 5 meteorological channels.'}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Primary Factors List */}
-        <div className="space-y-2.5 liquid-glass p-4 sm:p-5 rounded-2xl border-none">
-          <span className="text-white font-medium text-xs font-mono flex items-center gap-2 uppercase tracking-wider">
-            <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-            PRIMARY FACTORS ("WHY WAS THIS FLAGGED?"):
+        {/* Primary Factors */}
+        <div className="space-y-2 p-3.5 bg-slate-50 border border-slate-200 rounded">
+          <span className="text-blue-950 font-bold text-xs font-mono uppercase flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            PRIMARY DIAGNOSTIC FACTORS:
           </span>
 
-          <div className="space-y-2 pt-1">
+          <div className="space-y-1.5 pt-1">
             {primaryFactors.map((factor, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 text-white/90">
-                <span className="text-emerald-300 font-bold text-sm">✓</span>
-                <span className="text-xs font-light">{factor}</span>
+              <div key={idx} className="flex items-start gap-2 text-slate-800">
+                <span className="text-emerald-700 font-bold text-xs">✓</span>
+                <span className="text-xs font-medium">{factor}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Empirical Evidence & Telemetry Metrics */}
-        <div className="space-y-2.5 liquid-glass p-4 sm:p-5 rounded-2xl border-none">
-          <span className="text-white font-medium text-xs font-mono flex items-center gap-2 uppercase tracking-wider">
-            <Info className="w-4 h-4 text-white/80" />
-            EMPIRICAL EVIDENCE & TELEMETRY METRICS:
+        {/* Empirical Evidence */}
+        <div className="space-y-2 p-3.5 bg-slate-50 border border-slate-200 rounded">
+          <span className="text-blue-950 font-bold text-xs font-mono uppercase flex items-center gap-1.5">
+            <Info className="w-4 h-4 text-blue-900" />
+            EMPIRICAL TELEMETRY EVIDENCE:
           </span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 font-mono">
             {empiricalEvidence.map((ev, idx) => (
-              <div key={idx} className="p-2.5 liquid-glass rounded-xl text-white/80">
+              <div key={idx} className="p-2 bg-white border border-slate-200 rounded text-slate-800">
                 • {ev}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Data Comparisons Grid (if available) */}
-        {explanation?.dataComparisons && explanation.dataComparisons.length > 0 && (
-          <div className="space-y-2.5 border-t border-white/10 pt-3">
-            <span className="text-white font-medium text-xs font-mono flex items-center gap-2 uppercase tracking-wider">
-              <Scale className="w-4 h-4 text-white/80" />
-              AWS TELEMETRY VS. SATELLITE COMPARISON EVIDENCE:
-            </span>
-
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-mono">
-              {explanation.dataComparisons.map((comp, idx) => (
-                <div key={idx} className="p-2.5 liquid-glass rounded-xl text-[10px] space-y-0.5">
-                  <span className="text-white/50 block font-medium mb-0.5">{comp.name}</span>
-                  <div className="text-white">AWS: <span className="font-semibold">{comp.aws}</span></div>
-                  <div className="text-white/60">Meteo: {comp.openMeteo}</div>
-                  <div className="text-white font-semibold mt-0.5">Diff: {comp.diff}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* AI Methodology & System Transparency Notice */}
-        <div className="p-4 liquid-glass rounded-2xl space-y-1.5 font-mono">
-          <span className="text-[10px] text-white/50 font-medium flex items-center gap-1.5 uppercase tracking-wider">
-            <Cpu className="w-3.5 h-3.5 text-white/80" />
-            AI METHODOLOGY & TRANSPARENCY NOTICE
+        {/* Methodology Notice */}
+        <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1 font-mono">
+          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider flex items-center gap-1">
+            <Cpu className="w-3.5 h-3.5 text-blue-900" />
+            AI AUDIT METHODOLOGY NOTICE
           </span>
-          <p className="text-[10px] text-white/70 leading-relaxed font-light">
+          <p className="text-[11px] text-slate-700 leading-relaxed">
             {explanation?.systemTransparency || 'This explanation is synthesized from physical quality control rules combined with PyTorch LSTM Autoencoder reconstruction loss, Isolation Forest SHAP feature impacts, and Spatial Consensus ratios across surrounding AWS stations.'}
           </p>
         </div>
 
         {/* Actionable Recommendation */}
-        <div className="p-4 liquid-glass rounded-2xl flex items-center justify-between text-xs font-medium text-white border border-white/20">
-          <span>Recommended Action: {explanation?.recommendedAction || 'Schedule regular calibration inspection.'}</span>
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded text-xs font-bold text-blue-950">
+          Official Action Recommendation: {explanation?.recommendedAction || 'Schedule regular calibration inspection.'}
         </div>
 
         {/* Footer Close */}
-        <div className="pt-3 border-t border-white/10 flex justify-end">
+        <div className="pt-2 border-t border-slate-200 flex justify-end">
           <button
             onClick={onClose}
-            className="liquid-glass rounded-full px-6 py-2.5 text-xs font-medium uppercase tracking-wider text-white hover:bg-white/10 transition cursor-pointer"
+            className="bg-blue-900 text-white font-bold text-xs uppercase px-5 py-2 rounded hover:bg-blue-950 transition-colors"
           >
-            Close Explanation
+            Close Audit Dossier
           </button>
         </div>
       </div>
