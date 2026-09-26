@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Radio, Activity, Menu, X, Globe, Lock, Search, FileText, BarChart2, AlertTriangle, MapPin, Database, Server, Info, Home } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Activity, Menu, X, Globe } from 'lucide-react';
 import { socket } from '../services/socket';
 
 interface HeaderProps {
@@ -15,7 +14,6 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
   const [lang, setLang] = useState<'EN' | 'HI'>('EN');
-  const location = useLocation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -36,23 +34,6 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
       socket.off('disconnect', onDisconnect);
     };
   }, []);
-
-  const navLinks = [
-    { name: 'HOME', path: '/' },
-    { name: 'DASHBOARD', path: '/dashboard' },
-    { name: 'AWS NETWORK', path: '/stations' },
-    { name: 'LIVE DATA', path: '/monitoring' },
-    { name: 'DATA QUALITY', path: '/anomalies' },
-    { name: 'ALERTS', path: '/alerts' },
-    { name: 'REPORTS', path: '/analytics' },
-    { name: 'PREDICTIONS', path: '/prediction' },
-    { name: 'MAINTENANCE', path: '/maintenance' },
-  ];
-
-  const isActive = (path: string) => {
-    if (path === '/' && (location.pathname === '/' || location.pathname === '/dashboard')) return true;
-    return location.pathname === path;
-  };
 
   return (
     <header className="sticky top-0 z-40 w-full flex flex-col shadow-md font-sans">
@@ -161,29 +142,8 @@ export const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, onToggleMobile
         <div className="h-full w-1/3 bg-[#FFFFFF]"></div>
         <div className="h-full w-1/3 bg-[#138808]"></div>
       </div>
-
-      {/* 4. GOVERNMENT-STYLE HORIZONTAL NAVIGATION BAR */}
-      <nav className="gov-subnav-bar hidden md:flex items-center px-4 sm:px-6 py-0 text-xs font-semibold uppercase tracking-wider shadow-inner overflow-x-auto border-b border-blue-900">
-        <div className="flex items-center space-x-1 min-w-max">
-          {navLinks.map((link) => {
-            const active = isActive(link.path);
-            return (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`px-3 py-2.5 transition-colors border-b-2 flex items-center gap-1.5 ${
-                  active
-                    ? 'bg-blue-900 text-white font-bold border-amber-400'
-                    : 'text-slate-100 hover:bg-blue-800 hover:text-white border-transparent'
-                }`}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
     </header>
   );
 };
+
 
