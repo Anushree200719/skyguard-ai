@@ -69,6 +69,8 @@ class SimulatorService {
       } catch (err) {
         console.warn(`[Simulator] Non-blocking Open-Meteo sync notice for ${station.stationId}:`, err.message);
       }
+      // Add 250ms spacing between station calls to prevent rate-limit 429s on startup
+      await new Promise(resolve => setTimeout(resolve, 250));
     }
   }
 

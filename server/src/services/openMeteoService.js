@@ -97,7 +97,11 @@ class OpenMeteoService {
       this.cache.set(cacheKey, { data, timestamp: Date.now() });
       return data;
     } catch (error) {
-      console.warn(`[OpenMeteoService] Warning fetching live Open-Meteo data for (${latNum}, ${lonNum}):`, error.message);
+      if (error.response && error.response.status === 429) {
+        console.warn(`[OpenMeteoService] Rate-limited (HTTP 429) for (${latNum}, ${lonNum}). Sourcing internal telemetry fallback.`);
+      } else {
+        console.warn(`[OpenMeteoService] Warning fetching live Open-Meteo data for (${latNum}, ${lonNum}):`, error.message);
+      }
       if (cached) return cached.data; // Return stale cache if available
       throw error;
     }
