@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const PRODUCTION_BACKEND_URL = 'https://skyguard-aii.onrender.com';
+const PRODUCTION_BACKEND_URL = 'https://skyguard-aip3.onrender.com';
 
 const getApiBase = (): string => {
   const envUrl = import.meta.env.VITE_API_URL;

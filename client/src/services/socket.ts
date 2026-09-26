@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const PRODUCTION_SOCKET_URL = 'https://skyguard-aii.onrender.com';
+const PRODUCTION_SOCKET_URL = 'https://skyguard-aip3.onrender.com';
 
 const getSocketUrl = (): string => {
   const socketUrl = import.meta.env.VITE_SOCKET_URL;
